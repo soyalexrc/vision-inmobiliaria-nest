@@ -1,8 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from "@nestjs/common";
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
 import { CashflowService } from './cashflow.service';
 import { CreateCashflowDto } from './dto/create-cashflow.dto';
 import { UpdateCashflowDto } from './dto/update-cashflow.dto';
-import { ApiTags } from "@nestjs/swagger";
+import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Cash Flow')
 @Controller('cashflow')

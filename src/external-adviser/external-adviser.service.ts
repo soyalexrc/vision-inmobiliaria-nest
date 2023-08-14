@@ -10,14 +10,10 @@ import { UpdateUserDto } from '../user/dto/update-user.dto';
 export class ExternalAdviserService {
   private readonly logger = new Logger();
 
-  constructor(
-    @InjectModel(ExternalAdviser) private adviserModel: typeof ExternalAdviser,
-  ) {}
+  constructor(@InjectModel(ExternalAdviser) private adviserModel: typeof ExternalAdviser) {}
   async create(createExternalAdviserDto: CreateExternalAdviserDto) {
     try {
-      const data = await this.adviserModel.create(
-        createExternalAdviserDto as any,
-      );
+      const data = await this.adviserModel.create(createExternalAdviserDto as any);
       return {
         success: true,
         data,

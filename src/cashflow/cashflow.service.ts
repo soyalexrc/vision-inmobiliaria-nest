@@ -10,10 +10,7 @@ import sequelize from 'sequelize';
 export class CashflowService {
   private readonly logger = new Logger();
 
-  constructor(
-    @InjectModel(CashFlow) private cashFlowModel: typeof CashFlow,
-    @InjectConnection() private sequelize: Sequelize,
-  ) {}
+  constructor(@InjectModel(CashFlow) private cashFlowModel: typeof CashFlow, @InjectConnection() private sequelize: Sequelize) {}
   async create(createCashflowDto: CreateCashflowDto) {
     try {
       const data = await this.cashFlowModel.create(createCashflowDto as any);

@@ -1,13 +1,4 @@
-import {
-  Controller,
-  Post,
-  UseInterceptors,
-  UploadedFile,
-  BadRequestException,
-  Get,
-  Param,
-  Res,
-} from '@nestjs/common';
+import { Controller, Post, UseInterceptors, UploadedFile, BadRequestException, Get, Param, Res } from '@nestjs/common';
 import { FilesService } from './files.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { fileFilter, fileImageFilter } from '../helpers/fileFilter.helper';
@@ -17,15 +8,12 @@ import { Response } from 'express';
 import { join } from 'path';
 import * as mv from 'mv';
 import { ConfigService } from '@nestjs/config';
-import { ApiTags } from "@nestjs/swagger";
+import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Files Management')
 @Controller('files')
 export class FilesController {
-  constructor(
-    private readonly filesService: FilesService,
-    private readonly configService: ConfigService,
-  ) {}
+  constructor(private readonly filesService: FilesService, private readonly configService: ConfigService) {}
 
   @Post('propertyImage/:code')
   @UseInterceptors(
@@ -38,20 +26,13 @@ export class FilesController {
       }),
     }),
   )
-  uploadPropertyImage(
-    @UploadedFile() file: Express.Multer.File,
-    @Param('code') code: string,
-  ) {
+  uploadPropertyImage(@UploadedFile() file: Express.Multer.File, @Param('code') code: string) {
     if (!file) {
       throw new BadRequestException('Asegurese que el archivo es una imagen!');
     }
 
-    const currentPath = join( __dirname, '../../../static/temp/images', file.filename );
-    const destinationPath = join(
-      __dirname,
-      `../../../static/properties/${code}/images`,
-      file.filename,
-    );
+    const currentPath = join(__dirname, '../../../static/temp/images', file.filename);
+    const destinationPath = join(__dirname, `../../../static/properties/${code}/images`, file.filename);
 
     mv(currentPath, destinationPath, (err) => {
       if (err) {
@@ -61,19 +42,13 @@ export class FilesController {
       }
     });
 
-    const secureUrl = `${this.configService.get(
-      'HOST_API',
-    )}/files/properties/${code}/${file.filename}`;
+    const secureUrl = `${this.configService.get('HOST_API')}/files/properties/${code}/${file.filename}`;
 
     return { secureUrl };
   }
 
   @Get('properties/:code/:imageName')
-  getPropertyImage(
-    @Res() res: Response,
-    @Param('imageName') imageName: string,
-    @Param('code') code: string,
-  ) {
+  getPropertyImage(@Res() res: Response, @Param('imageName') imageName: string, @Param('code') code: string) {
     const path = this.filesService.getStaticPropertyImage(code, imageName);
     res.sendFile(path);
   }

@@ -10,15 +10,7 @@ import { PublicationSource } from './entities/publicationSource.entity';
 import { NegotiationInformation } from './entities/negotiationInformation.entity';
 
 @Module({
-  imports: [
-    SequelizeModule.forFeature([
-      Property,
-      GeneralInformation,
-      LocationInformation,
-      PublicationSource,
-      NegotiationInformation,
-    ]),
-  ],
+  imports: [SequelizeModule.forFeature([Property, GeneralInformation, LocationInformation, PublicationSource, NegotiationInformation])],
   controllers: [PropertyController],
   providers: [PropertyService],
 })

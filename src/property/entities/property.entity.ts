@@ -1,14 +1,4 @@
-import {
-  AutoIncrement,
-  Column,
-  DataType,
-  Model,
-  PrimaryKey,
-  Table,
-  HasOne,
-  BelongsTo,
-  ForeignKey,
-} from 'sequelize-typescript';
+import { AutoIncrement, Column, DataType, Model, PrimaryKey, Table, HasOne, BelongsTo, ForeignKey } from 'sequelize-typescript';
 import { GeneralInformation } from './generalInformation.entity';
 import { LocationInformation } from './locationInformation.entity';
 import { NegotiationInformation } from './negotiationInformation.entity';

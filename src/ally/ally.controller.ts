@@ -1,8 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from "@nestjs/common";
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
 import { AllyService } from './ally.service';
 import { CreateAllyDto } from './dto/create-ally.dto';
 import { UpdateAllyDto } from './dto/update-ally.dto';
-import { ApiTags } from "@nestjs/swagger";
+import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Allies')
 @Controller('ally')

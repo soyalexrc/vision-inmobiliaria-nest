@@ -1,8 +1,4 @@
-export const fileImageFilter = (
-  req: Express.Request,
-  file: Express.Multer.File,
-  callback: Function,
-) => {
+export const fileImageFilter = (req: Express.Request, file: Express.Multer.File, callback: Function) => {
   if (!file) return callback(new Error('El archivo esta vacio'), false);
 
   const fileExtension = file.mimetype.split('/')[1];
@@ -15,11 +11,7 @@ export const fileImageFilter = (
   callback(null, false);
 };
 
-export const fileFilter = (
-  req: Express.Request,
-  file: Express.Multer.File,
-  callback: Function,
-) => {
+export const fileFilter = (req: Express.Request, file: Express.Multer.File, callback: Function) => {
   if (!file) return callback(new Error('El archivo esta vacio'), false);
   callback(null, false);
 };
