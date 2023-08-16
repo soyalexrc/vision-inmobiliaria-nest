@@ -1,26 +1,63 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import {Injectable, Logger} from '@nestjs/common';
+import {LoginDto} from "./dto/login.dto";
+import {InjectModel} from "@nestjs/sequelize";
+import {User} from "../user/entities/user.entity";
+import sequelize from "sequelize";
+import * as bcrypt from 'bcrypt';
+import {JwtPayload} from "./interfaces/jwt-payload.interface";
+import {JwtService} from "@nestjs/jwt";
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
+
+  private readonly logger = new Logger();
+
+  constructor(
+      @InjectModel(User) private userModel: typeof User,
+      private readonly jwtService: JwtService,
+  ) {
   }
 
-  findAll() {
-    return `This action returns all auth`;
+  private getJwtToken(payload: JwtPayload) {
+    const token = this.jwtService.sign(payload);
+    return token;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
+  async login(loginDto: LoginDto) {
+   try {
+     const {email, password} = loginDto;
+     const user = await this.userModel.findOne({
+       where: {email: email}
+     })
+     // const user = await this.userModel.sequelize.query(`--
+     // select "userType", email, username from "User" where email = :email
+     // `, {type: sequelize.QueryTypes.SELECT, replacements: {email: email}})
+     if (!user)
+       return {
+         data: {},
+         success: false,
+         message: `Error de credenciales: no se encontro un usuario con el email ${email}`
+       }
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
 
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+     if (!bcrypt.compareSync(password, user.password))
+       return {
+         data: {},
+         success: false,
+         message: `Error de credenciales: contrasenas no coinciden!`
+       }
+
+     return {
+       data: {
+         token: this.getJwtToken({email: user.email}),
+       },
+       success: true,
+       message: ''
+     }
+   } catch (err) {
+     return {
+       message: `Ocurrio un error ${JSON.stringify(err)}`
+     }
+   }
   }
 }

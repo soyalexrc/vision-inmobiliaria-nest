@@ -27,7 +27,6 @@ export class CreateUserDto {
   @IsOptional()
   @ApiProperty({
     description: 'User secondary phone number',
-    nullable: false,
     required: false,
   })
   secondaryPhone: string;
@@ -75,6 +74,7 @@ export class CreateUserDto {
   password: string;
 
   @IsInt()
+  @IsOptional()
   @ApiProperty({
     description: 'User commission percentage',
     nullable: false,

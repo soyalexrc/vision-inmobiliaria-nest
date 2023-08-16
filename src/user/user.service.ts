@@ -3,6 +3,7 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './entities/user.entity';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -12,7 +13,11 @@ export class UserService {
 
   async create(createUserDto: CreateUserDto) {
     try {
-      const data = await this.userModel.create(createUserDto as any);
+      const {password, ...userData} = createUserDto;
+      const data = await this.userModel.create({
+        ...userData,
+        password: bcrypt.hashSync(password, 10),
+      });
       return {
         success: true,
         data,
