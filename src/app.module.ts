@@ -30,6 +30,7 @@ import { ClientModule } from './client/client.module';
     SequelizeModule.forRoot({
       dialect: 'postgres',
       port: 5432,
+      host: '100.42.69.119',
       username: 'postgres',
       password: 'MySecretPassword',
       database: 'visionDEV',
