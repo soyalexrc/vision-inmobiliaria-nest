@@ -1,6 +1,10 @@
-import { IsString } from 'class-validator';
+import { IsInt, IsOptional, IsString } from "class-validator";
 
 export class CreateAllyDto {
+  @IsInt()
+  @IsOptional()
+  id: number;
+
   @IsString()
   firstName: string;
 

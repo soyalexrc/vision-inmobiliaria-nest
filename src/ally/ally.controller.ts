@@ -1,8 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, Res, Query } from "@nestjs/common";
 import { AllyService } from './ally.service';
 import { CreateAllyDto } from './dto/create-ally.dto';
 import { UpdateAllyDto } from './dto/update-ally.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
+import { PaginationDataDto } from "../common/dto/pagination-data.dto";
 
 @ApiTags('Allies')
 @Controller('ally')
@@ -10,27 +12,27 @@ export class AllyController {
   constructor(private readonly allyService: AllyService) {}
 
   @Post()
-  create(@Body() createAllyDto: CreateAllyDto) {
-    return this.allyService.create(createAllyDto);
+  create(@Body() createAllyDto: CreateAllyDto, @Res() res: Response) {
+    return this.allyService.create(createAllyDto, res);
   }
 
   @Get()
-  findAll() {
-    return this.allyService.findAll();
+  findAll(@Res() res: Response, @Query() paginationData: PaginationDataDto) {
+    return this.allyService.findAll(res, paginationData);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.allyService.findOne(+id);
+  findOne(@Param('id') id: string, @Res() res: Response) {
+    return this.allyService.findOne(+id, res);
   }
 
   @Put(':id')
-  update(@Param('id') id: string, @Body() updateAllyDto: UpdateAllyDto) {
-    return this.allyService.update(+id, updateAllyDto);
+  update(@Param('id') id: string, @Body() updateAllyDto: UpdateAllyDto, @Res() res: Response) {
+    return this.allyService.update(+id, updateAllyDto, res);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.allyService.remove(+id);
+  remove(@Param('id') id: string, @Res() res: Response) {
+    return this.allyService.remove(+id, res);
   }
 }
