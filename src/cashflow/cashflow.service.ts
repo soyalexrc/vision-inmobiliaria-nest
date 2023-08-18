@@ -24,12 +24,14 @@ export class CashflowService {
 
   async create(createCashflowDto: CreateCashflowDto, res: Response) {
     try {
+      await this.cashFlowModel.sync({ alter: true });
       const data = await this.cashFlowModel.create(createCashflowDto as any);
       res.status(HttpStatus.OK).send({
         message: 'Se creo el registro con exito!',
         data,
       });
     } catch (err) {
+      this.logger.error(err);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
         message: 'Ocurrio un error ' + JSON.stringify(err),
         error: true,

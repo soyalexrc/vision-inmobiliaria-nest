@@ -12,6 +12,15 @@ export class CreateCashflowDto {
   @IsOptional()
   @Type(() => Number)
   @ApiProperty({
+    description: 'Property id',
+    required: false,
+  })
+  property_id: number;
+
+  @IsInt()
+  @IsOptional()
+  @Type(() => Number)
+  @ApiProperty({
     description: 'Client id',
     required: false,
   })
@@ -29,14 +38,6 @@ export class CreateCashflowDto {
   })
   month: string;
 
-  @IsInt()
-  @IsOptional()
-  @Type(() => Number)
-  @ApiProperty({
-    description: 'Property id',
-    required: false,
-  })
-  property: number;
 
   @IsString()
   @IsOptional()

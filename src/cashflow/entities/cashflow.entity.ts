@@ -1,4 +1,5 @@
-import { AutoIncrement, Column, DataType, Model, PrimaryKey, Table } from 'sequelize-typescript';
+import { AutoIncrement, BelongsTo, Column, DataType, ForeignKey, Model, PrimaryKey, Table } from 'sequelize-typescript';
+import { Property } from '../../property/entities/property.entity';
 
 @Table({ tableName: 'CashFlow' })
 export class CashFlow extends Model {
@@ -9,9 +10,6 @@ export class CashFlow extends Model {
 
   @Column({ type: DataType.STRING })
   client: string;
-
-  @Column({ type: DataType.STRING })
-  property: string;
 
   @Column({ type: DataType.STRING })
   location: string;
@@ -64,7 +62,7 @@ export class CashFlow extends Model {
   @Column({ type: DataType.BOOLEAN, allowNull: true })
   isTemporalTransaction: boolean | null;
 
-  @Column({ type: DataType.INTEGER })
+  @Column({ type: DataType.STRING })
   temporalTransactionId: string;
 
   @Column({ type: DataType.STRING })
@@ -75,4 +73,10 @@ export class CashFlow extends Model {
 
   @Column({ type: DataType.STRING })
   pendingToCollect: string;
+
+  @BelongsTo(() => Property)
+  property: Property;
+
+  @ForeignKey(() => Property)
+  property_id: number;
 }

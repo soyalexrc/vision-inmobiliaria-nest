@@ -1,4 +1,4 @@
-import { IsArray, IsInt, IsObject } from 'class-validator';
+import { IsArray, IsInt, IsObject, IsOptional } from "class-validator";
 
 export class CreatePropertyDto {
   @IsArray()
