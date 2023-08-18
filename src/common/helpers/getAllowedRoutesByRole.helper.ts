@@ -4,7 +4,6 @@ export function getAllowedRoutesByRole(role: string) {
     routes = [
       'inicio',
       'clientes',
-      'propietarios',
       'usuarios',
       'asesores-externos',
       'aliados',

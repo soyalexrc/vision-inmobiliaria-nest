@@ -1,6 +1,10 @@
-import { IsInt, IsString } from 'class-validator';
+import { IsInt, IsOptional, IsString } from "class-validator";
 
 export class CreateExternalAdviserDto {
+  @IsInt()
+  @IsOptional()
+  id: number;
+
   @IsString()
   firstName: string;
 

@@ -1,124 +1,109 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { CreateExternalAdviserDto } from './dto/create-external-adviser.dto';
 import { UpdateExternalAdviserDto } from './dto/update-external-adviser.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { ExternalAdviser } from './entities/external-adviser.entity';
-import { CreateUserDto } from '../user/dto/create-user.dto';
-import { UpdateUserDto } from '../user/dto/update-user.dto';
+import { Response } from 'express';
+import { PaginationDataDto } from '../common/dto/pagination-data.dto';
 
 @Injectable()
 export class ExternalAdviserService {
   private readonly logger = new Logger();
 
   constructor(@InjectModel(ExternalAdviser) private adviserModel: typeof ExternalAdviser) {}
-  async create(createExternalAdviserDto: CreateExternalAdviserDto) {
+  async create(createExternalAdviserDto: CreateExternalAdviserDto, res: Response) {
     try {
       const data = await this.adviserModel.create(createExternalAdviserDto as any);
-      return {
-        success: true,
+      res.status(HttpStatus.OK).send({
+        message: 'Se creo el asesor con exito!',
         data,
-        message: 'Se creo el asesor externo con exito!',
-      };
+      });
     } catch (err) {
-      return {
-        success: false,
-        data: {},
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
         message: 'Ocurrio un error ' + JSON.stringify(err),
-      };
+        error: true,
+      });
     }
   }
 
-  async findAll() {
+  async findAll(paginationData: PaginationDataDto, res: Response) {
+    const { pageSize, pageIndex } = paginationData;
     try {
-      const data = await this.adviserModel.findAll();
-      return {
-        success: true,
-        data,
-        message: '',
-      };
+      const data = await this.adviserModel.findAndCountAll({
+        limit: pageSize,
+        offset: pageIndex * pageSize - pageSize,
+        order: [['id', 'desc']],
+      });
+      res.status(HttpStatus.OK).send(data);
     } catch (err) {
       this.logger.error(err);
-      return {
-        success: false,
-        data: {},
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
         message: 'Ocurrio un error ' + JSON.stringify(err),
-      };
+        error: true,
+      });
     }
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, res: Response) {
     try {
       const data = await this.adviserModel.findOne({ where: { id: id } });
       if (data) {
-        return {
-          success: true,
-          data,
-          message: '',
-        };
+        res.status(HttpStatus.OK).send(data);
       } else {
-        return {
-          data: {},
-          success: false,
+        res.status(HttpStatus.BAD_REQUEST).send({
           message: 'No se encontro el asesor externo con el id ' + id,
-        };
+          error: true,
+        });
       }
     } catch (err) {
-      return {
-        data: {},
-        success: false,
+      res.status(HttpStatus.BAD_REQUEST).send({
         message: 'Ocurrio un error ' + JSON.stringify(err),
-      };
+        error: true,
+      });
     }
   }
 
-  async update(id: number, updateExternalAdviserDto: UpdateExternalAdviserDto) {
+  async update(id: number, updateExternalAdviserDto: UpdateExternalAdviserDto, res: Response) {
     try {
       const userToUpdate = await this.adviserModel.findOne({
         where: { id: id },
       });
       if (!userToUpdate)
-        return {
-          data: {},
-          success: false,
+        res.status(HttpStatus.BAD_REQUEST).send({
           message: 'No se encontro el asesor externo con el id ' + id,
-        };
+          error: true,
+        });
 
       const data = await userToUpdate.update(updateExternalAdviserDto);
-      return {
-        success: true,
-        data,
+      res.status(HttpStatus.OK).send({
         message: 'Se edito el asesor externo con exito!',
-      };
+        data,
+      });
     } catch (err) {
-      return {
-        success: false,
-        data: {},
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
         message: 'Ocurrio un error ' + JSON.stringify(err),
-      };
+        error: true,
+      });
     }
   }
 
-  async remove(id: number) {
+  async remove(id: number, res: Response) {
     try {
       const data = await this.adviserModel.destroy({ where: { id: id } });
       if (data === 0)
-        return {
-          success: false,
-          data: {},
+        res.status(HttpStatus.BAD_REQUEST).send({
           message: 'No se logro eliminar el asesor externo con el id ' + id,
-        };
+          error: true,
+        });
       if (data !== 0)
-        return {
-          success: true,
-          data: {},
+        res.status(HttpStatus.OK).send({
           message: 'Se elimino el asesor externo con exito!',
-        };
+        });
     } catch (err) {
-      return {
-        success: false,
-        data: {},
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
         message: 'Ocurrio un error ' + JSON.stringify(err),
-      };
+        error: true,
+      });
     }
   }
 }

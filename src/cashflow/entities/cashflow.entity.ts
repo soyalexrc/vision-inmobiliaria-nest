@@ -58,8 +58,14 @@ export class CashFlow extends Model {
   @Column({ type: DataType.STRING })
   reason: string;
 
+  @Column({ type: DataType.STRING })
+  createdBy: string;
+
   @Column({ type: DataType.BOOLEAN, allowNull: true })
   isTemporalTransaction: boolean | null;
+
+  @Column({ type: DataType.INTEGER })
+  temporalTransactionId: string;
 
   @Column({ type: DataType.STRING })
   amount: string;

@@ -29,7 +29,7 @@ export class AllyService {
   async findAll(res: Response, paginationData: PaginationDataDto) {
     const { pageIndex, pageSize } = paginationData;
     try {
-      const data = await this.allyModel.findAll({
+      const data = await this.allyModel.findAndCountAll({
         limit: pageSize,
         offset: pageIndex * pageSize - pageSize,
         order: [['id', 'desc']],

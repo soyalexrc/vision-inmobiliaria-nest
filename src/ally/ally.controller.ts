@@ -1,10 +1,10 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, Res, Query } from "@nestjs/common";
+import { Controller, Get, Post, Body, Param, Delete, Put, Res, Query } from '@nestjs/common';
 import { AllyService } from './ally.service';
 import { CreateAllyDto } from './dto/create-ally.dto';
 import { UpdateAllyDto } from './dto/update-ally.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
-import { PaginationDataDto } from "../common/dto/pagination-data.dto";
+import { PaginationDataDto } from '../common/dto/pagination-data.dto';
 
 @ApiTags('Allies')
 @Controller('ally')

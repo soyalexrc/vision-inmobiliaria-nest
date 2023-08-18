@@ -1,9 +1,16 @@
-import { IsString, IsOptional, IsInt, IsBoolean } from 'class-validator';
+import { IsString, IsOptional, IsInt, IsBoolean, IsObject } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from "class-transformer";
 
 export class CreateCashflowDto {
   @IsInt()
   @IsOptional()
+  @Type(() => Number)
+  id: number;
+
+  @IsInt()
+  @IsOptional()
+  @Type(() => Number)
   @ApiProperty({
     description: 'Client id',
     required: false,
@@ -24,6 +31,7 @@ export class CreateCashflowDto {
 
   @IsInt()
   @IsOptional()
+  @Type(() => Number)
   @ApiProperty({
     description: 'Property id',
     required: false,
@@ -157,4 +165,8 @@ export class CreateCashflowDto {
     required: false,
   })
   observation: string;
+
+  @IsOptional()
+  @IsObject()
+  propertyJson: any;
 }
