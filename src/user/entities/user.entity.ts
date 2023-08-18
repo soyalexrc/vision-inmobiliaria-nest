@@ -1,6 +1,5 @@
-import { AutoIncrement, Column, DataType, HasMany, Model, PrimaryKey, Table } from 'sequelize-typescript';
+import { AutoIncrement, Column, DataType, Model, PrimaryKey, Table } from 'sequelize-typescript';
 import { ApiProperty } from '@nestjs/swagger';
-import { Property } from '../../property/entities/property.entity';
 
 @Table({ tableName: 'User' })
 export class User extends Model {
@@ -15,9 +14,6 @@ export class User extends Model {
     uniqueItems: true,
   })
   id: number;
-
-  @HasMany(() => Property)
-  properties: Property[];
 
   @Column({ type: DataType.STRING })
   @ApiProperty({
@@ -109,4 +105,46 @@ export class User extends Model {
     default: '',
   })
   userCommission: string;
+
+  @Column({ type: DataType.BOOLEAN })
+  @ApiProperty({
+    examples: [true, false],
+    example: true,
+    description: 'This handle the user is active or disabled',
+    default: true,
+  })
+  isActive: boolean;
+
+  @Column({ type: DataType.STRING })
+  facebook: string;
+
+  @Column({ type: DataType.STRING })
+  instagram: string;
+
+  @Column({ type: DataType.STRING })
+  twitter: string;
+
+  @Column({ type: DataType.STRING })
+  youtube: string;
+
+  @Column({ type: DataType.STRING })
+  tiktok: string;
+
+  @Column({ type: DataType.STRING })
+  city: string;
+
+  @Column({ type: DataType.STRING })
+  state: string;
+
+  @Column({ type: DataType.TEXT })
+  address: string;
+
+  @Column({ type: DataType.STRING })
+  image: string;
+
+  @Column({ type: DataType.STRING })
+  profession: string;
+
+  @Column({ type: DataType.STRING })
+  company: string;
 }

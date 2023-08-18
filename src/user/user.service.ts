@@ -1,9 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
+import { Response } from 'express';
+import { PaginationDataDto } from '../common/dto/pagination-data.dto';
 
 @Injectable()
 export class UserService {
@@ -11,39 +13,34 @@ export class UserService {
 
   constructor(@InjectModel(User) private userModel: typeof User) {}
 
-  async create(createUserDto: CreateUserDto) {
+  async create(createUserDto: CreateUserDto, res: Response) {
     try {
-      const {password, ...userData} = createUserDto;
+      const { password, ...userData } = createUserDto;
       const data = await this.userModel.create({
         ...userData,
         password: bcrypt.hashSync(password, 10),
       });
-      return {
-        success: true,
+      res.status(HttpStatus.OK).send({
         data,
         message: 'Se creo el usuario con exito!',
-      };
-    } catch (err) {
-      return {
-        success: false,
-        data: {},
-        message: 'Ocurrio un error ' + JSON.stringify(err),
-      };
-    }
-  }
-
-  async findAll() {
-    try {
-      // TODO Implementar paginacion en demas modulos
-      const data = await this.userModel.findAndCountAll({
-        limit: 5,
-        offset: 0,
       });
-      return {
-        success: true,
-        data,
-        message: '',
-      };
+    } catch (err) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: 'Ocurrio un error ' + JSON.stringify(err),
+      });
+    }
+  }
+
+  async findAll(res: Response, paginationData: PaginationDataDto) {
+    const { pageSize, pageIndex } = paginationData;
+    try {
+      const data = await this.userModel.findAndCountAll({
+        limit: pageSize,
+        offset: pageIndex * pageSize - pageSize,
+        order: [['id', 'desc']],
+      });
+      res.status(HttpStatus.OK).send(data);
     } catch (err) {
       return {
         success: false,
@@ -53,77 +50,66 @@ export class UserService {
     }
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, res: Response) {
     try {
       const data = await this.userModel.findOne({ where: { id: id } });
       if (data) {
-        return {
-          success: true,
-          data,
-          message: '',
-        };
+        res.status(HttpStatus.OK).send(data);
       } else {
-        return {
-          data: {},
-          success: false,
+        res.status(HttpStatus.BAD_REQUEST).send({
+          error: true,
           message: 'No se encontro el usuario con el id ' + id,
-        };
+        });
       }
     } catch (err) {
-      return {
-        data: {},
-        success: false,
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
         message: 'Ocurrio un error ' + JSON.stringify(err),
-      };
+      });
     }
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto) {
+  async update(id: number, updateUserDto: UpdateUserDto, res: Response) {
     try {
       const userToUpdate = await this.userModel.findOne({ where: { id: id } });
       if (!userToUpdate)
-        return {
-          data: {},
-          success: false,
+        res.status(HttpStatus.BAD_REQUEST).send({
+          error: true,
           message: 'No se encontro el usuario con el id ' + id,
-        };
+        });
 
-      const data = await userToUpdate.update(updateUserDto);
-      return {
-        success: true,
-        data,
-        message: 'Se edito el usuario con exito!',
-      };
+      const data = await userToUpdate.update({
+        ...updateUserDto,
+        password: bcrypt.compareSync(userToUpdate.password, updateUserDto.password)
+          ? updateUserDto.password
+          : bcrypt.hashSync(updateUserDto.password, 10),
+      });
+      res.status(HttpStatus.OK).send({ data, message: 'Se edito el usuario con extito!' });
     } catch (err) {
-      return {
-        success: false,
-        data: {},
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
         message: 'Ocurrio un error ' + JSON.stringify(err),
-      };
+      });
     }
   }
 
-  async remove(id: number) {
+  async remove(id: number, res: Response) {
     try {
       const data = await this.userModel.destroy({ where: { id: id } });
       if (data === 0)
-        return {
-          success: false,
-          data: {},
+        res.status(HttpStatus.BAD_REQUEST).send({
+          error: true,
           message: 'No se logro eliminar el usuario con el id ' + id,
-        };
+        });
       if (data !== 0)
-        return {
-          success: true,
-          data: {},
+        res.status(HttpStatus.OK).send({
           message: 'Se elimino el usuario con exito!',
-        };
+        });
     } catch (err) {
-      return {
-        success: false,
-        data: {},
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
         message: 'Ocurrio un error ' + JSON.stringify(err),
-      };
+        error: true,
+      });
     }
   }
 }

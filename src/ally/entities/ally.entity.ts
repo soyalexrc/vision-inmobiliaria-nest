@@ -1,5 +1,4 @@
-import { AutoIncrement, Column, DataType, HasMany, Model, PrimaryKey, Table } from 'sequelize-typescript';
-import { Property } from '../../property/entities/property.entity';
+import { AutoIncrement, Column, DataType, Model, PrimaryKey, Table } from 'sequelize-typescript';
 
 @Table({ tableName: 'Ally' })
 export class Ally extends Model {
@@ -7,9 +6,6 @@ export class Ally extends Model {
   @AutoIncrement
   @Column({ type: DataType.INTEGER })
   id: number;
-
-  @HasMany(() => Property)
-  properties: Property[];
 
   @Column({ type: DataType.STRING })
   firstName: string;

@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { AuthModule } from './auth/auth.module';
 import { CashflowModule } from './cashflow/cashflow.module';
@@ -25,31 +25,34 @@ import { ClientModule } from './client/client.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: '.env',
+      envFilePath: '.env.local',
     }),
-    SequelizeModule.forRoot({
-      dialect: 'postgres',
-      port: 5432,
-      host: '100.42.69.119',
-      username: 'postgres',
-      password: 'MySecretPassword',
-      database: 'visionDEV',
-      sync: {
-        alter: true,
+    SequelizeModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        return {
+          dialect: 'postgres',
+          port: configService.get<number>('DB_PORT'),
+          host: configService.get<string>('DB_HOST'),
+          username: configService.get<string>('DB_USERNAME'),
+          password: configService.get<string>('DB_PASSWORD'),
+          database: configService.get<string>('DB_NAME'),
+          models: [
+            Client,
+            Ally,
+            User,
+            CashFlow,
+            ExternalAdviser,
+            Property,
+            GeneralInformation,
+            LocationInformation,
+            NegotiationInformation,
+            PublicationSource,
+            Attribute,
+          ],
+        };
       },
-      models: [
-        Client,
-        Ally,
-        User,
-        CashFlow,
-        ExternalAdviser,
-        Property,
-        GeneralInformation,
-        LocationInformation,
-        NegotiationInformation,
-        PublicationSource,
-        Attribute,
-      ],
     }),
     AuthModule,
     CashflowModule,

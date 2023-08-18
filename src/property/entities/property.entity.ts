@@ -3,8 +3,6 @@ import { GeneralInformation } from './generalInformation.entity';
 import { LocationInformation } from './locationInformation.entity';
 import { NegotiationInformation } from './negotiationInformation.entity';
 import { PublicationSource } from './publicationSource.entity';
-import { User } from '../../user/entities/user.entity';
-import { Ally } from '../../ally/entities/ally.entity';
 import { Client } from '../../client/entities/client.entity';
 
 @Table({ tableName: 'Property' })
@@ -26,19 +24,11 @@ export class Property extends Model {
   @HasOne(() => PublicationSource)
   publicationSource: PublicationSource;
 
-  @ForeignKey(() => User)
   @Column({ type: DataType.INTEGER })
   user_id: number;
 
-  @BelongsTo(() => User)
-  user: User;
-
-  @ForeignKey(() => Ally)
   @Column({ type: DataType.INTEGER })
-  ally_id: Ally;
-
-  @BelongsTo(() => Ally)
-  ally: Ally;
+  ally_id: number;
 
   @ForeignKey(() => Client)
   @Column({ type: DataType.INTEGER })

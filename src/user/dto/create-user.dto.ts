@@ -1,7 +1,11 @@
-import { IsDate, IsString, IsInt, IsOptional } from 'class-validator';
+import { IsString, IsInt, IsOptional, IsBoolean } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateUserDto {
+  @IsInt()
+  @IsOptional()
+  id: number;
+
   @IsString()
   @ApiProperty({
     description: 'User first name',
@@ -80,4 +84,43 @@ export class CreateUserDto {
     nullable: false,
   })
   userCommission: number;
+
+  @IsBoolean()
+  @ApiProperty({
+    description: 'User active',
+  })
+  isActive: boolean;
+
+  @IsString()
+  facebook: string;
+
+  @IsString()
+  instagram: string;
+
+  @IsString()
+  twitter: string;
+
+  @IsString()
+  youtube: string;
+
+  @IsString()
+  address: string;
+
+  @IsString()
+  city: string;
+
+  @IsString()
+  state: string;
+
+  @IsString()
+  tiktok: string;
+
+  @IsString()
+  profession: string;
+
+  @IsString()
+  image: string;
+
+  @IsString()
+  company: string;
 }
