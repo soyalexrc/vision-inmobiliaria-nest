@@ -6,6 +6,7 @@ import { User } from './entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { Response } from 'express';
 import { PaginationDataDto } from '../common/dto/pagination-data.dto';
+import {ChangeStatusDto} from "./dto/change-status.dto";
 
 @Injectable()
 export class UserService {
@@ -89,6 +90,35 @@ export class UserService {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
         error: true,
         message: 'Ocurrio un error ' + JSON.stringify(err),
+      });
+    }
+  }
+
+  async changeStatus(changeStatusDto: ChangeStatusDto, res: Response) {
+    try {
+      const user = await this.userModel.findOne({where: {id: changeStatusDto.id}});
+
+      if (!user)
+        res.status(HttpStatus.BAD_REQUEST).send({
+          error: true,
+          message: 'No se encontro el usuario con el id ' + changeStatusDto.id,
+        });
+
+      const data = await this.userModel.update({
+           isActive: changeStatusDto.value},
+          {where: {id: changeStatusDto.id}
+        }
+      )
+
+      res.status(HttpStatus.OK).send({
+        data: user,
+        message: 'Se cambio el estatus del usuario con exito!'
+      })
+    } catch (err) {
+      this.logger.error(err);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        message: 'Ocurrio un error ' + JSON.stringify(err),
+        error: true,
       });
     }
   }

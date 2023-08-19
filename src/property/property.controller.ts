@@ -3,6 +3,8 @@ import { PropertyService } from './property.service';
 import { CreatePropertyDto } from './dto/create-property.dto';
 import { UpdatePropertyDto } from './dto/update-property.dto';
 import { ApiTags } from '@nestjs/swagger';
+import {Auth} from "../auth/decorators/auth.decorator";
+import {Roles} from "../auth/interfaces/roles.enum";
 
 @ApiTags('Properties')
 @Controller('property')
@@ -10,6 +12,7 @@ export class PropertyController {
   constructor(private readonly propertiesService: PropertyService) {}
 
   @Post()
+  @Auth(Roles.admin, Roles.visionAdviser)
   create(@Body() createPropertyDto: CreatePropertyDto) {
     return this.propertiesService.create(createPropertyDto);
   }
@@ -50,11 +53,13 @@ export class PropertyController {
   }
 
   @Put(':id')
+  @Auth(Roles.admin, Roles.visionAdviser)
   update(@Param('id') id: string, @Body() updatePropertyDto: UpdatePropertyDto) {
     return this.propertiesService.update(+id, updatePropertyDto);
   }
 
   @Delete(':id')
+  @Auth(Roles.admin)
   remove(@Param('id') id: string) {
     return this.propertiesService.remove(+id);
   }

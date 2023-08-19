@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, Res, Query } from '@nestjs/common';
+import {Controller, Get, Post, Body, Param, Delete, Put, Res, Query, Patch} from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -6,6 +6,9 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from './entities/user.entity';
 import { Response } from 'express';
 import { PaginationDataDto } from '../common/dto/pagination-data.dto';
+import {ChangeStatusDto} from "./dto/change-status.dto";
+import {Roles} from "../auth/interfaces/roles.enum";
+import {Auth} from "../auth/decorators/auth.decorator";
 
 @ApiTags('User')
 @Controller('user')
@@ -13,6 +16,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post()
+  @Auth(Roles.admin)
   @ApiResponse({
     status: 201,
     description: 'User created',
@@ -20,6 +24,16 @@ export class UserController {
   })
   create(@Body() createUserDto: CreateUserDto, @Res() res: Response) {
     return this.userService.create(createUserDto, res);
+  }
+
+  @Patch('changeStatus')
+  @Auth(Roles.admin)
+  @ApiResponse({
+    status: 201,
+    description: 'User status changed',
+  })
+  changeStatus(@Body() changeStatusDto: ChangeStatusDto, @Res() res: Response) {
+    return this.userService.changeStatus(changeStatusDto, res);
   }
 
   @Get()
@@ -33,6 +47,7 @@ export class UserController {
   }
 
   @Get(':id')
+  @Auth(Roles.admin)
   @ApiResponse({
     status: 200,
     description: 'Get one user',
@@ -43,6 +58,7 @@ export class UserController {
   }
 
   @Put(':id')
+  @Auth(Roles.admin)
   @ApiResponse({
     status: 200,
     description: 'User edited',
@@ -53,6 +69,7 @@ export class UserController {
   }
 
   @Delete(':id')
+  @Auth(Roles.admin)
   @ApiResponse({
     status: 200,
     description: 'User deleted',

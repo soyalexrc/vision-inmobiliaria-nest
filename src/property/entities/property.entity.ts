@@ -16,6 +16,7 @@ import { NegotiationInformation } from './negotiationInformation.entity';
 import { PublicationSource } from './publicationSource.entity';
 import { Client } from '../../client/entities/client.entity';
 import { CashFlow } from "../../cashflow/entities/cashflow.entity";
+import {User} from "../../user/entities/user.entity";
 
 @Table({ tableName: 'Property' })
 export class Property extends Model {
@@ -36,7 +37,11 @@ export class Property extends Model {
   @HasOne(() => PublicationSource)
   publicationSource: PublicationSource;
 
-  @Column({ type: DataType.INTEGER })
+  @BelongsTo(() => User)
+  user: User;
+
+  @ForeignKey(() => User)
+  @Column({  type: DataType.INTEGER })
   user_id: number;
 
   @Column({ type: DataType.INTEGER })

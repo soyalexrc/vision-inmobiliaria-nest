@@ -9,6 +9,7 @@ import { NegotiationInformation } from './entities/negotiationInformation.entity
 import { PublicationSource } from './entities/publicationSource.entity';
 import sequelize from 'sequelize';
 import { CashFlow } from "../cashflow/entities/cashflow.entity";
+import {User} from "../user/entities/user.entity";
 
 @Injectable()
 export class PropertyService {
@@ -50,14 +51,6 @@ export class PropertyService {
         property_id: property.id,
       });
 
-      console.log({
-        property,
-        generalInformation,
-        locationInformation,
-        negotiationInformation,
-        publicationSource,
-      });
-
       return {
         success: true,
         data: property,
@@ -76,7 +69,7 @@ export class PropertyService {
   async findAll() {
     try {
       const data = await this.propertyModel.findAll({
-        include: [GeneralInformation, LocationInformation, NegotiationInformation, PublicationSource, CashFlow],
+        include: [GeneralInformation, LocationInformation, NegotiationInformation, PublicationSource],
       });
       return {
         data,

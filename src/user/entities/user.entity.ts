@@ -1,5 +1,7 @@
-import { AutoIncrement, Column, DataType, Model, PrimaryKey, Table } from 'sequelize-typescript';
+import {AutoIncrement, Column, DataType, HasMany, Model, PrimaryKey, Table} from 'sequelize-typescript';
 import { ApiProperty } from '@nestjs/swagger';
+import {CashFlow} from "../../cashflow/entities/cashflow.entity";
+import {Property} from "../../property/entities/property.entity";
 
 @Table({ tableName: 'User' })
 export class User extends Model {
@@ -147,4 +149,10 @@ export class User extends Model {
 
   @Column({ type: DataType.STRING })
   company: string;
+
+  @HasMany(() => CashFlow)
+  cashflows: CashFlow[]
+
+  @HasMany(() => Property)
+  properties: Property[]
 }

@@ -16,13 +16,12 @@ export class UserRoleGuard implements CanActivate {
 
     const req = context.switchToHttp().getRequest();
     const user = req.user as User;
-    console.log(user);
 
     if (!user) throw new BadRequestException('User not found');
     if (!user.isActive)
       throw new ForbiddenException({
-        message: 'Este usuario se encuentra deshabilitado, por favor comuniquese con el administrador.',
-        success: false,
+        title: `Este usuario se encuentra deshabilitado`,
+        message: `Por favor comuniquese con el administrador para poder ingresar de nuevo.`,
         error: true,
       });
 

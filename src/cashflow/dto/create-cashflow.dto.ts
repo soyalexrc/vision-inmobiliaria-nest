@@ -21,10 +21,19 @@ export class CreateCashflowDto {
   @IsOptional()
   @Type(() => Number)
   @ApiProperty({
-    description: 'Client id',
+    description: 'Client asociated id',
     required: false,
   })
-  client: number;
+  client_id: number;
+
+  @IsInt()
+  @IsOptional()
+  @Type(() => Number)
+  @ApiProperty({
+    description: 'User asociated id',
+    required: false,
+  })
+  user_id: number;
 
   @IsString()
   @ApiProperty({

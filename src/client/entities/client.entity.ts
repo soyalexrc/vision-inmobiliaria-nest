@@ -1,5 +1,6 @@
 import { AutoIncrement, Column, DataType, HasMany, Model, PrimaryKey, Table } from 'sequelize-typescript';
 import { Property } from '../../property/entities/property.entity';
+import {CashFlow} from "../../cashflow/entities/cashflow.entity";
 
 @Table({ tableName: 'Client' })
 export class Client extends Model {
@@ -28,4 +29,7 @@ export class Client extends Model {
 
   @Column({ type: DataType.BOOLEAN })
   isInvestor: boolean;
+
+  @HasMany(() => CashFlow)
+  cashflows: CashFlow[]
 }
