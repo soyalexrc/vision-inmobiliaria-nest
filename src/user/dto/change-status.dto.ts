@@ -1,9 +1,9 @@
-import {IsBoolean, IsInt} from "class-validator";
+import { IsBoolean, IsInt } from 'class-validator';
 
 export class ChangeStatusDto {
-    @IsInt()
-    id: number;
+  @IsInt()
+  id: number;
 
-    @IsBoolean()
-    value: boolean;
+  @IsBoolean()
+  value: boolean;
 }

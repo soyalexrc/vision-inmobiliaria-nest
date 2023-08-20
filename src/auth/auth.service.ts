@@ -6,7 +6,7 @@ import * as bcrypt from 'bcrypt';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
-import { getAllowedRoutesByRole } from "../common/helpers/getAllowedRoutesByRole.helper";
+import { getAllowedRoutesByRole } from '../common/helpers/getAllowedRoutesByRole.helper';
 
 @Injectable()
 export class AuthService {
@@ -58,9 +58,6 @@ export class AuthService {
           },
         });
       }
-
-
-
     } catch (err) {
       return {
         message: `Ocurrio un error ${JSON.stringify(err)}`,

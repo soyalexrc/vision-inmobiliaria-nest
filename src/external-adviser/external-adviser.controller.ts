@@ -5,8 +5,8 @@ import { UpdateExternalAdviserDto } from './dto/update-external-adviser.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { PaginationDataDto } from '../common/dto/pagination-data.dto';
-import {Auth} from "../auth/decorators/auth.decorator";
-import {Roles} from "../auth/interfaces/roles.enum";
+import { Auth } from '../auth/decorators/auth.decorator';
+import { Roles } from '../auth/interfaces/roles.enum';
 
 @ApiTags('External Adviser')
 @Controller('external-adviser')

@@ -1,17 +1,7 @@
-import {
-  AutoIncrement,
-  BelongsTo,
-  Column,
-  DataType,
-  ForeignKey,
-  HasMany, HasOne,
-  Model,
-  PrimaryKey,
-  Table
-} from 'sequelize-typescript';
+import { AutoIncrement, BelongsTo, Column, DataType, ForeignKey, HasMany, HasOne, Model, PrimaryKey, Table } from 'sequelize-typescript';
 import { Property } from '../../property/entities/property.entity';
-import {Client} from "../../client/entities/client.entity";
-import {User} from "../../user/entities/user.entity";
+import { Client } from '../../client/entities/client.entity';
+import { User } from '../../user/entities/user.entity';
 
 @Table({ tableName: 'CashFlow' })
 export class CashFlow extends Model {
@@ -20,12 +10,13 @@ export class CashFlow extends Model {
   @Column({ type: DataType.INTEGER })
   id: number;
 
-
   @ForeignKey(() => Client)
+  @Column({ type: DataType.INTEGER })
   client_id: number;
 
   @ForeignKey(() => User)
-  user_id: number
+  @Column({ type: DataType.INTEGER })
+  user_id: number;
 
   @BelongsTo(() => Client)
   client: Client;

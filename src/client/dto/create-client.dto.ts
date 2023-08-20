@@ -1,25 +1,115 @@
-import {IsBoolean, IsInt, IsOptional, IsString} from 'class-validator';
+import { IsArray, IsBoolean, IsDate, IsInt, IsOptional, IsString } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class CreateClientDto {
   @IsInt()
   @IsOptional()
   property_id: number;
 
-  @IsString()
-  firstName: string;
+  @IsInt()
+  @IsOptional()
+  id: number;
 
   @IsString()
-  lastName: string;
+  contactFrom: string;
+
+  @IsInt()
+  user_id: number;
 
   @IsString()
-  email: string;
+  name: string;
+
+  @IsBoolean()
+  requirementStatus: boolean;
 
   @IsString()
-  birthdate: string;
+  operationType: string;
 
   @IsString()
   phone: string;
 
+  @IsString()
+  @IsOptional()
+  typeOfCapture: string;
+
+  @IsString()
+  @IsOptional()
+  propertyLocation: string;
+
+  @IsString()
+  aspiredPrice: string;
+
+  @IsString()
+  @IsOptional()
+  typeOfBusiness: string;
+
+  @IsString()
+  note: string;
+
+  @IsString()
+  propertyOfInterest: string;
+
   @IsBoolean()
-  isInvestor: boolean;
+  @IsOptional()
+  isPotentialInvestor: boolean;
+
+  @IsArray()
+  @IsOptional()
+  zonesOfInterest: string[];
+
+  @IsArray()
+  @IsOptional()
+  essentialFeatures: string[];
+
+  @IsInt()
+  @IsOptional()
+  @Type(() => Number)
+  amountOfPeople: number;
+
+  @IsInt()
+  @IsOptional()
+  @Type(() => Number)
+  amountOfPets: number;
+
+  @IsInt()
+  @IsOptional()
+  @Type(() => Number)
+  amountOfYounger: number;
+
+  @IsInt()
+  @IsOptional()
+  @Type(() => Number)
+  amountOfNights: number;
+
+  @IsDate()
+  @IsOptional()
+  arrivingDate: Date;
+
+  @IsDate()
+  @IsOptional()
+  checkoutDate: Date;
+
+  @IsString()
+  @IsOptional()
+  reasonOfStay: string;
+
+  @IsString()
+  @IsOptional()
+  usageOfProperty: string;
+
+  @IsString()
+  @IsOptional()
+  typeOfPerson: string;
+
+  @IsString()
+  @IsOptional()
+  personEntry: string;
+
+  @IsString()
+  @IsOptional()
+  personHeadquarters: string;
+
+  @IsString()
+  @IsOptional()
+  personLocation: string;
 }

@@ -8,9 +8,9 @@ import { LocationInformation } from './entities/locationInformation.entity';
 import { NegotiationInformation } from './entities/negotiationInformation.entity';
 import { PublicationSource } from './entities/publicationSource.entity';
 import sequelize from 'sequelize';
-import { CashFlow } from "../cashflow/entities/cashflow.entity";
-import {User} from "../user/entities/user.entity";
-import {Client} from "../client/entities/client.entity";
+import { CashFlow } from '../cashflow/entities/cashflow.entity';
+import { User } from '../user/entities/user.entity';
+import { Client } from '../client/entities/client.entity';
 
 @Injectable()
 export class PropertyService {

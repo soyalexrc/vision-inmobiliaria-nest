@@ -1,23 +1,12 @@
-import {
-  AutoIncrement,
-  Column,
-  DataType,
-  Model,
-  PrimaryKey,
-  Table,
-  HasOne,
-  BelongsTo,
-  ForeignKey,
-  HasMany
-} from "sequelize-typescript";
+import { AutoIncrement, Column, DataType, Model, PrimaryKey, Table, HasOne, BelongsTo, ForeignKey, HasMany } from 'sequelize-typescript';
 import { GeneralInformation } from './generalInformation.entity';
 import { LocationInformation } from './locationInformation.entity';
 import { NegotiationInformation } from './negotiationInformation.entity';
 import { PublicationSource } from './publicationSource.entity';
 import { Client } from '../../client/entities/client.entity';
-import { CashFlow } from "../../cashflow/entities/cashflow.entity";
-import {User} from "../../user/entities/user.entity";
-import {Owner} from "../../owner/entities/owner.entity";
+import { CashFlow } from '../../cashflow/entities/cashflow.entity';
+import { User } from '../../user/entities/user.entity';
+import { Owner } from '../../owner/entities/owner.entity';
 
 @Table({ tableName: 'Property' })
 export class Property extends Model {
@@ -42,7 +31,7 @@ export class Property extends Model {
   user: User;
 
   @ForeignKey(() => User)
-  @Column({  type: DataType.INTEGER })
+  @Column({ type: DataType.INTEGER })
   user_id: number;
 
   @Column({ type: DataType.INTEGER })
@@ -56,7 +45,7 @@ export class Property extends Model {
   owner: Owner;
 
   @HasOne(() => Client)
-  client: Client
+  client: Client;
 
   @Column({ type: DataType.ARRAY(DataType.STRING) })
   files: string[];
@@ -72,5 +61,4 @@ export class Property extends Model {
 
   @HasMany(() => CashFlow)
   cashflows: CashFlow[];
-
 }
