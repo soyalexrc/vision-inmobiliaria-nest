@@ -21,6 +21,8 @@ import { LocationInformation } from './property/entities/locationInformation.ent
 import { NegotiationInformation } from './property/entities/negotiationInformation.entity';
 import { PublicationSource } from './property/entities/publicationSource.entity';
 import { ClientModule } from './client/client.module';
+import { OwnerModule } from './owner/owner.module';
+import {Owner} from "./owner/entities/owner.entity";
 
 @Module({
   imports: [
@@ -50,6 +52,7 @@ import { ClientModule } from './client/client.module';
             NegotiationInformation,
             PublicationSource,
             Attribute,
+            Owner,
           ],
         };
       },
@@ -63,6 +66,7 @@ import { ClientModule } from './client/client.module';
     CommonModule,
     PropertyModule,
     ClientModule,
+    OwnerModule,
   ],
 })
 export class AppModule {}

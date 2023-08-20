@@ -17,6 +17,7 @@ import { PublicationSource } from './publicationSource.entity';
 import { Client } from '../../client/entities/client.entity';
 import { CashFlow } from "../../cashflow/entities/cashflow.entity";
 import {User} from "../../user/entities/user.entity";
+import {Owner} from "../../owner/entities/owner.entity";
 
 @Table({ tableName: 'Property' })
 export class Property extends Model {
@@ -47,12 +48,15 @@ export class Property extends Model {
   @Column({ type: DataType.INTEGER })
   ally_id: number;
 
-  @ForeignKey(() => Client)
+  @ForeignKey(() => Owner)
   @Column({ type: DataType.INTEGER })
-  client_id: number;
+  owner_id: number;
 
-  @BelongsTo(() => Client)
-  client: Client;
+  @BelongsTo(() => Owner)
+  owner: Owner;
+
+  @HasOne(() => Client)
+  client: Client
 
   @Column({ type: DataType.ARRAY(DataType.STRING) })
   files: string[];

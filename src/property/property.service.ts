@@ -10,6 +10,7 @@ import { PublicationSource } from './entities/publicationSource.entity';
 import sequelize from 'sequelize';
 import { CashFlow } from "../cashflow/entities/cashflow.entity";
 import {User} from "../user/entities/user.entity";
+import {Client} from "../client/entities/client.entity";
 
 @Injectable()
 export class PropertyService {
@@ -181,7 +182,7 @@ export class PropertyService {
     try {
       const data = await this.propertyModel.findOne({
         where: { id: id },
-        include: [GeneralInformation, LocationInformation, NegotiationInformation, PublicationSource],
+        include: [GeneralInformation, LocationInformation, NegotiationInformation, PublicationSource, Client],
       });
       if (data) {
         return {

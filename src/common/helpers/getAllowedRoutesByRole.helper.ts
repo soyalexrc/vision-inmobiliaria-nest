@@ -19,7 +19,7 @@ export function getAllowedRoutesByRole(role: string) {
   }
 
   if (role === 'Coordinador de servicios') {
-    routes = ['inicio', 'propiedades', 'flujo-de-caja', 'clientes', 'calculo-de-comisiones'];
+    routes = ['inicio', 'propiedades', 'flujo-de-caja', 'clientes', 'Propietarios', 'calculo-de-comisiones'];
   }
 
   return routes;

@@ -1,6 +1,10 @@
-import { IsBoolean, IsString } from 'class-validator';
+import {IsBoolean, IsInt, IsOptional, IsString} from 'class-validator';
 
 export class CreateClientDto {
+  @IsInt()
+  @IsOptional()
+  property_id: number;
+
   @IsString()
   firstName: string;
 
