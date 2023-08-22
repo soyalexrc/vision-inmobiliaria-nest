@@ -47,6 +47,25 @@ export class ClientService {
     }
   }
 
+  async getPreviews(paginationData: PaginationDataDto, res: Response) {
+    const { pageIndex, pageSize } = paginationData;
+    try {
+      const data = await this.clientModel.findAndCountAll({
+        attributes: ['id', 'createdAt', 'name', 'requirementStatus', 'phone', 'contactFrom', 'operationType'],
+        limit: pageSize,
+        offset: pageIndex * pageSize - pageSize,
+        order: [['id', 'desc']],
+      });
+      res.status(HttpStatus.OK).send(data);
+    } catch (err) {
+      this.logger.error(err);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: `Ocurrio un error, ${JSON.stringify(err)}`,
+      });
+    }
+  }
+
   async findOne(id: number, res: Response) {
     try {
       const data = await this.clientModel.findOne({ where: { id: id } });

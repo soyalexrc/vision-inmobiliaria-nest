@@ -19,6 +19,11 @@ export class ClientController {
     return this.clientService.findAll(paginationData, res);
   }
 
+  @Get('getPreviews')
+  getPreviews(@Query() paginationData: PaginationDataDto, @Res() res: Response) {
+    return this.clientService.getPreviews(paginationData, res);
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string, @Res() res: Response) {
     return this.clientService.findOne(+id, res);
