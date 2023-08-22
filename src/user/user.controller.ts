@@ -1,4 +1,4 @@
-import {Controller, Get, Post, Body, Param, Delete, Put, Res, Query, Patch} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, Res, Query, Patch } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -6,9 +6,9 @@ import { ApiResponse, ApiTags } from '@nestjs/swagger';
 import { User } from './entities/user.entity';
 import { Response } from 'express';
 import { PaginationDataDto } from '../common/dto/pagination-data.dto';
-import {ChangeStatusDto} from "./dto/change-status.dto";
-import {Roles} from "../auth/interfaces/roles.enum";
-import {Auth} from "../auth/decorators/auth.decorator";
+import { ChangeStatusDto } from './dto/change-status.dto';
+import { Roles } from '../auth/interfaces/roles.enum';
+import { Auth } from '../auth/decorators/auth.decorator';
 
 @ApiTags('User')
 @Controller('user')
@@ -53,7 +53,7 @@ export class UserController {
     description: 'Get one user',
     type: User,
   })
-  findOne(@Param('id') id: string, @Res() res: Response,) {
+  findOne(@Param('id') id: string, @Res() res: Response) {
     return this.userService.findOne(+id, res);
   }
 

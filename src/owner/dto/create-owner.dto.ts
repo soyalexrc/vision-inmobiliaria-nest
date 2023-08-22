@@ -1,21 +1,25 @@
-import {IsBoolean, IsString} from "class-validator";
+import { IsBoolean, IsInt, IsOptional, IsString } from 'class-validator';
 
 export class CreateOwnerDto {
-    @IsString()
-    firstName: string;
+  @IsInt()
+  @IsOptional()
+  id: number;
 
-    @IsString()
-    lastName: string;
+  @IsString()
+  firstName: string;
 
-    @IsString()
-    email: string;
+  @IsString()
+  lastName: string;
 
-    @IsString()
-    birthdate: string;
+  @IsString()
+  email: string;
 
-    @IsString()
-    phone: string;
+  @IsString()
+  birthdate: string;
 
-    @IsBoolean()
-    isInvestor: boolean;
+  @IsString()
+  phone: string;
+
+  @IsBoolean()
+  isInvestor: boolean;
 }

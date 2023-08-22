@@ -1,5 +1,5 @@
-import { IsArray, IsInt, IsObject, IsOptional } from "class-validator";
-import {IsNull} from "sequelize-typescript";
+import { IsArray, IsInt, IsObject, IsOptional } from 'class-validator';
+import { IsNull } from 'sequelize-typescript';
 
 export class CreatePropertyDto {
   @IsArray()
@@ -12,12 +12,14 @@ export class CreatePropertyDto {
   attributes: Array<any>;
 
   @IsInt()
+  @IsOptional()
   client_id: number;
 
   @IsInt()
   owner_id: number;
 
   @IsInt()
+  @IsOptional()
   ally_id: number;
 
   @IsInt()

@@ -1,39 +1,34 @@
-import {HttpStatus, Injectable, Logger} from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { CreateOwnerDto } from './dto/create-owner.dto';
 import { UpdateOwnerDto } from './dto/update-owner.dto';
-import {InjectModel} from "@nestjs/sequelize";
-import {Owner} from "./entities/owner.entity";
-import {Response} from "express";
-import {PaginationDataDto} from "../common/dto/pagination-data.dto";
-import {Property} from "../property/entities/property.entity";
+import { InjectModel } from '@nestjs/sequelize';
+import { Owner } from './entities/owner.entity';
+import { Response } from 'express';
+import { PaginationDataDto } from '../common/dto/pagination-data.dto';
+import { Property } from '../property/entities/property.entity';
 @Injectable()
 export class OwnerService {
+  private readonly logger = new Logger();
 
-  private readonly logger= new Logger();
-
-  constructor(
-      @InjectModel(Owner) private ownerModel: typeof Owner
-  ) {
-  }
+  constructor(@InjectModel(Owner) private ownerModel: typeof Owner) {}
   async create(createOwnerDto: CreateOwnerDto, res: Response) {
     try {
-      await this.ownerModel.sync({alter: true})
       const data = await this.ownerModel.create(createOwnerDto as any);
       res.status(HttpStatus.OK).send({
         data,
         message: 'Se creo el propietario con exito!',
       });
     } catch (err) {
-      this.logger.error(err)
+      this.logger.error(err);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
         error: true,
         message: `Ocurrio un error ${JSON.stringify(err)}`,
-      })
+      });
     }
   }
 
   async findAll(paginationData: PaginationDataDto, res: Response) {
-    console.log(paginationData)
+    console.log(paginationData);
     const { pageSize, pageIndex } = paginationData;
     try {
       const data = await this.ownerModel.findAndCountAll({
@@ -48,7 +43,7 @@ export class OwnerService {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
         error: true,
         message: `Ocurrio un error ${JSON.stringify(err)}`,
-      })
+      });
     }
   }
 
@@ -88,7 +83,6 @@ export class OwnerService {
       });
     }
   }
-
 
   async remove(id: number, res: Response) {
     try {

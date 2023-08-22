@@ -1,9 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from "@nestjs/common";
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { Client } from './entities/client.entity';
 import { UpdateAllyDto } from '../ally/dto/update-ally.dto';
+import { Response } from "express";
+import { PaginationDataDto } from "../common/dto/pagination-data.dto";
 
 @Injectable()
 export class ClientService {
@@ -11,115 +13,120 @@ export class ClientService {
 
   constructor(@InjectModel(Client) private clientModel: typeof Client) {}
 
-  async create(createClientDto: CreateClientDto) {
+  async create(createClientDto: CreateClientDto, res: Response) {
     try {
       const data = await this.clientModel.create(createClientDto as any);
-      return {
+      res.status(HttpStatus.OK).send({
         data,
-        success: true,
-        message: '',
-      };
+        message: 'Se creo el cliente con exito!',
+      });
     } catch (err) {
       this.logger.error(err);
-      return {
-        success: false,
-        data: {},
-        message: `Ocurrio un error ${JSON.stringify(err)}`,
-      };
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: `Ocurrio un error, ${JSON.stringify(err)}`,
+      });
     }
   }
 
-  async findAll() {
+  async findAll(paginationData: PaginationDataDto, res: Response) {
+    const { pageIndex, pageSize } = paginationData;
     try {
-      const data = await this.clientModel.findAll();
-      return {
-        data,
-        success: true,
-        message: '',
-      };
+      const data = await this.clientModel.findAndCountAll({
+        limit: pageSize,
+        offset: pageIndex * pageSize - pageSize,
+        order: [['id', 'desc']],
+      });
+      res.status(HttpStatus.OK).send(data);
     } catch (err) {
       this.logger.error(err);
-      return {
-        success: false,
-        data: {},
-        message: `Ocurrio un error ${JSON.stringify(err)}`,
-      };
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: `Ocurrio un error, ${JSON.stringify(err)}`,
+      });
     }
   }
 
-  async findOne(id: number) {
+  async getPreviews(paginationData: PaginationDataDto, res: Response) {
+    const { pageIndex, pageSize } = paginationData;
+    try {
+      const data = await this.clientModel.findAndCountAll({
+        attributes: ['id', 'createdAt', 'name', 'requirementStatus', 'phone', 'contactFrom', 'operationType'],
+        limit: pageSize,
+        offset: pageIndex * pageSize - pageSize,
+        order: [['id', 'desc']],
+      });
+      res.status(HttpStatus.OK).send(data);
+    } catch (err) {
+      this.logger.error(err);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: `Ocurrio un error, ${JSON.stringify(err)}`,
+      });
+    }
+  }
+
+  async findOne(id: number, res: Response) {
     try {
       const data = await this.clientModel.findOne({ where: { id: id } });
       if (data) {
-        return {
-          success: true,
-          data,
-          message: '',
-        };
+        res.status(HttpStatus.OK).send(data);
       } else {
-        return {
-          data: {},
-          success: false,
-          message: 'No se encontro el cliente con el id ' + id,
-        };
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+          error: true,
+          message: `No se encontro el cliente con el id ${id}`,
+        });
       }
     } catch (err) {
-      return {
-        data: {},
-        success: false,
-        message: 'Ocurrio un error ' + JSON.stringify(err),
-      };
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: `Ocurrio un error, ${JSON.stringify(err)}`,
+      });
     }
   }
 
-  async update(id: number, updateClientDto: UpdateClientDto) {
+  async update(id: number, updateClientDto: UpdateClientDto, res: Response) {
     try {
       const userToUpdate = await this.clientModel.findOne({
         where: { id: id },
       });
       if (!userToUpdate)
-        return {
-          data: {},
-          success: false,
-          message: 'No se encontro el cliente con el id ' + id,
-        };
+        res.status(HttpStatus.BAD_REQUEST).send({
+          error: true,
+          message: `No se encontro el cliente con el id ${id}`,
+        });
 
       const data = await userToUpdate.update(updateClientDto);
-      return {
-        success: true,
+      res.status(HttpStatus.OK).send({
         data,
-        message: 'Se edito el cliente con exito!',
-      };
+        message: `Se edito el cliente con exito!`,
+      });
     } catch (err) {
-      return {
-        success: false,
-        data: {},
-        message: 'Ocurrio un error ' + JSON.stringify(err),
-      };
+      this.logger.error(err);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: `Ocurrio un error, ${JSON.stringify(err)}`,
+      });
     }
   }
 
-  async remove(id: number) {
+  async remove(id: number, res: Response) {
     try {
       const data = await this.clientModel.destroy({ where: { id: id } });
       if (data === 0)
-        return {
-          success: false,
-          data: {},
+        res.status(HttpStatus.BAD_REQUEST).send({
+          error: true,
           message: 'No se logro eliminar el cliente con el id ' + id,
-        };
+        });
       if (data !== 0)
-        return {
-          success: true,
-          data: {},
+        res.status(HttpStatus.OK).send({
           message: 'Se elimino el cliente con exito!',
-        };
+        });
     } catch (err) {
-      return {
-        success: false,
-        data: {},
-        message: 'Ocurrio un error ' + JSON.stringify(err),
-      };
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: `Ocurrio un error, ${JSON.stringify(err)}`,
+      });
     }
   }
 }

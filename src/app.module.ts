@@ -22,7 +22,7 @@ import { NegotiationInformation } from './property/entities/negotiationInformati
 import { PublicationSource } from './property/entities/publicationSource.entity';
 import { ClientModule } from './client/client.module';
 import { OwnerModule } from './owner/owner.module';
-import {Owner} from "./owner/entities/owner.entity";
+import { Owner } from './owner/entities/owner.entity';
 
 @Module({
   imports: [
