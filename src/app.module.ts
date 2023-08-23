@@ -27,7 +27,7 @@ import { Owner } from './owner/entities/owner.entity';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: '.env.local',
+      envFilePath: '.env',
     }),
     SequelizeModule.forRootAsync({
       imports: [ConfigModule],
