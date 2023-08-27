@@ -23,11 +23,12 @@ import { PublicationSource } from './property/entities/publicationSource.entity'
 import { ClientModule } from './client/client.module';
 import { OwnerModule } from './owner/owner.module';
 import { Owner } from './owner/entities/owner.entity';
+import { PropertyAttribute } from './property/entities/property-attribute.entity';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: '.env',
+      envFilePath: '.env.local',
     }),
     SequelizeModule.forRootAsync({
       imports: [ConfigModule],
@@ -45,11 +46,13 @@ import { Owner } from './owner/entities/owner.entity';
             Ally,
             User,
             CashFlow,
+            Attribute,
             ExternalAdviser,
             Property,
             GeneralInformation,
             LocationInformation,
             NegotiationInformation,
+            PropertyAttribute,
             PublicationSource,
             Attribute,
             Owner,

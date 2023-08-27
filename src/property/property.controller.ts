@@ -1,10 +1,12 @@
-import { Controller, Get, Post, Body, Param, Delete, Put } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put, Res, Query } from "@nestjs/common";
 import { PropertyService } from './property.service';
 import { CreatePropertyDto } from './dto/create-property.dto';
 import { UpdatePropertyDto } from './dto/update-property.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { Roles } from '../auth/interfaces/roles.enum';
+import { Response } from "express";
+import { PaginationDataDto } from "../common/dto/pagination-data.dto";
 
 @ApiTags('Properties')
 @Controller('property')
@@ -23,8 +25,8 @@ export class PropertyController {
   }
 
   @Get('previews')
-  getPreviews() {
-    return this.propertiesService.getPreviews();
+  getPreviews(@Res() res: Response, @Query() paginationDto: PaginationDataDto) {
+    return this.propertiesService.getPreviews(res, paginationDto);
   }
 
   @Get('getAllGeneralInformation')
@@ -48,8 +50,8 @@ export class PropertyController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.propertiesService.findOne(+id);
+  findOne(@Param('id') id: string, @Res() res: Response) {
+    return this.propertiesService.findOne(+id, res);
   }
 
   @Put(':id')

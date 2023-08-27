@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { CreatePropertyDto } from './dto/create-property.dto';
 import { UpdatePropertyDto } from './dto/update-property.dto';
 import { InjectModel } from '@nestjs/sequelize';
@@ -11,6 +11,10 @@ import sequelize from 'sequelize';
 import { CashFlow } from '../cashflow/entities/cashflow.entity';
 import { User } from '../user/entities/user.entity';
 import { Client } from '../client/entities/client.entity';
+import { Response } from 'express';
+import { PaginationDataDto } from '../common/dto/pagination-data.dto';
+import { PropertyAttribute } from './entities/property-attribute.entity';
+import { Attribute } from '../attributes/entities/attribute.entity';
 
 @Injectable()
 export class PropertyService {
@@ -26,11 +30,20 @@ export class PropertyService {
     private negotiationInformation: typeof NegotiationInformation,
     @InjectModel(PublicationSource)
     private publicationSource: typeof PublicationSource,
+    @InjectModel(PropertyAttribute)
+    private propertyAttributeModel: typeof PropertyAttribute,
   ) {}
   async create(createPropertyDto: CreatePropertyDto) {
     try {
-      await Property.sync({ alter: true });
       const property = await this.propertyModel.create(createPropertyDto as any);
+
+      // createPropertyDto.attributes.forEach((atribute: Attribute) => {
+      //   this.propertyAttributeModel.create({
+      //     property_id: property.id,
+      //     attribute_id: atribute.id,
+      //     value: atribute.value,
+      //   });
+      // });
 
       const generalInformation = await this.generalInformationModel.create({
         ...createPropertyDto.generalInformation,
@@ -87,24 +100,24 @@ export class PropertyService {
     }
   }
 
-  async getPreviews() {
+  async getPreviews(res: Response, paginationDto: PaginationDataDto) {
+    const { pageIndex, pageSize } = paginationDto;
     try {
+      const count = await this.propertyModel.count();
       const data = await this.propertyModel.sequelize.query(
-        `SELECT P.id, "propertyType", "operationType", price, images, client_id, ally_id, code, country, city, municipality, state, P."createdAt", "minimumNegotiation", user_id, "externalCapacitor", "reasonToSellOrRent", status, files, nomenclature, "footageGround", "footageBuilding", "distributionComments" FROM "Property" P INNER JOIN "GeneralInformation" GI ON p.id  = GI.property_id  INNER JOIN "LocationInformation" LI ON P.id = LI.property_id INNER JOIN "NegotiationInformation" NI ON P.id = NI.property_id INNER JOIN "PublicationSource" PS ON P.id = PS.property_id`,
-        { type: sequelize.QueryTypes.SELECT },
+        `SELECT P.id, "propertyType", "operationType", price, images, ally_id, owner_id, code, country, city, municipality, state, P."createdAt", "minimumNegotiation", user_id, "externalCapacitor", "reasonToSellOrRent", status, files, nomenclature, "footageGround", "footageBuilding", "distributionComments" FROM "Property" P INNER JOIN "GeneralInformation" GI ON p.id  = GI.property_id  INNER JOIN "LocationInformation" LI ON P.id = LI.property_id INNER JOIN "NegotiationInformation" NI ON P.id = NI.property_id INNER JOIN "PublicationSource" PS ON P.id = PS.property_id LIMIT :customLimit OFFSET :customOffset`,
+        { type: sequelize.QueryTypes.SELECT, replacements: { customOffset: pageIndex * pageSize - pageSize, customLimit: pageSize } },
       );
-      return {
-        data,
-        success: true,
-        message: '',
-      };
+      res.status(HttpStatus.OK).send({
+        rows: data,
+        count,
+      });
     } catch (err) {
       this.logger.error(err);
-      return {
-        data: {},
-        message: '',
-        error: `Ocurrio un error ${JSON.stringify(err)}`,
-      };
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: `Ocurrio un error ${JSON.stringify(err)}`,
+      });
     }
   }
 
@@ -178,32 +191,26 @@ export class PropertyService {
     }
   }
 
-  async findOne(id: number) {
+  async findOne(id: number, res: Response) {
     try {
       const data = await this.propertyModel.findOne({
         where: { id: id },
         include: [GeneralInformation, LocationInformation, NegotiationInformation, PublicationSource, Client],
       });
       if (data) {
-        return {
-          data,
-          success: true,
-          message: '',
-        };
+        res.status(HttpStatus.OK).send(data);
       } else {
-        return {
-          data: {},
-          success: false,
+        res.status(HttpStatus.NOT_FOUND).send({
+          error: true,
           message: 'No se encontro la propiedad con el id ' + id,
-        };
+        });
       }
     } catch (err) {
       this.logger.error(err);
-      return {
-        data: {},
-        success: false,
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
         message: 'Ocurrio un error ' + JSON.stringify(err),
-      };
+        error: true,
+      });
     }
   }
 
@@ -219,6 +226,8 @@ export class PropertyService {
           success: false,
           message: `No se encontro una propiedad con el id ${id}`,
         };
+
+      propertyToUpdate.attributes = updatePropertyDto.attributes;
 
       const data = await propertyToUpdate.update(updatePropertyDto);
 

@@ -1,4 +1,6 @@
-import { AutoIncrement, Column, Model, PrimaryKey, Table } from 'sequelize-typescript';
+import { AutoIncrement, BelongsToMany, Column, Model, PrimaryKey, Table } from 'sequelize-typescript';
+import { PropertyAttribute } from '../../property/entities/property-attribute.entity';
+import { Property } from '../../property/entities/property.entity';
 
 @Table({ tableName: 'Attribute' })
 export class Attribute extends Model {
@@ -23,7 +25,7 @@ export class Attribute extends Model {
   placeholder: string;
 
   @Column
-  values: string;
+  options: string;
 
   @Column
   value: string;

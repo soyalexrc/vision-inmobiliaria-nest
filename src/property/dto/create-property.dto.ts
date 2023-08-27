@@ -1,7 +1,12 @@
 import { IsArray, IsInt, IsObject, IsOptional } from 'class-validator';
-import { IsNull } from 'sequelize-typescript';
+import { Type } from "class-transformer";
 
 export class CreatePropertyDto {
+  @IsInt()
+  @IsOptional()
+  @Type(() => Number)
+  id: number;
+
   @IsArray()
   images: string[];
 
@@ -20,7 +25,7 @@ export class CreatePropertyDto {
 
   @IsInt()
   @IsOptional()
-  ally_id: number;
+  ally_id: number | null;
 
   @IsInt()
   user_id: number;
