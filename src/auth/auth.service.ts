@@ -25,6 +25,8 @@ export class AuthService {
       const user = await this.userModel.findOne({
         where: { email: email },
       });
+      this.logger.debug(user);
+
       if (!user) {
         res.status(HttpStatus.NOT_FOUND).send({
           error: true,
@@ -59,6 +61,7 @@ export class AuthService {
         });
       }
     } catch (err) {
+      this.logger.error(err);
       return {
         message: `Ocurrio un error ${JSON.stringify(err)}`,
       };

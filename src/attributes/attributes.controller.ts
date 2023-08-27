@@ -1,11 +1,13 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Res } from '@nestjs/common';
 import { AttributesService } from './attributes.service';
 import { CreateAttributeDto } from './dto/create-attribute.dto';
 import { UpdateAttributeDto } from './dto/update-attribute.dto';
 import { ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
+import { PropertyTypeDto } from './dto/property-type.dto';
 
 @ApiTags('Attributes')
-@Controller('attributes')
+@Controller('attribute')
 export class AttributesController {
   constructor(private readonly attributesService: AttributesService) {}
 
@@ -17,6 +19,11 @@ export class AttributesController {
   @Get()
   findAll() {
     return this.attributesService.findAll();
+  }
+
+  @Get('getByPropertyType')
+  findAllByPropertyType(@Query() propertyTypeDto: PropertyTypeDto, @Res() res: Response) {
+    return this.attributesService.findAllByPropertyType(propertyTypeDto, res);
   }
 
   @Get(':id')

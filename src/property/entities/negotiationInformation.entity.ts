@@ -31,7 +31,7 @@ export class NegotiationInformation extends Model {
   reasonToSellOrRent: string;
 
   @Column({ type: DataType.STRING })
-  contactFistName: string;
+  contactFirstName: string;
 
   @Column({ type: DataType.STRING })
   contactLastName: string;
