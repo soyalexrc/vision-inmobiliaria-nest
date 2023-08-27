@@ -1,10 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Res } from "@nestjs/common";
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, Res } from '@nestjs/common';
 import { AttributesService } from './attributes.service';
 import { CreateAttributeDto } from './dto/create-attribute.dto';
 import { UpdateAttributeDto } from './dto/update-attribute.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { Response } from "express";
-import { PropertyTypeDto } from "./dto/property-type.dto";
+import { Response } from 'express';
+import { PropertyTypeDto } from './dto/property-type.dto';
 
 @ApiTags('Attributes')
 @Controller('attribute')

@@ -1,11 +1,11 @@
-import { HttpStatus, Injectable, Logger } from "@nestjs/common";
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { Client } from './entities/client.entity';
 import { UpdateAllyDto } from '../ally/dto/update-ally.dto';
-import { Response } from "express";
-import { PaginationDataDto } from "../common/dto/pagination-data.dto";
+import { Response } from 'express';
+import { PaginationDataDto } from '../common/dto/pagination-data.dto';
 
 @Injectable()
 export class ClientService {

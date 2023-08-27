@@ -1,9 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Res, Query } from "@nestjs/common";
+import { Controller, Get, Post, Body, Patch, Param, Delete, Put, Res, Query } from '@nestjs/common';
 import { ClientService } from './client.service';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { Response } from 'express';
-import { PaginationDataDto } from "../common/dto/pagination-data.dto";
+import { PaginationDataDto } from '../common/dto/pagination-data.dto';
 
 @Controller('client')
 export class ClientController {

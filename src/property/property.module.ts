@@ -9,7 +9,7 @@ import { LocationInformation } from './entities/locationInformation.entity';
 import { PublicationSource } from './entities/publicationSource.entity';
 import { NegotiationInformation } from './entities/negotiationInformation.entity';
 import { PropertyAttribute } from './entities/property-attribute.entity';
-import { Attribute } from "../attributes/entities/attribute.entity";
+import { Attribute } from '../attributes/entities/attribute.entity';
 
 @Module({
   imports: [

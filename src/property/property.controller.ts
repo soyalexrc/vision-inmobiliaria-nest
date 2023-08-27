@@ -1,12 +1,12 @@
-import { Controller, Get, Post, Body, Param, Delete, Put, Res, Query } from "@nestjs/common";
+import { Controller, Get, Post, Body, Param, Delete, Put, Res, Query } from '@nestjs/common';
 import { PropertyService } from './property.service';
 import { CreatePropertyDto } from './dto/create-property.dto';
 import { UpdatePropertyDto } from './dto/update-property.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { Roles } from '../auth/interfaces/roles.enum';
-import { Response } from "express";
-import { PaginationDataDto } from "../common/dto/pagination-data.dto";
+import { Response } from 'express';
+import { PaginationDataDto } from '../common/dto/pagination-data.dto';
 
 @ApiTags('Properties')
 @Controller('property')

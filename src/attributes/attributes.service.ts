@@ -1,10 +1,10 @@
-import { HttpStatus, Injectable, Logger } from "@nestjs/common";
+import { HttpStatus, Injectable, Logger } from '@nestjs/common';
 import { CreateAttributeDto } from './dto/create-attribute.dto';
 import { UpdateAttributeDto } from './dto/update-attribute.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { Attribute } from './entities/attribute.entity';
-import { Response } from "express";
-import { PropertyTypeDto } from "./dto/property-type.dto";
+import { Response } from 'express';
+import { PropertyTypeDto } from './dto/property-type.dto';
 
 @Injectable()
 export class AttributesService {
