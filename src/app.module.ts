@@ -28,7 +28,7 @@ import { PropertyAttribute } from './property/entities/property-attribute.entity
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: '.env.local',
+      envFilePath: '.env',
     }),
     SequelizeModule.forRootAsync({
       imports: [ConfigModule],
