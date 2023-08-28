@@ -19,14 +19,19 @@ export class PropertyController {
     return this.propertiesService.create(createPropertyDto);
   }
 
-  @Get()
-  findAll() {
-    return this.propertiesService.findAll();
+  @Get('previews')
+  findAll(@Res() res: Response) {
+    return this.propertiesService.findAll(res);
   }
 
-  @Get('previews')
+  @Get('previews/paginated')
   getPreviews(@Res() res: Response, @Query() paginationDto: PaginationDataDto) {
     return this.propertiesService.getPreviews(res, paginationDto);
+  }
+
+  @Get('previews/byUserId/:userId')
+  getPreviewsByUserId(@Res() res: Response, @Param('userId') userId: number, @Query() paginationDto: PaginationDataDto) {
+    return this.propertiesService.getPreviewsByUserId(res, paginationDto, +userId);
   }
 
   @Get('getAllGeneralInformation')

@@ -25,8 +25,7 @@ export class AuthService {
       const user = await this.userModel.findOne({
         where: { email: email },
       });
-      this.logger.debug(user);
-
+      console.log(bcrypt.compareSync(password, user.password))
       if (!user) {
         res.status(HttpStatus.NOT_FOUND).send({
           error: true,
@@ -40,13 +39,15 @@ export class AuthService {
           message: `Por favor comuniquese con el administrador para poder ingresar de nuevo.`,
         });
         return;
-      } else if (!bcrypt.compareSync(password, user.password)) {
+      }
+      else if (!bcrypt.compareSync(password, user.password)) {
         res.status(HttpStatus.BAD_REQUEST).send({
           error: true,
           message: `Error de credenciales: contrasenas no coinciden!`,
         });
         return;
-      } else {
+      }
+      else {
         res.status(HttpStatus.OK).send({
           token: this.getJwtToken({ id: user.id }),
           message: `Bienvenido/@ de vuelta, ${user.username}`,

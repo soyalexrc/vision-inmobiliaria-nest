@@ -27,7 +27,21 @@ export class OwnerService {
     }
   }
 
-  async findAll(paginationData: PaginationDataDto, res: Response) {
+  async findAll(res: Response) {
+    try {
+      const data = await this.ownerModel.findAndCountAll({
+        order: [['id', 'desc']],
+      });
+      res.status(HttpStatus.OK).send(data);
+    } catch (err) {
+      this.logger.error(err);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: `Ocurrio un error ${JSON.stringify(err)}`,
+      });
+    }
+  }
+  async findAllPaginated(paginationData: PaginationDataDto, res: Response) {
     console.log(paginationData);
     const { pageSize, pageIndex } = paginationData;
     try {

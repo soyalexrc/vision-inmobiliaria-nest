@@ -26,6 +26,7 @@ export class UserService {
         message: 'Se creo el usuario con exito!',
       });
     } catch (err) {
+      this.logger.error(err);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
         error: true,
         message: 'Ocurrio un error ' + JSON.stringify(err),
