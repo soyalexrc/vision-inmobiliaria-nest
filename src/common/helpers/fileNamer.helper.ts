@@ -13,9 +13,10 @@ export const fileNamer = (req: Express.Request, file: Express.Multer.File, callb
 export const imageNamer = (req: Express.Request, file: Express.Multer.File, callback: Function) => {
   if (!file) return callback(new Error('El archivo esta vacio'), false);
 
-  const fileExtension = file.mimetype.split('/')[1];
+  // const fileExtension = file.mimetype.split('/')[1];
 
-  const fileName = `${uuid()}.${fileExtension}`;
+  // const fileName = `${uuid()}.${fileExtension}`;
+  const fileName = `${uuid()}.webp`;
 
   callback(null, fileName);
 };
