@@ -15,8 +15,13 @@ export class OwnerController {
   }
 
   @Get()
-  findAll(@Query() paginationDto: PaginationDataDto, @Res() res: Response) {
-    return this.ownerService.findAll(paginationDto, res);
+  findAll(@Res() res: Response) {
+    return this.ownerService.findAll(res);
+  }
+
+  @Get('paginated')
+  findAllPaginated(@Query() paginationDto: PaginationDataDto, @Res() res: Response) {
+    return this.ownerService.findAllPaginated(paginationDto, res);
   }
 
   @Get(':id')

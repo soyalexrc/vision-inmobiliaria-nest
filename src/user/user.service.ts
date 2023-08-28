@@ -26,6 +26,7 @@ export class UserService {
         message: 'Se creo el usuario con exito!',
       });
     } catch (err) {
+      this.logger.error(err);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
         error: true,
         message: 'Ocurrio un error ' + JSON.stringify(err),
@@ -39,6 +40,23 @@ export class UserService {
       const data = await this.userModel.findAndCountAll({
         limit: pageSize,
         offset: pageIndex * pageSize - pageSize,
+        order: [['id', 'desc']],
+      });
+      res.status(HttpStatus.OK).send(data);
+    } catch (err) {
+      return {
+        success: false,
+        data: {},
+        message: 'Ocurrio un error ' + JSON.stringify(err),
+      };
+    }
+  }
+  async findAllAdvisers(res: Response) {
+    try {
+      const data = await this.userModel.findAndCountAll({
+        where: {
+          userType: 'Asesor inmobiliario vision' || 'Asesor inmobiliario externo',
+        },
         order: [['id', 'desc']],
       });
       res.status(HttpStatus.OK).send(data);

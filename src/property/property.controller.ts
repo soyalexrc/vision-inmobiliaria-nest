@@ -7,6 +7,7 @@ import { Auth } from '../auth/decorators/auth.decorator';
 import { Roles } from '../auth/interfaces/roles.enum';
 import { Response } from 'express';
 import { PaginationDataDto } from '../common/dto/pagination-data.dto';
+import { ChangePropertyStatusDto } from './dto/change-property-status.dto';
 
 @ApiTags('Properties')
 @Controller('property')
@@ -19,14 +20,31 @@ export class PropertyController {
     return this.propertiesService.create(createPropertyDto);
   }
 
-  @Get()
-  findAll() {
-    return this.propertiesService.findAll();
+  @Post('changeStatus')
+  @Auth(Roles.admin)
+  changeStatus(@Body() changeStatusDto: ChangePropertyStatusDto, @Res() res: Response) {
+    return this.propertiesService.changeStatus(changeStatusDto, res);
+  }
+
+  @Get('propertyStatus/:id')
+  @Auth(Roles.admin)
+  getPropertyStatusHistoryById(@Param('id') id: string, @Res() res: Response) {
+    return this.propertiesService.getPropertyStatusHistoryById(+id, res);
   }
 
   @Get('previews')
+  findAll(@Res() res: Response) {
+    return this.propertiesService.findAll(res);
+  }
+
+  @Get('previews/paginated')
   getPreviews(@Res() res: Response, @Query() paginationDto: PaginationDataDto) {
     return this.propertiesService.getPreviews(res, paginationDto);
+  }
+
+  @Get('previews/byUserId/:userId')
+  getPreviewsByUserId(@Res() res: Response, @Param('userId') userId: number, @Query() paginationDto: PaginationDataDto) {
+    return this.propertiesService.getPreviewsByUserId(res, paginationDto, +userId);
   }
 
   @Get('getAllGeneralInformation')

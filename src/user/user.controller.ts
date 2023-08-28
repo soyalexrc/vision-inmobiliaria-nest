@@ -46,6 +46,16 @@ export class UserController {
     return this.userService.findAll(res, paginationData);
   }
 
+  @Get('getAdvisers')
+  @ApiResponse({
+    status: 200,
+    description: 'Get all users',
+    type: User,
+  })
+  findAllAdvisers(@Res() res: Response) {
+    return this.userService.findAllAdvisers(res);
+  }
+
   @Get(':id')
   @Auth(Roles.admin)
   @ApiResponse({
