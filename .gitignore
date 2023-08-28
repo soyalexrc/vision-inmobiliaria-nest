@@ -6,7 +6,8 @@ postgres/
 .env
 .env.local
 .env.prod
-static/
+static/properties
+static/temp
 
 
 # Logs
