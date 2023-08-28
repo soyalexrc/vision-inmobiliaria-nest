@@ -1,11 +1,9 @@
 import { Controller, Post, UseInterceptors, UploadedFile, BadRequestException, Get, Param, Res, Delete } from '@nestjs/common';
 import { FilesService } from './files.service';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { fileFilter, fileImageFilter } from '../helpers/fileFilter.helper';
 import { fileNamer, imageNamer } from '../helpers/fileNamer.helper';
 import { diskStorage } from 'multer';
 import { Response } from 'express';
-import { ConfigService } from '@nestjs/config';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('Files Management')
@@ -19,9 +17,10 @@ export class FilesController {
       // fileFilter: fileImageFilter,
       // limits: {fileSize: 10000}
       storage: diskStorage({
-        destination: `./static/temp/images`,
+        // destination: `./static/temp/images`,
         filename: imageNamer,
       }),
+      // storage: memoryStorage(),
     }),
   )
   uploadPropertyImage(@UploadedFile() file: Express.Multer.File, @Param('code') code: string, @Res() res: Response) {
@@ -46,6 +45,7 @@ export class FilesController {
   @Get('properties/:code/images/:imageName')
   getPropertyImage(@Res() res: Response, @Param('imageName') imageName: string, @Param('code') code: string) {
     const path = this.filesService.getStaticPropertyImage(code, imageName);
+    console.log(path, 'here images');
     res.sendFile(path);
   }
 

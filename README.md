@@ -7,7 +7,7 @@ https://www.digitalocean.com/community/tutorials/como-configurar-una-aplicacion-
 
 BACKEND
 
-pm2 start yarn --name "nestjs" --interpreter bash -- start
+pm2 start yarn --name "vision-backend" --interpreter bash -- start:prod
 
 yarn install && yarn build
 pm2 stop nestjs
