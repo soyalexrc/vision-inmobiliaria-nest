@@ -24,11 +24,12 @@ import { ClientModule } from './client/client.module';
 import { OwnerModule } from './owner/owner.module';
 import { Owner } from './owner/entities/owner.entity';
 import { PropertyAttribute } from './property/entities/property-attribute.entity';
+import { PropertyStatusEntry } from './property/entities/property-status-entry.entity';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: '.env',
+      envFilePath: '.env.local',
     }),
     SequelizeModule.forRootAsync({
       imports: [ConfigModule],
@@ -55,6 +56,7 @@ import { PropertyAttribute } from './property/entities/property-attribute.entity
             PropertyAttribute,
             PublicationSource,
             Attribute,
+            PropertyStatusEntry,
             Owner,
           ],
         };

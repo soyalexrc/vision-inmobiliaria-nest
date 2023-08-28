@@ -51,6 +51,23 @@ export class UserService {
       };
     }
   }
+  async findAllAdvisers(res: Response) {
+    try {
+      const data = await this.userModel.findAndCountAll({
+        where: {
+          userType: 'Asesor inmobiliario vision' || 'Asesor inmobiliario externo',
+        },
+        order: [['id', 'desc']],
+      });
+      res.status(HttpStatus.OK).send(data);
+    } catch (err) {
+      return {
+        success: false,
+        data: {},
+        message: 'Ocurrio un error ' + JSON.stringify(err),
+      };
+    }
+  }
 
   async findOne(id: number, res: Response) {
     try {

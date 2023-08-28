@@ -21,6 +21,7 @@ import { User } from '../../user/entities/user.entity';
 import { Owner } from '../../owner/entities/owner.entity';
 import { Attribute } from '../../attributes/entities/attribute.entity';
 import { PropertyAttribute } from './property-attribute.entity';
+import { PropertyStatusEntry } from './property-status-entry.entity';
 
 @Table({ tableName: 'Property' })
 export class Property extends Model {
@@ -74,4 +75,7 @@ export class Property extends Model {
 
   @HasMany(() => CashFlow)
   cashflows: CashFlow[];
+
+  @HasMany(() => PropertyStatusEntry)
+  statusHistory: PropertyStatusEntry[];
 }

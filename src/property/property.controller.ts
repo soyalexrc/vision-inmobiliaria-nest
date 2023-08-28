@@ -7,6 +7,7 @@ import { Auth } from '../auth/decorators/auth.decorator';
 import { Roles } from '../auth/interfaces/roles.enum';
 import { Response } from 'express';
 import { PaginationDataDto } from '../common/dto/pagination-data.dto';
+import { ChangePropertyStatusDto } from './dto/change-property-status.dto';
 
 @ApiTags('Properties')
 @Controller('property')
@@ -17,6 +18,18 @@ export class PropertyController {
   @Auth(Roles.admin, Roles.visionAdviser)
   create(@Body() createPropertyDto: CreatePropertyDto) {
     return this.propertiesService.create(createPropertyDto);
+  }
+
+  @Post('changeStatus')
+  @Auth(Roles.admin)
+  changeStatus(@Body() changeStatusDto: ChangePropertyStatusDto, @Res() res: Response) {
+    return this.propertiesService.changeStatus(changeStatusDto, res);
+  }
+
+  @Get('propertyStatus/:id')
+  @Auth(Roles.admin)
+  getPropertyStatusHistoryById(@Param('id') id: string, @Res() res: Response) {
+    return this.propertiesService.getPropertyStatusHistoryById(+id, res);
   }
 
   @Get('previews')

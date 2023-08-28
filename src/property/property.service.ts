@@ -15,6 +15,9 @@ import { Response } from 'express';
 import { PaginationDataDto } from '../common/dto/pagination-data.dto';
 import { PropertyAttribute } from './entities/property-attribute.entity';
 import { Attribute } from '../attributes/entities/attribute.entity';
+import { ChangePropertyStatusDto } from './dto/change-property-status.dto';
+import { PropertyStatusEntry } from './entities/property-status-entry.entity';
+import { iif } from 'rxjs';
 
 @Injectable()
 export class PropertyService {
@@ -32,6 +35,8 @@ export class PropertyService {
     private publicationSource: typeof PublicationSource,
     @InjectModel(PropertyAttribute)
     private propertyAttributeModel: typeof PropertyAttribute,
+    @InjectModel(PropertyStatusEntry)
+    private propertyStatusModel: typeof PropertyStatusEntry,
   ) {}
   async create(createPropertyDto: CreatePropertyDto) {
     try {
@@ -77,6 +82,57 @@ export class PropertyService {
         data: {},
         message: 'Ocurrio un error ' + JSON.stringify(err),
       };
+    }
+  }
+
+  async changeStatus(changePropertyStatusDto: ChangePropertyStatusDto, res: Response) {
+    const { property_id, status } = changePropertyStatusDto;
+    try {
+      const propertyResource = await this.generalInformationModel.findOne({
+        where: { property_id: property_id },
+      });
+
+      if (!propertyResource) {
+        res.status(HttpStatus.NOT_FOUND).send({
+          error: true,
+          message: `No se encontro la propiedad con el id ${property_id}`,
+        });
+        return;
+      }
+
+      const resourceUpdated = await propertyResource.update({ status: status });
+
+      const statusRegistry = await this.propertyStatusModel.create(changePropertyStatusDto as any);
+
+      res.status(HttpStatus.OK).send({
+        data: {
+          resourceUpdated,
+          statusRegistry,
+        },
+        message: 'Se actualizo el estado de la propiedad con exito!',
+      });
+    } catch (err) {
+      this.logger.error(err);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: `Ocurrio un error, ${JSON.stringify(err)}`,
+      });
+    }
+  }
+
+  async getPropertyStatusHistoryById(id: number, res: Response) {
+    try {
+      const data = await this.propertyStatusModel.findAndCountAll({
+        where: { property_id: id },
+      });
+
+      res.status(HttpStatus.OK).send(data);
+    } catch (err) {
+      this.logger.error(err);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: `Ocurrio un error ${JSON.stringify(err)}`,
+      });
     }
   }
 
@@ -126,7 +182,10 @@ export class PropertyService {
       const count = await this.propertyModel.count();
       const data = await this.propertyModel.sequelize.query(
         `SELECT P.id, "propertyType", "operationType", price, images, ally_id, owner_id, code, country, city, municipality, state, P."createdAt", "minimumNegotiation", user_id, "externalCapacitor", "reasonToSellOrRent", status, files, nomenclature, "footageGround", "footageBuilding", "distributionComments" FROM "Property" P INNER JOIN "GeneralInformation" GI ON p.id  = GI.property_id  INNER JOIN "LocationInformation" LI ON P.id = LI.property_id INNER JOIN "NegotiationInformation" NI ON P.id = NI.property_id INNER JOIN "PublicationSource" PS ON P.id = PS.property_id  WHERE user_id = :userIdNumber LIMIT :customLimit OFFSET :customOffset`,
-        { type: sequelize.QueryTypes.SELECT, replacements: { customOffset: pageIndex * pageSize - pageSize, customLimit: pageSize, userIdNumber: userId } },
+        {
+          type: sequelize.QueryTypes.SELECT,
+          replacements: { customOffset: pageIndex * pageSize - pageSize, customLimit: pageSize, userIdNumber: userId },
+        },
       );
       res.status(HttpStatus.OK).send({
         rows: data,
