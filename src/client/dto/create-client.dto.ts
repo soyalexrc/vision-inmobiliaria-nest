@@ -19,6 +19,15 @@ export class CreateClientDto {
   @IsString()
   name: string;
 
+  @IsString()
+  referrer: string;
+
+  @IsString()
+  service: string;
+
+  @IsString()
+  usageProperty: string;
+
   @IsBoolean()
   requirementStatus: boolean;
 
@@ -81,13 +90,13 @@ export class CreateClientDto {
   @Type(() => Number)
   amountOfNights: number;
 
-  @IsDate()
+  @IsString()
   @IsOptional()
-  arrivingDate: Date;
+  arrivingDate: string;
 
-  @IsDate()
+  @IsString()
   @IsOptional()
-  checkoutDate: Date;
+  checkoutDate: string;
 
   @IsString()
   @IsOptional()
