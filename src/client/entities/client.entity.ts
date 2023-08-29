@@ -21,6 +21,15 @@ export class Client extends Model {
   name: string;
 
   @Column({ type: DataType.STRING })
+  service: string;
+
+  @Column({ type: DataType.STRING })
+  usageProperty: string;
+
+  @Column({ type: DataType.STRING })
+  referrer: string;
+
+  @Column({ type: DataType.STRING })
   contactFrom: string;
 
   @Column({ type: DataType.BOOLEAN })
@@ -76,12 +85,12 @@ export class Client extends Model {
   amountOfYounger: number;
 
   // Fecha de llegada
-  @Column({ type: DataType.DATE })
-  arrivingDate: Date;
+  @Column({ type: DataType.DATE, allowNull: true })
+  arrivingDate: Date | null;
 
   // Fecha de salida
-  @Column({ type: DataType.DATE })
-  checkoutDate: Date;
+  @Column({ type: DataType.DATE, allowNull: true })
+  checkoutDate: Date | null;
 
   // Cantidad de noches
   @Column({ type: DataType.INTEGER })
