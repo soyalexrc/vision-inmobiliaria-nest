@@ -12,6 +12,7 @@ export function getAllowedRoutesByRole(role: string) {
       'flujo-de-caja',
       'propietarios',
       'calculo-de-comisiones',
+      'gestion-de-archivos',
     ];
   }
 
