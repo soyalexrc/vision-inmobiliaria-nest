@@ -28,6 +28,7 @@ import { PropertyStatusEntry } from './property/entities/property-status-entry.e
 import { MailerModule } from '@nestjs-modules/mailer';
 import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
 import { join } from "path";
+import { TemporalId } from "./common/entities/temporalId.entity";
 
 @Module({
   imports: [
@@ -60,44 +61,9 @@ import { join } from "path";
             PublicationSource,
             Attribute,
             PropertyStatusEntry,
+            TemporalId,
             Owner,
           ],
-        };
-      },
-    }),
-    MailerModule.forRootAsync({
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => {
-        console.log({
-          host: configService.get<string>('MAIL_HOST'),
-          secure: true,
-          port: configService.get<number>('MAIL_PORT'),
-          auth: {
-            user: configService.get<string>('MAIL_USER'),
-            pass: configService.get<string>('MAIL_PASSWORD'),
-          },
-        });
-        return {
-          transport: {
-            host: configService.get<string>('MAIL_HOST'),
-            secure: true,
-            port: configService.get<number>('MAIL_PORT'),
-            auth: {
-              user: configService.get<string>('MAIL_USER'),
-              pass: configService.get<string>('MAIL_PASSWORD'),
-            },
-          },
-          defaults: {
-            from: '"nest-modules" <modules@nestjs.com>',
-          },
-          template: {
-            dir: join(__dirname, '../src/templates'),
-            adapter: new HandlebarsAdapter(),
-            options: {
-              strict: true,
-            },
-          },
         };
       },
     }),

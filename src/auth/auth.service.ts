@@ -8,7 +8,11 @@ import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
 import { getAllowedRoutesByRole } from '../common/helpers/getAllowedRoutesByRole.helper';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
-import { MailerService } from '@nestjs-modules/mailer';
+import * as NodeMailer from 'nodemailer';
+import { TemporalId } from '../common/entities/temporalId.entity';
+import { v4 as uuid } from 'uuid';
+import { ConfigService } from '@nestjs/config';
+import { RecoverPasswordDto } from './dto/recover-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -16,8 +20,9 @@ export class AuthService {
 
   constructor(
     @InjectModel(User) private userModel: typeof User,
+    @InjectModel(TemporalId) private temporalIdModel: typeof TemporalId,
     private readonly jwtService: JwtService,
-    private readonly mailService: MailerService,
+    private configService: ConfigService,
   ) {}
 
   private getJwtToken(payload: JwtPayload) {
@@ -31,7 +36,6 @@ export class AuthService {
       const user = await this.userModel.findOne({
         where: { email: email },
       });
-      console.log(bcrypt.compareSync(password, user.password));
       if (!user) {
         res.status(HttpStatus.NOT_FOUND).send({
           error: true,
@@ -74,29 +78,93 @@ export class AuthService {
   }
 
   async forgotPassword(fpDto: ForgotPasswordDto, res: Response) {
+    const { temporalId } = await this.temporalIdModel.create({ temporalId: uuid() });
+
+    const url = `${this.configService.get('HOST_URL')}/autenticacion/reestablecer-acceso?email=${fpDto.email}&code=${temporalId}`;
+
     try {
-      const emailSent = await this.mailService.sendMail({
-        to: fpDto.email,
-        from: 'infra@visioninmobiliaria.com.ve',
-        subject: 'Testing nest mailermodule with template',
-        text: 'welcome',
-        html: '<b>Welcome</b>',
-        // template: 'welcome',
-        // context: {
-        //   code: '123123',
-        //   username: 'john due',
-        //   url: 'https://google.com',
-        // },
+      const transporter = NodeMailer.createTransport({
+        host: this.configService.get<string>('MAIL_HOST'),
+        post: this.configService.get<number>('MAIL_PORT'),
+        secure: true,
+        auth: {
+          user: this.configService.get<string>('MAIL_USER'),
+          pass: this.configService.get<string>('MAIL_PASSWORD'),
+        },
+      } as any);
+
+      transporter
+        .sendMail({
+          to: fpDto.email,
+          from: this.configService.get<string>('MAIL_FROM'),
+          subject: 'Recuperar acceso de sistema',
+          text: 'welcome',
+          html: `<b>Has click <a href="${url}">aqui</a> para reestablecer el acceso al sistema</b>`,
+        })
+        .then((data) => {
+          res.status(HttpStatus.OK).send({
+            data: {},
+            message: `Se envio un mensaje con informacion para recuperar su acceso a su correo electronido: ${fpDto.email}`,
+          });
+        })
+        .catch((err) => {
+          console.log(err);
+          res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+            error: true,
+            message: `Ocurrio un error, ${JSON.stringify(err)}`,
+          });
+        });
+    } catch (err) {
+      this.logger.error(err);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: `Ocurrio un error, ${JSON.stringify(err)}`,
       });
-      if (emailSent) {
-        res.status(HttpStatus.OK).send({
-          message: `Se envio un mensaje con instrucciones a tu correo electonrico, ${fpDto.email}`,
+    }
+  }
+
+  async recoverPassword(rpDto: RecoverPasswordDto, res: Response) {
+    try {
+      const { password, email, code } = rpDto;
+
+      const temporalToken = await this.temporalIdModel.findOne({
+        where: { temporalId: code },
+      });
+
+      if (!temporalToken) {
+        res.status(HttpStatus.BAD_REQUEST).send({
+          error: true,
+          message: 'El codigo de acceso se ha vencido, por favor inicie el proceso de nuevo.',
         });
-      } else {
-        res.status(HttpStatus.CONFLICT).send({
-          message: `No se logro enviar un mensaje, ocurrio un error inesperado. Intente nuevamente`,
-        });
+        return;
       }
+
+      const user = await this.userModel.findOne({
+        where: { email: email },
+      });
+
+      if (!user) {
+        res.status(HttpStatus.NOT_FOUND).send({
+          error: true,
+          message: `El usuari con el correo electronico: ${email}, no se encuentra registrado en nuestra base de datos. Por favor asegurese de escribir bien el la direccion de correo electronico.`,
+        });
+        return;
+      }
+
+      const data = await user.update({
+        password: bcrypt.hashSync(password, 10),
+      });
+
+      await this.temporalIdModel.destroy({
+        where: {
+          id: temporalToken.id,
+        },
+      });
+
+      res.status(HttpStatus.OK).send({
+        data,
+        message: 'Se actualizo su contrasena de ingreso con exito!',
+      });
     } catch (err) {
       this.logger.error(err);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({

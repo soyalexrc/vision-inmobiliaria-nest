@@ -7,6 +7,7 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { TemporalId } from '../common/entities/temporalId.entity';
 
 @Module({
   controllers: [AuthController],
@@ -31,7 +32,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     //     expiresIn: '7 days'
     //   }
     // }),
-    SequelizeModule.forFeature([User]),
+    SequelizeModule.forFeature([User, TemporalId]),
   ],
   providers: [AuthService, JwtStrategy, PassportModule, JwtModule],
   exports: [JwtStrategy],
