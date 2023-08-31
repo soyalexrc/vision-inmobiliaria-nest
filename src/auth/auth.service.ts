@@ -8,12 +8,17 @@ import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
 import { getAllowedRoutesByRole } from '../common/helpers/getAllowedRoutesByRole.helper';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger();
 
-  constructor(@InjectModel(User) private userModel: typeof User, private readonly jwtService: JwtService) {}
+  constructor(
+    @InjectModel(User) private userModel: typeof User,
+    private readonly jwtService: JwtService,
+    private readonly mailService: MailerService,
+  ) {}
 
   private getJwtToken(payload: JwtPayload) {
     const token = this.jwtService.sign(payload);
@@ -69,10 +74,35 @@ export class AuthService {
   }
 
   async forgotPassword(fpDto: ForgotPasswordDto, res: Response) {
-    setTimeout(() => {
-      res.status(HttpStatus.OK).send({
-        message: `Se envio un mensaje con instrucciones a tu correo electonrico, ${fpDto.email}`,
+    try {
+      const emailSent = await this.mailService.sendMail({
+        to: fpDto.email,
+        from: 'infra@visioninmobiliaria.com.ve',
+        subject: 'Testing nest mailermodule with template',
+        text: 'welcome',
+        html: '<b>Welcome</b>',
+        // template: 'welcome',
+        // context: {
+        //   code: '123123',
+        //   username: 'john due',
+        //   url: 'https://google.com',
+        // },
       });
-    }, 2000);
+      if (emailSent) {
+        res.status(HttpStatus.OK).send({
+          message: `Se envio un mensaje con instrucciones a tu correo electonrico, ${fpDto.email}`,
+        });
+      } else {
+        res.status(HttpStatus.CONFLICT).send({
+          message: `No se logro enviar un mensaje, ocurrio un error inesperado. Intente nuevamente`,
+        });
+      }
+    } catch (err) {
+      this.logger.error(err);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: `Ocurrio un error, ${JSON.stringify(err)}`,
+      });
+    }
   }
 }

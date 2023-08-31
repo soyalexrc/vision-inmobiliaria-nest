@@ -25,11 +25,14 @@ import { OwnerModule } from './owner/owner.module';
 import { Owner } from './owner/entities/owner.entity';
 import { PropertyAttribute } from './property/entities/property-attribute.entity';
 import { PropertyStatusEntry } from './property/entities/property-status-entry.entity';
+import { MailerModule } from '@nestjs-modules/mailer';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { join } from "path";
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: '.env',
+      envFilePath: '.env.local',
     }),
     SequelizeModule.forRootAsync({
       imports: [ConfigModule],
@@ -59,6 +62,42 @@ import { PropertyStatusEntry } from './property/entities/property-status-entry.e
             PropertyStatusEntry,
             Owner,
           ],
+        };
+      },
+    }),
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => {
+        console.log({
+          host: configService.get<string>('MAIL_HOST'),
+          secure: true,
+          port: configService.get<number>('MAIL_PORT'),
+          auth: {
+            user: configService.get<string>('MAIL_USER'),
+            pass: configService.get<string>('MAIL_PASSWORD'),
+          },
+        });
+        return {
+          transport: {
+            host: configService.get<string>('MAIL_HOST'),
+            secure: true,
+            port: configService.get<number>('MAIL_PORT'),
+            auth: {
+              user: configService.get<string>('MAIL_USER'),
+              pass: configService.get<string>('MAIL_PASSWORD'),
+            },
+          },
+          defaults: {
+            from: '"nest-modules" <modules@nestjs.com>',
+          },
+          template: {
+            dir: join(__dirname, '../src/templates'),
+            adapter: new HandlebarsAdapter(),
+            options: {
+              strict: true,
+            },
+          },
         };
       },
     }),

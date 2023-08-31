@@ -17,6 +17,7 @@ export class AuthController {
 
   @Post('forgotPassword')
   forgotPassword(@Body() fpDto: ForgotPasswordDto, @Res() res: Response) {
+    console.log(fpDto);
     return this.authService.forgotPassword(fpDto, res);
   }
 }
