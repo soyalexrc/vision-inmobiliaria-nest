@@ -383,4 +383,20 @@ export class PropertyService {
       };
     }
   }
+
+  async getAutomaticCode(res: Response) {
+    try {
+      const count = await this.propertyModel.count();
+      const nextCodeDigit = count + 1;
+      res.status(HttpStatus.OK).send({
+        code: `VINM-${nextCodeDigit < 10 ? `00${nextCodeDigit}` : nextCodeDigit > 9 && nextCodeDigit < 100 ? `0${nextCodeDigit}` : nextCodeDigit}`,
+      });
+    } catch (err) {
+      this.logger.error(err);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: `Ocurrio un error, ${JSON.stringify(err)}`,
+      });
+    }
+  }
 }

@@ -32,6 +32,11 @@ export class PropertyController {
     return this.propertiesService.getPropertyStatusHistoryById(+id, res);
   }
 
+  @Get('getAutomaticCode')
+  getAutomaticCode(@Res() res: Response) {
+    return this.propertiesService.getAutomaticCode(res);
+  }
+
   @Get('previews')
   findAll(@Res() res: Response) {
     return this.propertiesService.findAll(res);

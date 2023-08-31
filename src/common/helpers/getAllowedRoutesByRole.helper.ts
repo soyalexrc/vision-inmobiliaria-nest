@@ -24,5 +24,13 @@ export function getAllowedRoutesByRole(role: string) {
     routes = ['inicio', 'propiedades', 'flujo-de-caja', 'clientes', 'calculo-de-comisiones'];
   }
 
+  if (role === 'Administrador de empresa') {
+    routes = ['inicio', 'administracion', 'flujo-de-caja', 'calculo-de-comisiones', 'gestion-de-archivos'];
+  }
+
+  if (role === 'Asistente operativo') {
+    routes = ['inicio', 'gestion-de-archivos'];
+  }
+
   return routes;
 }

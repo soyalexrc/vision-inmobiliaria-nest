@@ -7,6 +7,7 @@ import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
 import { getAllowedRoutesByRole } from '../common/helpers/getAllowedRoutesByRole.helper';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
 
 @Injectable()
 export class AuthService {
@@ -25,7 +26,7 @@ export class AuthService {
       const user = await this.userModel.findOne({
         where: { email: email },
       });
-      console.log(bcrypt.compareSync(password, user.password))
+      console.log(bcrypt.compareSync(password, user.password));
       if (!user) {
         res.status(HttpStatus.NOT_FOUND).send({
           error: true,
@@ -39,15 +40,13 @@ export class AuthService {
           message: `Por favor comuniquese con el administrador para poder ingresar de nuevo.`,
         });
         return;
-      }
-      else if (!bcrypt.compareSync(password, user.password)) {
+      } else if (!bcrypt.compareSync(password, user.password)) {
         res.status(HttpStatus.BAD_REQUEST).send({
           error: true,
           message: `Error de credenciales: contrasenas no coinciden!`,
         });
         return;
-      }
-      else {
+      } else {
         res.status(HttpStatus.OK).send({
           token: this.getJwtToken({ id: user.id }),
           message: `Bienvenido/@ de vuelta, ${user.username}`,
@@ -67,5 +66,13 @@ export class AuthService {
         message: `Ocurrio un error ${JSON.stringify(err)}`,
       };
     }
+  }
+
+  async forgotPassword(fpDto: ForgotPasswordDto, res: Response) {
+    setTimeout(() => {
+      res.status(HttpStatus.OK).send({
+        message: `Se envio un mensaje con instrucciones a tu correo electonrico, ${fpDto.email}`,
+      });
+    }, 2000);
   }
 }
