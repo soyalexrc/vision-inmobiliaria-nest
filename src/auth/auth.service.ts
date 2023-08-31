@@ -7,12 +7,18 @@ import { JwtPayload } from './interfaces/jwt-payload.interface';
 import { JwtService } from '@nestjs/jwt';
 import { Response } from 'express';
 import { getAllowedRoutesByRole } from '../common/helpers/getAllowedRoutesByRole.helper';
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger();
 
-  constructor(@InjectModel(User) private userModel: typeof User, private readonly jwtService: JwtService) {}
+  constructor(
+    @InjectModel(User) private userModel: typeof User,
+    private readonly jwtService: JwtService,
+    private readonly mailService: MailerService,
+  ) {}
 
   private getJwtToken(payload: JwtPayload) {
     const token = this.jwtService.sign(payload);
@@ -25,7 +31,7 @@ export class AuthService {
       const user = await this.userModel.findOne({
         where: { email: email },
       });
-      console.log(bcrypt.compareSync(password, user.password))
+      console.log(bcrypt.compareSync(password, user.password));
       if (!user) {
         res.status(HttpStatus.NOT_FOUND).send({
           error: true,
@@ -39,15 +45,13 @@ export class AuthService {
           message: `Por favor comuniquese con el administrador para poder ingresar de nuevo.`,
         });
         return;
-      }
-      else if (!bcrypt.compareSync(password, user.password)) {
+      } else if (!bcrypt.compareSync(password, user.password)) {
         res.status(HttpStatus.BAD_REQUEST).send({
           error: true,
           message: `Error de credenciales: contrasenas no coinciden!`,
         });
         return;
-      }
-      else {
+      } else {
         res.status(HttpStatus.OK).send({
           token: this.getJwtToken({ id: user.id }),
           message: `Bienvenido/@ de vuelta, ${user.username}`,
@@ -66,6 +70,39 @@ export class AuthService {
       return {
         message: `Ocurrio un error ${JSON.stringify(err)}`,
       };
+    }
+  }
+
+  async forgotPassword(fpDto: ForgotPasswordDto, res: Response) {
+    try {
+      const emailSent = await this.mailService.sendMail({
+        to: fpDto.email,
+        from: 'infra@visioninmobiliaria.com.ve',
+        subject: 'Testing nest mailermodule with template',
+        text: 'welcome',
+        html: '<b>Welcome</b>',
+        // template: 'welcome',
+        // context: {
+        //   code: '123123',
+        //   username: 'john due',
+        //   url: 'https://google.com',
+        // },
+      });
+      if (emailSent) {
+        res.status(HttpStatus.OK).send({
+          message: `Se envio un mensaje con instrucciones a tu correo electonrico, ${fpDto.email}`,
+        });
+      } else {
+        res.status(HttpStatus.CONFLICT).send({
+          message: `No se logro enviar un mensaje, ocurrio un error inesperado. Intente nuevamente`,
+        });
+      }
+    } catch (err) {
+      this.logger.error(err);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: `Ocurrio un error, ${JSON.stringify(err)}`,
+      });
     }
   }
 }
