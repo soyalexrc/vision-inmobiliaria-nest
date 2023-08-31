@@ -4,6 +4,7 @@ import { LoginDto } from './dto/login.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { ForgotPasswordDto } from "./dto/forgot-password.dto";
+import { RecoverPasswordDto } from "./dto/recover-password.dto";
 
 @ApiTags('Authentication')
 @Controller('auth')
@@ -19,5 +20,10 @@ export class AuthController {
   forgotPassword(@Body() fpDto: ForgotPasswordDto, @Res() res: Response) {
     console.log(fpDto);
     return this.authService.forgotPassword(fpDto, res);
+  }
+
+  @Post('recoverPassword')
+  recoverPassword(@Body() rpDto: RecoverPasswordDto, @Res() res: Response) {
+    return this.authService.recoverPassword(rpDto, res);
   }
 }
