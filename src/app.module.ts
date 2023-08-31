@@ -29,7 +29,7 @@ import { PropertyStatusEntry } from './property/entities/property-status-entry.e
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: '.env.local',
+      envFilePath: '.env',
     }),
     SequelizeModule.forRootAsync({
       imports: [ConfigModule],

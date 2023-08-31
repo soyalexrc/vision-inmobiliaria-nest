@@ -12,3 +12,14 @@ services:
     container_name: visiondb
     volumes:
       - ./postgres:/var/lib/postgresql/data
+  db-dev:
+    image: postgres:14.3
+    restart: always
+    ports:
+      - "5431:5432"
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    container_name: visiondb-dev
+    volumes:
+      - ./postgres-dev:/var/lib/postgresql/data
