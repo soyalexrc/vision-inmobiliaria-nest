@@ -25,10 +25,7 @@ import { OwnerModule } from './owner/owner.module';
 import { Owner } from './owner/entities/owner.entity';
 import { PropertyAttribute } from './property/entities/property-attribute.entity';
 import { PropertyStatusEntry } from './property/entities/property-status-entry.entity';
-import { MailerModule } from '@nestjs-modules/mailer';
-import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
-import { join } from "path";
-import { TemporalId } from "./common/entities/temporalId.entity";
+import { TemporalId } from './common/entities/temporalId.entity';
 
 @Module({
   imports: [
