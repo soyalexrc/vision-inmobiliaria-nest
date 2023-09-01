@@ -26,6 +26,7 @@ import { Owner } from './owner/entities/owner.entity';
 import { PropertyAttribute } from './property/entities/property-attribute.entity';
 import { PropertyStatusEntry } from './property/entities/property-status-entry.entity';
 import { TemporalId } from './common/entities/temporalId.entity';
+import { DeleteFileRequest } from './common/entities/delete-file-request.entity';
 
 @Module({
   imports: [
@@ -60,6 +61,7 @@ import { TemporalId } from './common/entities/temporalId.entity';
             PropertyStatusEntry,
             TemporalId,
             Owner,
+            DeleteFileRequest,
           ],
         };
       },
