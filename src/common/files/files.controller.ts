@@ -1,21 +1,12 @@
-import {
-  Controller,
-  Post,
-  UseInterceptors,
-  UploadedFile,
-  Get,
-  Param,
-  Res,
-  Delete,
-  Body
-} from "@nestjs/common";
+import { Controller, Post, UseInterceptors, UploadedFile, Get, Param, Res, Delete, Body } from '@nestjs/common';
 import { FilesService } from './files.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { fileNamer, imageNamer } from '../helpers/fileNamer.helper';
 import { diskStorage } from 'multer';
 import { Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
-import { fileImageFilter } from "../helpers/fileFilter.helper";
+import { fileImageFilter } from '../helpers/fileFilter.helper';
+import { ChangeNameDto } from './dto/change-name.dto';
 
 @ApiTags('Files Management')
 @Controller('files')
@@ -80,10 +71,14 @@ export class FilesController {
 
   @Get('genericStaticFileAsset/:path')
   getGenericStaticFileAsset(@Res() res: Response, @Param('path') path: string) {
-    console.log(path);
     const pathFragments = path.includes('+') ? path.split('+').join('/') : path;
     const asset = this.filesService.getGenericStaticFileAsset(pathFragments);
     res.sendFile(asset);
+  }
+
+  @Post('changeName/:path')
+  changeFileOrFolderName(@Param('path') path: string, @Body() changeNameDto: ChangeNameDto, @Res() res: Response) {
+    return this.filesService.changeFileOrFolderName(path, changeNameDto, res);
   }
 
   @Post('genericStaticFile')
@@ -114,6 +109,26 @@ export class FilesController {
 
   @Delete('deleteFolderOrFile/:path')
   deleteFolderOrFile(@Param('path') path: string, @Res() res: Response) {
-    return this.filesService.deleteFolderOrFile(path, res)
+    return this.filesService.deleteFolderOrFile(path, res);
+  }
+
+  @Post('requestDeleteFolderOrFile/:path/:userId')
+  requestDeleteFolderOrFile(@Param('path') path: string, @Param('userId') userId: string, @Res() res: Response) {
+    return this.filesService.requestDeleteFolderOrFile(path, +userId, res);
+  }
+
+  @Get('requestDeleteFolderOrFile')
+  getRequestDeleteFolderOrFile(@Res() res: Response) {
+    return this.filesService.getRequestDeleteFolderOrFile(res);
+  }
+
+  @Delete('cancelDeleteRequest/:id')
+  cancelDeleteRequest(@Param('id') id: string, @Res() res: Response) {
+    return this.filesService.cancelDeleteRequest(+id, res);
+  }
+
+  @Post('acceptDeleteRequest/:id')
+  acceptDeleteRequest(@Param('id') id: string, @Res() res: Response) {
+    return this.filesService.acceptDeleteRequest(+id, res);
   }
 }

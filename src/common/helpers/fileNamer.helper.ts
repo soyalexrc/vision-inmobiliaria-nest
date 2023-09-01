@@ -8,7 +8,7 @@ export const fileNamer = (req: Express.Request, file: Express.Multer.File, callb
 
   const fileExtension = file.originalname.split('.').pop();
 
-  const fileName = `${file.originalname.split('.')[0]}-${uuid()}.${fileExtension}`;
+  const fileName = `${file.originalname.split('.')[0]}-VINM-${new Date().toISOString().substring(0, 19)}.${fileExtension}`;
 
   callback(null, fileName);
 };
