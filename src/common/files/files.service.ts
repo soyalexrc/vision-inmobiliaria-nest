@@ -6,11 +6,19 @@ import { join } from 'path';
 import { ConfigService } from '@nestjs/config';
 import { Response } from 'express';
 import * as sharp from 'sharp';
+import { ChangeNameDto } from './dto/change-name.dto';
+import { InjectModel } from '@nestjs/sequelize';
+import { User } from '../../user/entities/user.entity';
+import { DeleteFileRequest } from '../entities/delete-file-request.entity';
 
 @Injectable()
 export class FilesService {
   private readonly logger = new Logger();
-  constructor(private readonly configService: ConfigService) {}
+  constructor(
+    private readonly configService: ConfigService,
+    @InjectModel(User) private userModel: typeof User,
+    @InjectModel(DeleteFileRequest) private deleteFileRequestModel: typeof DeleteFileRequest,
+  ) {}
 
   getGenericStaticFileAsset(path: string): string {
     const pathToLookUp = join(__dirname, '../../../static', path);
@@ -220,6 +228,24 @@ export class FilesService {
     });
   }
 
+  changeFileOrFolderName(path: string, changeNameDto: ChangeNameDto, res: Response) {
+    const pathFormatted = join(__dirname, '../../../static', path.split('+').join('/'));
+    const newPathName = join(__dirname, '../../../static', changeNameDto.newName.split('+').join('/'));
+    try {
+      fs.renameSync(pathFormatted, newPathName);
+      res.status(HttpStatus.OK).send({
+        data: {},
+        message: `Se cambio el nombre de ${changeNameDto.isFile ? 'el documento' : 'la carpeta'}, con exito!`,
+      });
+    } catch (err) {
+      this.logger.error(err);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: `Ocurrio un error, ${err}`,
+      });
+    }
+  }
+
   deleteFolderOrFile(path: string, res: Response) {
     const pathFormatted = path.split('+').join('/');
     const destinationPath = join(__dirname, '../../../static', pathFormatted);
@@ -250,5 +276,120 @@ export class FilesService {
       data: {},
       message: 'Se elimino el archivo con exito!',
     });
+  }
+  async requestDeleteFolderOrFile(path: string, userId: number, res: Response) {
+    const destinationPath = join(__dirname, '../../../static', path.split('+').join('/'));
+    const dirStats = fs.statSync(destinationPath);
+
+    try {
+      if (!fs.existsSync(destinationPath)) {
+        res.status(HttpStatus.NOT_FOUND).send({
+          error: true,
+          message: 'No se encontro el documento archivo solicitado',
+        });
+        return;
+      }
+
+      const user = await this.userModel.findOne({ where: { id: userId } });
+
+      if (!user) {
+        res.status(HttpStatus.NOT_FOUND).send({
+          error: true,
+          message: 'Ocurrio un error identificando al usuario.',
+        });
+        return;
+      }
+
+      const data = await this.deleteFileRequestModel.create({
+        path: destinationPath,
+        user: `${user.firstName} ${user.lastName} (${user.username})`,
+        type: dirStats.isFile() ? 'Documento' : 'Carpeta',
+      });
+
+      res.status(HttpStatus.OK).send({
+        data: data,
+        message: 'Se registro la solicitud de eliminacion con exito!',
+      });
+    } catch (err) {
+      this.logger.error(err);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: `Ocurrio un error, ${JSON.stringify(err)}`,
+      });
+    }
+  }
+
+  async getRequestDeleteFolderOrFile(res: Response) {
+    try {
+      const data = await this.deleteFileRequestModel.findAndCountAll();
+      res.status(HttpStatus.OK).send(data);
+    } catch (err) {
+      this.logger.error(err);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: `Ocurrio un error, ${JSON.stringify(err)}`,
+      });
+    }
+  }
+
+  async cancelDeleteRequest(id: number, res: Response) {
+    try {
+      const data = await this.deleteFileRequestModel.destroy({
+        where: { id },
+      });
+      res.status(HttpStatus.OK).send({ data, message: 'Se elimino la solicitud con exito!' });
+    } catch (err) {
+      this.logger.error(err);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: `Ocurrio un error, ${JSON.stringify(err)}`,
+      });
+    }
+  }
+
+  async acceptDeleteRequest(id: number, res: Response) {
+    try {
+      const request = await this.deleteFileRequestModel.findOne({
+        where: { id },
+      });
+
+      const path = request.path;
+
+      const dirStats = fs.statSync(path);
+
+      if (!fs.existsSync(path)) {
+        res.status(HttpStatus.NOT_FOUND).send({
+          error: true,
+          message: 'No se encontro el documento archivo solicitado',
+        });
+      }
+
+      if (dirStats.isFile()) {
+        fs.rmSync(path);
+      } else {
+        const filesInsideDir = fs.readdirSync(path);
+        if (filesInsideDir.length > 0) {
+          filesInsideDir.forEach((file: string) => {
+            fs.unlinkSync(join(path, file));
+          });
+          fs.rmdirSync(path);
+        } else {
+          fs.rmdirSync(path);
+        }
+      }
+
+      const deletedData = await this.deleteFileRequestModel.destroy({
+        where: {
+          id: request.id,
+        },
+      });
+      res.status(HttpStatus.OK).send({ data: deletedData, message: 'Se elimino el archivo / carpeta con exito!' });
+    } catch (err) {
+      this.logger.error(err);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: `Ocurrio un error, ${JSON.stringify(err)}`,
+      });
+    }
   }
 }
