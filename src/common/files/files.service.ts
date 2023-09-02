@@ -12,6 +12,7 @@ import { User } from '../../user/entities/user.entity';
 import { DeleteFileRequest } from '../entities/delete-file-request.entity';
 import { MoveFileOrFolderDto } from './dto/move-file-or-folder.dto';
 import { extractZip } from '../helpers/extractZip';
+import { extractRar } from "../helpers/extractRar";
 
 @Injectable()
 export class FilesService {
@@ -108,7 +109,6 @@ export class FilesService {
       });
     }
     if (fileExtension.includes('zip')) {
-      console.log(file);
       destinationPath = join(__dirname, '../../../static', pathFormatted);
 
       if (!fs.existsSync(destinationPath)) {
@@ -116,6 +116,14 @@ export class FilesService {
       }
       await extractZip(temporalPath, destinationPath);
 
+      res.status(HttpStatus.OK).send({
+        data: {},
+        message: 'Se Descomprimio el documento con exito!',
+      });
+    } else if (fileExtension.includes('rar')) {
+      destinationPath = join(__dirname, '../../../static', pathFormatted);
+
+      await extractRar(temporalPath, destinationPath);
       res.status(HttpStatus.OK).send({
         data: {},
         message: 'Se Descomprimio el documento con exito!',
