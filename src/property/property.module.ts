@@ -10,7 +10,7 @@ import { PublicationSource } from './entities/publicationSource.entity';
 import { NegotiationInformation } from './entities/negotiationInformation.entity';
 import { PropertyAttribute } from './entities/property-attribute.entity';
 import { Attribute } from '../attributes/entities/attribute.entity';
-import { PropertyStatusEntry } from "./entities/property-status-entry.entity";
+import { PropertyStatusEntry } from './entities/property-status-entry.entity';
 
 @Module({
   imports: [

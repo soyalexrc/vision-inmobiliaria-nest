@@ -18,48 +18,48 @@ export class CashflowController {
   constructor(private readonly cashflowService: CashflowService) {}
 
   @Post()
-  @Auth(Roles.admin, Roles.serviceManager)
+  @Auth(Roles.admin, Roles.serviceManager, Roles.companyManager)
   create(@Body() createCashflowDto: CreateCashflowDto, @Res() res: Response) {
     return this.cashflowService.create(createCashflowDto, res);
   }
 
   @Post('temporalTransaction')
-  @Auth(Roles.admin, Roles.serviceManager)
+  @Auth(Roles.admin, Roles.serviceManager, Roles.companyManager)
   createTemporalTransaction(@Body() createTemporalTransactionDto: CreateTemporalTransactionDto, @Res() res: Response) {
     return this.cashflowService.createTemporalTransaction(createTemporalTransactionDto, res);
   }
 
   @Get()
-  @Auth(Roles.admin, Roles.serviceManager)
+  @Auth(Roles.admin, Roles.serviceManager, Roles.companyManager)
   findAll(@Query() paginationData: PaginationDataDto, @Res() res: Response) {
     return this.cashflowService.findAll(paginationData, res);
   }
   @Get('getTemporalTransactions')
-  @Auth(Roles.admin, Roles.serviceManager)
+  @Auth(Roles.admin, Roles.serviceManager, Roles.companyManager)
   getTemporalTransactions(@Query() paginationData: PaginationDataDto, @Res() res: Response) {
     return this.cashflowService.getTemporalTransactions(paginationData, res);
   }
 
   @Get('getTotals')
-  @Auth(Roles.admin, Roles.serviceManager)
+  @Auth(Roles.admin, Roles.serviceManager, Roles.companyManager)
   getTotals(@Res() res: Response) {
     return this.cashflowService.getTotals(res);
   }
 
   @Get(':id')
-  @Auth(Roles.admin, Roles.serviceManager)
+  @Auth(Roles.admin, Roles.serviceManager, Roles.companyManager)
   findOne(@Param('id') id: string, @Res() res: Response) {
     return this.cashflowService.findOne(+id, res);
   }
 
   @Put(':id')
-  @Auth(Roles.admin, Roles.serviceManager)
+  @Auth(Roles.admin, Roles.serviceManager, Roles.companyManager)
   update(@Param('id') id: string, @Body() updateCashflowDto: UpdateCashflowDto, @Res() res: Response) {
     return this.cashflowService.update(+id, updateCashflowDto, res);
   }
 
   @Delete(':id')
-  @Auth(Roles.admin, Roles.serviceManager)
+  @Auth(Roles.admin, Roles.serviceManager, Roles.companyManager)
   remove(@Param('id') id: string, @Res() res: Response) {
     return this.cashflowService.remove(+id, res);
   }
