@@ -108,7 +108,6 @@ export class AuthService {
           });
         })
         .catch((err) => {
-          console.log(err);
           res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
             error: true,
             message: `Ocurrio un error, ${JSON.stringify(err)}`,

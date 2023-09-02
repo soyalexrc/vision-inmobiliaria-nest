@@ -1,4 +1,4 @@
-import { BadRequestException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
 import { fileExistsSync } from 'tsconfig-paths/lib/filesystem';
 import * as fs from 'fs';
 import * as mv from 'mv';
@@ -10,6 +10,7 @@ import { ChangeNameDto } from './dto/change-name.dto';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from '../../user/entities/user.entity';
 import { DeleteFileRequest } from '../entities/delete-file-request.entity';
+import { MoveFileOrFolderDto } from './dto/move-file-or-folder.dto';
 
 @Injectable()
 export class FilesService {
@@ -71,14 +72,10 @@ export class FilesService {
       if (!fs.existsSync(destinationPath)) {
         fs.mkdirSync(join(__dirname, `../../../static/properties/${code}/images`), { recursive: true });
       }
-
-      console.log(destinationPath);
-
       sharp(file.path)
         .resize(800)
         .webp({ effort: 3 })
         .toFile(destinationPath, (err, info) => {
-          console.log(err, file);
           if (!err) {
             const secureUrl = `${this.configService.get('HOST_API')}/files/properties/${code}/images/${file.filename}`;
             res.status(HttpStatus.OK).send({ secureUrl });
@@ -139,7 +136,6 @@ export class FilesService {
 
     const currentPath = join(__dirname, '../../../static/temp/files', file.filename);
     const destinationPath = join(__dirname, `../../../static/properties/${code}/files`, file.filename);
-    console.log(destinationPath);
     if (!fs.existsSync(destinationPath)) {
       fs.mkdirSync(join(__dirname, `../../../static/properties/${code}/files`), { recursive: true });
     }
@@ -384,6 +380,33 @@ export class FilesService {
         },
       });
       res.status(HttpStatus.OK).send({ data: deletedData, message: 'Se elimino el archivo / carpeta con exito!' });
+    } catch (err) {
+      this.logger.error(err);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: `Ocurrio un error, ${JSON.stringify(err)}`,
+      });
+    }
+  }
+
+  async moveFileOrFolder(moveFileOrFolderDto: MoveFileOrFolderDto, res: Response) {
+    const { pathTo, pathFrom } = moveFileOrFolderDto;
+    try {
+      const formattedPathFrom = join(__dirname, '../../../static', pathFrom.split('+').join('/'));
+      const formattedPathTo = join(__dirname, '../../../static', pathTo.split('+').join('/'));
+
+      mv(formattedPathFrom, formattedPathTo, (err) => {
+        if (err) {
+          this.logger.error(err);
+          throw new BadRequestException('Ocurrio un error al mover el archivo');
+        } else {
+          console.log('Successfully moved the file!');
+        }
+      });
+      res.status(HttpStatus.OK).send({
+        data: {},
+        message: 'Se movio el documento con exito!',
+      });
     } catch (err) {
       this.logger.error(err);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({

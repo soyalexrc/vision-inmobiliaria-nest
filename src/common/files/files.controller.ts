@@ -7,6 +7,7 @@ import { Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
 import { fileImageFilter } from '../helpers/fileFilter.helper';
 import { ChangeNameDto } from './dto/change-name.dto';
+import { MoveFileOrFolderDto } from "./dto/move-file-or-folder.dto";
 
 @ApiTags('Files Management')
 @Controller('files')
@@ -130,5 +131,10 @@ export class FilesController {
   @Post('acceptDeleteRequest/:id')
   acceptDeleteRequest(@Param('id') id: string, @Res() res: Response) {
     return this.filesService.acceptDeleteRequest(+id, res);
+  }
+
+  @Post('moveFileOrFolder')
+  moveFileOrFolder(@Res() res: Response, @Body() moveFileOrFolderDto: MoveFileOrFolderDto) {
+    return this.filesService.moveFileOrFolder(moveFileOrFolderDto, res);
   }
 }

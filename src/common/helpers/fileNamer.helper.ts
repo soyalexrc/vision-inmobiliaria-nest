@@ -4,11 +4,11 @@ export const fileNamer = (req: Express.Request, file: Express.Multer.File, callb
   if (!file) return callback(new Error('El archivo esta vacio'), false);
 
   // @ts-ignore
-  file.originalname = file.originalname.replaceAll(' ', '-').replaceAll('+', '-').replaceAll('/', '-');
+  file.originalname = file.originalname.replaceAll('+', '_').replaceAll('/', '-');
 
   const fileExtension = file.originalname.split('.').pop();
 
-  const fileName = `${file.originalname.split('.')[0]}-VINM-${new Date().toISOString().substring(0, 19)}.${fileExtension}`;
+  const fileName = `${file.originalname.split('.')[0]}_VINM_${new Date().toISOString().substring(0, 19)}.${fileExtension}`;
 
   callback(null, fileName);
 };
