@@ -1,4 +1,4 @@
-import { BadRequestException, HttpStatus, Injectable, InternalServerErrorException, Logger } from "@nestjs/common";
+import { BadRequestException, HttpStatus, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { fileExistsSync } from 'tsconfig-paths/lib/filesystem';
 import * as fs from 'fs';
 import * as mv from 'mv';
@@ -11,6 +11,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { User } from '../../user/entities/user.entity';
 import { DeleteFileRequest } from '../entities/delete-file-request.entity';
 import { MoveFileOrFolderDto } from './dto/move-file-or-folder.dto';
+import { extractZip } from '../helpers/extractZip';
 
 @Injectable()
 export class FilesService {
@@ -92,8 +93,10 @@ export class FilesService {
     }
   }
 
-  uploadGenericFile(file: Express.Multer.File, path: string, res: Response) {
+  async uploadGenericFile(file: Express.Multer.File, path: string, res: Response) {
     const pathFormatted = path.split('+').join('/');
+    const temporalPath = join(__dirname, '../../../static/temp/files', file.filename);
+    let destinationPath = '';
 
     const fileExtension = file.mimetype.split('/')[1];
     const validImageExtensions = ['jpg', 'png', 'jpeg', 'webp'];
@@ -104,26 +107,37 @@ export class FilesService {
         message: 'Asegurese de ingresar un documento',
       });
     }
+    if (fileExtension.includes('zip')) {
+      console.log(file);
+      destinationPath = join(__dirname, '../../../static', pathFormatted);
 
-    const temporalPath = join(__dirname, '../../../static/temp/files', file.filename);
-    const destinationPath = join(__dirname, '../../../static', pathFormatted, file.filename);
-
-    if (!fs.existsSync(destinationPath)) {
-      fs.mkdirSync(join(__dirname, `../../../static`, pathFormatted), { recursive: true });
-    }
-
-    mv(temporalPath, destinationPath, (err) => {
-      if (err) {
-        this.logger.error(err);
-        throw new BadRequestException('Ocurrio un error al mover el archivo');
-      } else {
-        console.log('Successfully moved the file!');
+      if (!fs.existsSync(destinationPath)) {
+        fs.mkdirSync(join(__dirname, `../../../static`, pathFormatted), { recursive: true });
       }
-    });
+      await extractZip(temporalPath, destinationPath);
 
-    const secureUrl = `${this.configService.get('HOST_API')}/files/genericStaticFileAsset/${path}+${file.filename}`;
+      res.status(HttpStatus.OK).send({
+        data: {},
+        message: 'Se Descomprimio el documento con exito!',
+      });
+    } else {
+      if (!fs.existsSync(destinationPath)) {
+        fs.mkdirSync(join(__dirname, `../../../static`, pathFormatted), { recursive: true });
+      }
+      destinationPath = join(__dirname, '../../../static', pathFormatted, file.filename);
+      mv(temporalPath, destinationPath, (err) => {
+        if (err) {
+          this.logger.error(err);
+          throw new BadRequestException('Ocurrio un error al mover el archivo');
+        } else {
+          console.log('Successfully moved the file!');
+        }
+      });
 
-    res.status(HttpStatus.OK).send({ secureUrl });
+      const secureUrl = `${this.configService.get('HOST_API')}/files/genericStaticFileAsset/${path}+${file.filename}`;
+
+      res.status(HttpStatus.OK).send({ secureUrl });
+    }
   }
 
   uploadPropertyFile(file: Express.Multer.File, code: string, res: Response) {
