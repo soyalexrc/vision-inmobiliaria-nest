@@ -42,6 +42,7 @@ export class UserController {
     description: 'Get all users',
     type: User,
   })
+  @Auth(Roles.admin)
   findAll(@Res() res: Response, @Query() paginationData: PaginationDataDto) {
     return this.userService.findAll(res, paginationData);
   }

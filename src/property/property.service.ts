@@ -8,16 +8,12 @@ import { LocationInformation } from './entities/locationInformation.entity';
 import { NegotiationInformation } from './entities/negotiationInformation.entity';
 import { PublicationSource } from './entities/publicationSource.entity';
 import sequelize from 'sequelize';
-import { CashFlow } from '../cashflow/entities/cashflow.entity';
-import { User } from '../user/entities/user.entity';
 import { Client } from '../client/entities/client.entity';
 import { Response } from 'express';
 import { PaginationDataDto } from '../common/dto/pagination-data.dto';
 import { PropertyAttribute } from './entities/property-attribute.entity';
-import { Attribute } from '../attributes/entities/attribute.entity';
 import { ChangePropertyStatusDto } from './dto/change-property-status.dto';
 import { PropertyStatusEntry } from './entities/property-status-entry.entity';
-import { iif } from 'rxjs';
 
 @Injectable()
 export class PropertyService {
@@ -389,7 +385,9 @@ export class PropertyService {
       const count = await this.propertyModel.count();
       const nextCodeDigit = count + 1;
       res.status(HttpStatus.OK).send({
-        code: `VINM-${nextCodeDigit < 10 ? `00${nextCodeDigit}` : nextCodeDigit > 9 && nextCodeDigit < 100 ? `0${nextCodeDigit}` : nextCodeDigit}`,
+        code: `VINM-${
+          nextCodeDigit < 10 ? `00${nextCodeDigit}` : nextCodeDigit > 9 && nextCodeDigit < 100 ? `0${nextCodeDigit}` : nextCodeDigit
+        }`,
       });
     } catch (err) {
       this.logger.error(err);
