@@ -42,7 +42,6 @@ export class OwnerService {
     }
   }
   async findAllPaginated(paginationData: PaginationDataDto, res: Response) {
-    console.log(paginationData);
     const { pageSize, pageIndex } = paginationData;
     try {
       const data = await this.ownerModel.findAndCountAll({
