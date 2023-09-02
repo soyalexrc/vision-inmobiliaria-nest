@@ -5,9 +5,8 @@ import { fileNamer, imageNamer } from '../helpers/fileNamer.helper';
 import { diskStorage } from 'multer';
 import { Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
-import { fileImageFilter } from '../helpers/fileFilter.helper';
 import { ChangeNameDto } from './dto/change-name.dto';
-import { MoveFileOrFolderDto } from "./dto/move-file-or-folder.dto";
+import { MoveFileOrFolderDto } from './dto/move-file-or-folder.dto';
 
 @ApiTags('Files Management')
 @Controller('files')
