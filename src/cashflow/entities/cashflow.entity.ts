@@ -2,6 +2,7 @@ import { AutoIncrement, BelongsTo, Column, DataType, ForeignKey, HasMany, HasOne
 import { Property } from '../../property/entities/property.entity';
 import { Client } from '../../client/entities/client.entity';
 import { User } from '../../user/entities/user.entity';
+import { Owner } from '../../owner/entities/owner.entity';
 
 @Table({ tableName: 'CashFlow' })
 export class CashFlow extends Model {
@@ -18,6 +19,13 @@ export class CashFlow extends Model {
   @Column({ type: DataType.INTEGER })
   user_id: number;
 
+  @ForeignKey(() => Owner)
+  @Column({ type: DataType.INTEGER })
+  owner_id: number;
+
+  @BelongsTo(() => Owner)
+  owner: Owner;
+
   @BelongsTo(() => Client)
   client: Client;
 
@@ -26,6 +34,12 @@ export class CashFlow extends Model {
 
   @Column({ type: DataType.STRING })
   location: string;
+
+  @Column({ type: DataType.STRING })
+  internalProperty: string;
+
+  @Column({ type: DataType.STRING })
+  person: string;
 
   @Column({ type: DataType.DATE })
   date: Date;

@@ -11,6 +11,11 @@ import { PaginationDataDto } from '../common/dto/pagination-data.dto';
 import { Property } from '../property/entities/property.entity';
 import { CreateTemporalTransactionDto } from './dto/create-temporal-transaction.dto';
 import groupBy from '../common/helpers/groupby.helper';
+import { Client } from '../client/entities/client.entity';
+import { Owner } from '../owner/entities/owner.entity';
+import { CashflowPerson } from './entities/cashflowPerson.entity';
+import { NegotiationInformation } from '../property/entities/negotiationInformation.entity';
+import { GeneralInformation } from '../property/entities/generalInformation.entity';
 
 @Injectable()
 export class CashflowService {
@@ -19,13 +24,31 @@ export class CashflowService {
   constructor(
     @InjectModel(CashFlow) private cashFlowModel: typeof CashFlow,
     @InjectModel(Property) private propertyModel: typeof Property,
+    @InjectModel(Client) private clientModel: typeof Client,
+    @InjectModel(Owner) private ownerModel: typeof Owner,
+    @InjectModel(CashflowPerson) private cashFlowPersonModel: typeof CashflowPerson,
     @InjectConnection() private sequelize: Sequelize,
   ) {}
 
   async create(createCashflowDto: CreateCashflowDto, res: Response) {
     try {
-      await this.cashFlowModel.sync({ alter: true });
       const data = await this.cashFlowModel.create(createCashflowDto as any);
+      res.status(HttpStatus.OK).send({
+        message: 'Se creo el registro con exito!',
+        data,
+      });
+    } catch (err) {
+      this.logger.error(err);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        message: 'Ocurrio un error ' + JSON.stringify(err),
+        error: true,
+      });
+    }
+  }
+
+  async createPerson(personData: { name: string }, res: Response) {
+    try {
+      const data = await this.cashFlowPersonModel.create(personData as any);
       res.status(HttpStatus.OK).send({
         message: 'Se creo el registro con exito!',
         data,
@@ -104,7 +127,13 @@ export class CashflowService {
       const data = await this.cashFlowModel.findAndCountAll({
         limit: pageSize,
         offset: pageIndex * pageSize - pageSize,
-        order: [['id', 'desc']],
+        order: [['date', 'desc']],
+        include: [
+          {
+            model: Property,
+            include: [GeneralInformation],
+          },
+        ],
       });
       res.status(HttpStatus.OK).send(data);
     } catch (err) {
@@ -253,6 +282,37 @@ export class CashflowService {
           error: true,
         });
       }
+    } catch (err) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        message: 'Ocurrio un error ' + JSON.stringify(err),
+        error: true,
+      });
+    }
+  }
+
+  async findAllPeople(res: Response) {
+    try {
+      const clients = await this.clientModel.sequelize.query(
+        `
+        select "name", id, 'Cliente' as type from "Client"
+      `,
+        { type: sequelize.QueryTypes.SELECT },
+      );
+
+      const owners = await this.ownerModel.sequelize.query(
+        `
+        select concat("firstName", ' ', "lastName") as name, id, 'Propietario' as type from "Owner"
+      `,
+        { type: sequelize.QueryTypes.SELECT },
+      );
+
+      const cashFlowPeople = await this.cashFlowPersonModel.sequelize.query(
+        `
+            select id, name, 'Administracion interna' as type from "CashFlowPerson"
+      `,
+        { type: sequelize.QueryTypes.SELECT },
+      );
+      res.status(HttpStatus.OK).send([...cashFlowPeople, ...owners, ...clients]);
     } catch (err) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
         message: 'Ocurrio un error ' + JSON.stringify(err),

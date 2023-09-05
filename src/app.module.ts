@@ -27,6 +27,7 @@ import { PropertyAttribute } from './property/entities/property-attribute.entity
 import { PropertyStatusEntry } from './property/entities/property-status-entry.entity';
 import { TemporalId } from './common/entities/temporalId.entity';
 import { DeleteFileRequest } from './common/entities/delete-file-request.entity';
+import { CashflowPerson } from './cashflow/entities/cashflowPerson.entity';
 
 @Module({
   imports: [
@@ -52,6 +53,7 @@ import { DeleteFileRequest } from './common/entities/delete-file-request.entity'
             Attribute,
             ExternalAdviser,
             Property,
+            CashflowPerson,
             GeneralInformation,
             LocationInformation,
             NegotiationInformation,
