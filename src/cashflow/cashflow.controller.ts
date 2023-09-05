@@ -23,6 +23,12 @@ export class CashflowController {
     return this.cashflowService.create(createCashflowDto, res);
   }
 
+  @Post('createPerson')
+  @Auth(Roles.admin, Roles.serviceManager, Roles.companyManager)
+  createPerson(@Body() personData: { name: string }, @Res() res: Response) {
+    return this.cashflowService.createPerson(personData, res);
+  }
+
   @Post('temporalTransaction')
   @Auth(Roles.admin, Roles.serviceManager, Roles.companyManager)
   createTemporalTransaction(@Body() createTemporalTransactionDto: CreateTemporalTransactionDto, @Res() res: Response) {
@@ -44,6 +50,12 @@ export class CashflowController {
   @Auth(Roles.admin, Roles.serviceManager, Roles.companyManager)
   getTotals(@Res() res: Response) {
     return this.cashflowService.getTotals(res);
+  }
+
+  @Get('getPeople')
+  @Auth(Roles.admin, Roles.serviceManager, Roles.companyManager)
+  findAllPeople(@Res() res: Response) {
+    return this.cashflowService.findAllPeople(res);
   }
 
   @Get(':id')
