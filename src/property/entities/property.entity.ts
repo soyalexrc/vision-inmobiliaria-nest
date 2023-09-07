@@ -22,6 +22,7 @@ import { Owner } from '../../owner/entities/owner.entity';
 import { Attribute } from '../../attributes/entities/attribute.entity';
 import { PropertyAttribute } from './property-attribute.entity';
 import { PropertyStatusEntry } from './property-status-entry.entity';
+import { ExternalAdviser } from "../../external-adviser/entities/external-adviser.entity";
 
 @Table({ tableName: 'Property' })
 export class Property extends Model {
@@ -58,6 +59,13 @@ export class Property extends Model {
 
   @BelongsTo(() => Owner)
   owner: Owner;
+
+  @ForeignKey(() => ExternalAdviser)
+  @Column({ type: DataType.INTEGER })
+  external_adviser_id: number;
+
+  @BelongsTo(() => ExternalAdviser)
+  external_adviser: Owner;
 
   @HasOne(() => Client)
   client: Client;

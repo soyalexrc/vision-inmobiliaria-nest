@@ -25,22 +25,7 @@ export class NegotiationInformation extends Model {
   client: string;
 
   @Column({ type: DataType.STRING })
-  externalCapacitor: string;
-
-  @Column({ type: DataType.STRING })
   reasonToSellOrRent: string;
-
-  @Column({ type: DataType.STRING })
-  contactFirstName: string;
-
-  @Column({ type: DataType.STRING })
-  contactLastName: string;
-
-  @Column({ type: DataType.STRING })
-  contactPhone: string;
-
-  @Column({ type: DataType.STRING })
-  contactEmail: string;
 
   @Column({ type: DataType.STRING })
   attorneyEmail: string;

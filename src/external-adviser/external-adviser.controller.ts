@@ -19,9 +19,14 @@ export class ExternalAdviserController {
     return this.externalAdviserService.create(createExternalAdviserDto, res);
   }
 
-  @Get()
-  findAll(@Query() paginationData: PaginationDataDto, @Res() res: Response) {
-    return this.externalAdviserService.findAll(paginationData, res);
+  @Get('')
+  findAll(@Res() res: Response) {
+    return this.externalAdviserService.findAll(res);
+  }
+
+  @Get('paginated')
+  findAllPaginated(@Query() paginationData: PaginationDataDto, @Res() res: Response) {
+    return this.externalAdviserService.findAllPaginated(paginationData, res);
   }
 
   @Get(':id')
