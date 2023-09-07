@@ -51,11 +51,12 @@ export class UserService {
       };
     }
   }
-  async findAllAdvisers(res: Response) {
+  async findAllAdvisers(res: Response, queryData: { adviserType: string }) {
+    const { adviserType } = queryData;
     try {
-      const data = await this.userModel.findAndCountAll({
+      const data = await this.userModel.findAll({
         where: {
-          userType: 'Asesor inmobiliario vision' || 'Asesor inmobiliario externo',
+          userType: adviserType === 'vision' ? 'Asesor inmobiliario vision' : 'Asesor inmobiliario externo',
         },
         order: [['id', 'desc']],
       });
