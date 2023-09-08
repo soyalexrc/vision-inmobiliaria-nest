@@ -28,6 +28,9 @@ import { PropertyStatusEntry } from './property/entities/property-status-entry.e
 import { TemporalId } from './common/entities/temporalId.entity';
 import { DeleteFileRequest } from './common/entities/delete-file-request.entity';
 import { CashflowPerson } from './cashflow/entities/cashflowPerson.entity';
+import { ServiceModule } from './service/service.module';
+import { Service } from './service/entities/service.entity';
+import { SubService } from './service/entities/sub-service.entity';
 
 @Module({
   imports: [
@@ -63,6 +66,8 @@ import { CashflowPerson } from './cashflow/entities/cashflowPerson.entity';
             PropertyStatusEntry,
             TemporalId,
             Owner,
+            Service,
+            SubService,
             DeleteFileRequest,
           ],
         };
@@ -78,6 +83,7 @@ import { CashflowPerson } from './cashflow/entities/cashflowPerson.entity';
     PropertyModule,
     ClientModule,
     OwnerModule,
+    ServiceModule,
   ],
 })
 export class AppModule {}
