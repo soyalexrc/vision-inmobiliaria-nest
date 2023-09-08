@@ -66,6 +66,7 @@ export class CreateCashflowDto {
   internalProperty: string;
 
   @IsString()
+  @IsOptional()
   @ApiProperty({
     description: ' persona',
   })
