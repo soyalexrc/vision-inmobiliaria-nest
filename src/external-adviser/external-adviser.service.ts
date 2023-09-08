@@ -26,7 +26,19 @@ export class ExternalAdviserService {
     }
   }
 
-  async findAll(paginationData: PaginationDataDto, res: Response) {
+  async findAll(res: Response) {
+    try {
+      const data = await this.adviserModel.findAll();
+      res.status(HttpStatus.OK).send(data);
+    } catch (err) {
+      res.status(HttpStatus.BAD_REQUEST).send({
+        message: 'Ocurrio un error ' + JSON.stringify(err),
+        error: true,
+      });
+    }
+  }
+
+  async findAllPaginated(paginationData: PaginationDataDto, res: Response) {
     const { pageSize, pageIndex } = paginationData;
     try {
       const data = await this.adviserModel.findAndCountAll({

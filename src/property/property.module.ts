@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { PropertyService } from './property.service';
 import { PropertyController } from './property.controller';
-import { Sequelize } from 'sequelize-typescript';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { Property } from './entities/property.entity';
 import { GeneralInformation } from './entities/generalInformation.entity';

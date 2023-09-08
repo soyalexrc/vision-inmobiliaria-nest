@@ -16,7 +16,4 @@ export class CreateExternalAdviserDto {
 
   @IsString()
   email: string;
-
-  @IsString()
-  birthDate: string;
 }
