@@ -53,8 +53,8 @@ export class UserController {
     description: 'Get all users',
     type: User,
   })
-  findAllAdvisers(@Res() res: Response) {
-    return this.userService.findAllAdvisers(res);
+  findAllAdvisers(@Res() res: Response, @Query() queryData: { adviserType: string }) {
+    return this.userService.findAllAdvisers(res, queryData);
   }
 
   @Get(':id')

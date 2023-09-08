@@ -1,4 +1,5 @@
-import { AutoIncrement, Column, DataType, Model, PrimaryKey, Table } from 'sequelize-typescript';
+import { AutoIncrement, Column, DataType, HasMany, Model, PrimaryKey, Table } from 'sequelize-typescript';
+import { Property } from '../../property/entities/property.entity';
 
 @Table({ tableName: 'ExternalAdviser' })
 export class ExternalAdviser extends Model {
@@ -19,6 +20,6 @@ export class ExternalAdviser extends Model {
   @Column({ type: DataType.STRING })
   email: string;
 
-  @Column({ type: DataType.DATE })
-  birthDate: Date;
+  @HasMany(() => Property)
+  properties: Property[];
 }

@@ -21,7 +21,12 @@ export class CreatePropertyDto {
   client_id: number;
 
   @IsInt()
-  owner_id: number;
+  @IsOptional()
+  owner_id: number | null;
+
+  @IsInt()
+  @IsOptional()
+  external_adviser_id: number | null;
 
   @IsInt()
   @IsOptional()
