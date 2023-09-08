@@ -99,6 +99,9 @@ export class CashFlow extends Model {
   totalDue: string;
 
   @Column({ type: DataType.STRING })
+  incomeByThird: string;
+
+  @Column({ type: DataType.STRING })
   pendingToCollect: string;
 
   @BelongsTo(() => Property)

@@ -35,7 +35,6 @@ export class CreateCashflowDto {
   })
   user_id: number;
 
-
   @IsInt()
   @IsOptional()
   @Type(() => Number)
@@ -178,6 +177,14 @@ export class CreateCashflowDto {
     required: false,
   })
   totalDue: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiProperty({
+    description: 'Total incomeByThird',
+    required: false,
+  })
+  incomeByThird: string;
 
   @IsString()
   @ApiProperty({

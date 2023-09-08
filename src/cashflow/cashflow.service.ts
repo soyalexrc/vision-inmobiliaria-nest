@@ -222,17 +222,17 @@ export class CashflowService {
       const cuentasPorCobrar = await this.cashFlowModel.sequelize.query(
         `select (select sum(cast("pendingToCollect" as decimal)) as BS
                  from "CashFlow"
-                 where ("transactionType" = 'Cuenta por cobrar' or "transactionType" = 'Ingreso')
+                 where ("transactionType" = 'Cuenta por cobrar' or "transactionType" = 'Ingreso' or "transactionType" = 'Ingreso a cuenta de terceros')
                    and currency = 'Bs'
                    and "isTemporalTransaction" = false),
                 (select sum(cast("pendingToCollect" as decimal)) as USD
                  from "CashFlow"
-                 where ("transactionType" = 'Cuenta por cobrar' or "transactionType" = 'Ingreso')
+                 where ("transactionType" = 'Cuenta por cobrar' or "transactionType" = 'Ingreso' or "transactionType" = 'Ingreso a cuenta de terceros')
                    and currency = '$'
                    and "isTemporalTransaction" = false),
                 (select sum(cast("pendingToCollect" as decimal)) as EUR
                  from "CashFlow"
-                 where ("transactionType" = 'Cuenta por cobrar' or "transactionType" = 'Ingreso')
+                 where ("transactionType" = 'Cuenta por cobrar' or "transactionType" = 'Ingreso' or "transactionType" = 'Ingreso a cuenta de terceros')
                    and currency = '€'
                    and "isTemporalTransaction" = false);`,
         { type: sequelize.QueryTypes.SELECT },
@@ -241,17 +241,36 @@ export class CashflowService {
       const cuentasPorPagar = await this.cashFlowModel.sequelize.query(
         `select (select sum(cast("totalDue" as decimal)) as BS
                  from "CashFlow"
-                 where ("transactionType" = 'Cuenta por pagar' or "transactionType" = 'Ingreso')
+                 where ("transactionType" = 'Cuenta por pagar' or "transactionType" = 'Ingreso' or "transactionType" = 'Ingreso a cuenta de terceros')
                    and currency = 'Bs'
                    and "isTemporalTransaction" = false),
                 (select sum(cast("totalDue" as decimal)) as USD
                  from "CashFlow"
-                 where ("transactionType" = 'Cuenta por pagar' or "transactionType" = 'Ingreso')
+                 where ("transactionType" = 'Cuenta por pagar' or "transactionType" = 'Ingreso' or "transactionType" = 'Ingreso a cuenta de terceros')
                    and currency = '$'
                    and "isTemporalTransaction" = false),
                 (select sum(cast("totalDue" as decimal)) as EUR
                  from "CashFlow"
-                 where ("transactionType" = 'Cuenta por pagar' or "transactionType" = 'Ingreso')
+                 where ("transactionType" = 'Cuenta por pagar' or "transactionType" = 'Ingreso' or "transactionType" = 'Ingreso a cuenta de terceros')
+                   and currency = '€'
+                   and "isTemporalTransaction" = false);`,
+        { type: sequelize.QueryTypes.SELECT },
+      );
+
+      const ingresoCuentaTerceros = await this.cashFlowModel.sequelize.query(
+        `select (select sum(cast("incomeByThird" as decimal)) as BS
+                 from "CashFlow"
+                 where ("transactionType" = 'Ingreso a cuenta de terceros')
+                   and currency = 'Bs'
+                   and "isTemporalTransaction" = false),
+                (select sum(cast("totalDue" as decimal)) as USD
+                 from "CashFlow"
+                 where ("transactionType" = 'Ingreso a cuenta de terceros')
+                   and currency = '$'
+                   and "isTemporalTransaction" = false),
+                (select sum(cast("totalDue" as decimal)) as EUR
+                 from "CashFlow"
+                 where ("transactionType" = 'Ingreso a cuenta de terceros')
                    and currency = '€'
                    and "isTemporalTransaction" = false);`,
         { type: sequelize.QueryTypes.SELECT },
@@ -261,6 +280,7 @@ export class CashflowService {
         egreso: egreso[0],
         cuentasPorPagar: cuentasPorPagar[0],
         cuentasPorCobrar: cuentasPorCobrar[0],
+        ingresoCuentaTerceros: ingresoCuentaTerceros[0],
       });
     } catch (err) {
       this.logger.error(err);
