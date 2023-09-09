@@ -134,11 +134,9 @@ export class CashflowService {
       entity,
       service,
     });
-    if (dateFrom && dateTo) {
-      whereClause.date = {
-        [Op.between]: [dateFrom, dateTo],
-      };
-    }
+    whereClause.date = {
+      [Op.between]: [dateFrom, dateTo],
+    };
     this.logger.debug(whereClause);
     try {
       const data = await this.cashFlowModel.findAndCountAll({
@@ -196,46 +194,53 @@ export class CashflowService {
     }
   }
 
-  async getTotals(res: Response) {
+  async getTotals(res: Response, filtersDto: FiltersDto) {
+    const {dateFrom, dateTo} = filtersDto;
     try {
       const dateNow = new Date();
       const ingreso = await this.cashFlowModel.sequelize.query(
         `
-            select (select sum(cast(amount as decimal)) as BS
+            select  (select sum(cast(amount as decimal)) as BS
                     from "CashFlow"
                     where "transactionType" = 'Ingreso'
                       and currency = 'Bs'
-                      and "isTemporalTransaction" = false),
+                      and "isTemporalTransaction" = false
+                      and date between :customDateFrom and :customDateTo),
                    (select sum(cast(amount as decimal)) as USD
                     from "CashFlow"
                     where "transactionType" = 'Ingreso'
                       and currency = '$'
-                      and "isTemporalTransaction" = false),
+                      and "isTemporalTransaction" = false
+                      and date between :customDateFrom and :customDateTo),
                    (select sum(cast(amount as decimal)) as EUR
                     from "CashFlow"
                     where "transactionType" = 'Ingreso'
                       and currency = '€'
-                      and "isTemporalTransaction" = false);
+                      and "isTemporalTransaction" = false
+                      and date between :customDateFrom and :customDateTo)
         `,
-        { type: sequelize.QueryTypes.SELECT },
+        { type: sequelize.QueryTypes.SELECT, replacements: { customDateFrom: dateFrom, customDateTo: dateTo } },
       );
       const egreso = await this.cashFlowModel.sequelize.query(
         `select (select sum(cast(amount as decimal)) as BS
                  from "CashFlow"
                  where "transactionType" = 'Egreso'
                    and currency = 'Bs'
-                   and "isTemporalTransaction" = false),
+                   and "isTemporalTransaction" = false
+                   and date between :customDateFrom and :customDateTo),
                 (select sum(cast(amount as decimal)) as USD
                  from "CashFlow"
                  where "transactionType" = 'Egreso'
                    and currency = '$'
-                   and "isTemporalTransaction" = false),
+                   and "isTemporalTransaction" = false
+                   and date between :customDateFrom and :customDateTo),
                 (select sum(cast(amount as decimal)) as EUR
                  from "CashFlow"
                  where "transactionType" = 'Egreso'
                    and currency = '€'
-                   and "isTemporalTransaction" = false);`,
-        { type: sequelize.QueryTypes.SELECT },
+                   and "isTemporalTransaction" = false
+                   and date between :customDateFrom and :customDateTo);`,
+        { type: sequelize.QueryTypes.SELECT, replacements: { customDateFrom: dateFrom, customDateTo: dateTo } },
       );
 
       const cuentasPorCobrar = await this.cashFlowModel.sequelize.query(
@@ -243,18 +248,21 @@ export class CashflowService {
                  from "CashFlow"
                  where ("transactionType" = 'Cuenta por cobrar' or "transactionType" = 'Ingreso' or "transactionType" = 'Ingreso a cuenta de terceros')
                    and currency = 'Bs'
-                   and "isTemporalTransaction" = false),
+                   and "isTemporalTransaction" = false
+                 and date between :customDateFrom and :customDateTo),
                 (select sum(cast("pendingToCollect" as decimal)) as USD
                  from "CashFlow"
                  where ("transactionType" = 'Cuenta por cobrar' or "transactionType" = 'Ingreso' or "transactionType" = 'Ingreso a cuenta de terceros')
                    and currency = '$'
-                   and "isTemporalTransaction" = false),
+                   and "isTemporalTransaction" = false
+                 and date between :customDateFrom and :customDateTo),
                 (select sum(cast("pendingToCollect" as decimal)) as EUR
                  from "CashFlow"
                  where ("transactionType" = 'Cuenta por cobrar' or "transactionType" = 'Ingreso' or "transactionType" = 'Ingreso a cuenta de terceros')
                    and currency = '€'
-                   and "isTemporalTransaction" = false);`,
-        { type: sequelize.QueryTypes.SELECT },
+                   and "isTemporalTransaction" = false
+                 and date between :customDateFrom and :customDateTo);`,
+        { type: sequelize.QueryTypes.SELECT, replacements: { customDateFrom: dateFrom, customDateTo: dateTo } },
       );
 
       const cuentasPorPagar = await this.cashFlowModel.sequelize.query(
@@ -262,18 +270,21 @@ export class CashflowService {
                  from "CashFlow"
                  where ("transactionType" = 'Cuenta por pagar' or "transactionType" = 'Ingreso' or "transactionType" = 'Ingreso a cuenta de terceros')
                    and currency = 'Bs'
-                   and "isTemporalTransaction" = false),
+                   and "isTemporalTransaction" = false
+                 and date between :customDateFrom and :customDateTo),
                 (select sum(cast("totalDue" as decimal)) as USD
                  from "CashFlow"
                  where ("transactionType" = 'Cuenta por pagar' or "transactionType" = 'Ingreso' or "transactionType" = 'Ingreso a cuenta de terceros')
                    and currency = '$'
-                   and "isTemporalTransaction" = false),
+                   and "isTemporalTransaction" = false
+                 and date between :customDateFrom and :customDateTo),
                 (select sum(cast("totalDue" as decimal)) as EUR
                  from "CashFlow"
                  where ("transactionType" = 'Cuenta por pagar' or "transactionType" = 'Ingreso' or "transactionType" = 'Ingreso a cuenta de terceros')
                    and currency = '€'
-                   and "isTemporalTransaction" = false);`,
-        { type: sequelize.QueryTypes.SELECT },
+                   and "isTemporalTransaction" = false
+                 and date between :customDateFrom and :customDateTo);`,
+        { type: sequelize.QueryTypes.SELECT, replacements: { customDateFrom: dateFrom, customDateTo: dateTo } },
       );
 
       const ingresoCuentaTerceros = await this.cashFlowModel.sequelize.query(
@@ -281,18 +292,21 @@ export class CashflowService {
                  from "CashFlow"
                  where ("transactionType" = 'Ingreso a cuenta de terceros')
                    and currency = 'Bs'
-                   and "isTemporalTransaction" = false),
+                   and "isTemporalTransaction" = false
+                 and date between :customDateFrom and :customDateTo),
                 (select sum(cast("totalDue" as decimal)) as USD
                  from "CashFlow"
                  where ("transactionType" = 'Ingreso a cuenta de terceros')
                    and currency = '$'
-                   and "isTemporalTransaction" = false),
+                   and "isTemporalTransaction" = false
+                 and date between :customDateFrom and :customDateTo),
                 (select sum(cast("totalDue" as decimal)) as EUR
                  from "CashFlow"
                  where ("transactionType" = 'Ingreso a cuenta de terceros')
                    and currency = '€'
-                   and "isTemporalTransaction" = false);`,
-        { type: sequelize.QueryTypes.SELECT },
+                   and "isTemporalTransaction" = false
+                   and date between :customDateFrom and :customDateTo);`,
+        { type: sequelize.QueryTypes.SELECT, replacements: { customDateFrom: dateFrom, customDateTo: dateTo } },
       );
       res.status(HttpStatus.OK).send({
         ingreso: ingreso[0],
