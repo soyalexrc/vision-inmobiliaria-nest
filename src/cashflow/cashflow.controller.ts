@@ -49,8 +49,8 @@ export class CashflowController {
 
   @Get('getTotals')
   @Auth(Roles.admin, Roles.serviceManager, Roles.companyManager)
-  getTotals(@Res() res: Response) {
-    return this.cashflowService.getTotals(res);
+  getTotals(@Res() res: Response, @Query() filtersDto: FiltersDto) {
+    return this.cashflowService.getTotals(res, filtersDto);
   }
 
   @Get('getPeople')
