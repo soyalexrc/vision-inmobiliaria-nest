@@ -18,8 +18,8 @@ export class ClientController {
   }
 
   @Get()
-  findAll(@Query() paginationData: PaginationDataDto, @Res() res: Response) {
-    return this.clientService.findAll(paginationData, res);
+  findAll(@Res() res: Response) {
+    return this.clientService.findAll(res);
   }
 
   @Get('getPreviews')
