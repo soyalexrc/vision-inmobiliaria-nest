@@ -29,9 +29,7 @@ export class OwnerService {
 
   async findAll(res: Response) {
     try {
-      const data = await this.ownerModel.findAndCountAll({
-        order: [['id', 'desc']],
-      });
+      const data = await this.ownerModel.findAll();
       res.status(HttpStatus.OK).send(data);
     } catch (err) {
       this.logger.error(err);

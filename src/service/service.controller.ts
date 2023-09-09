@@ -17,6 +17,10 @@ export class ServiceController {
   findAll(@Res() res: Response) {
     return this.serviceService.findAll(res);
   }
+  @Get('subService')
+  findAllSubServices(@Res() res: Response) {
+    return this.serviceService.findAllSubServices(res);
+  }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
