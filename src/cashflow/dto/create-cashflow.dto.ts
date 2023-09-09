@@ -117,12 +117,12 @@ export class CreateCashflowDto {
   })
   guarantee: string;
 
-  @IsString()
+  @IsInt()
   @IsOptional()
   @ApiProperty({
     description: 'Type of service description',
   })
-  typeOfService: string;
+  serviceType: string;
 
   @IsString()
   @ApiProperty({
@@ -130,7 +130,7 @@ export class CreateCashflowDto {
   })
   reason: string;
 
-  @IsString()
+  @IsInt()
   @IsOptional()
   @ApiProperty({
     description: 'Service name',

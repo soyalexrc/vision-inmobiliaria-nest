@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Res, Put } from "@nestjs/common";
+import { Controller, Get, Post, Body, Patch, Param, Delete, Res, Put } from '@nestjs/common';
 import { ServiceService } from './service.service';
 import { CreateServiceDto } from './dto/create-service.dto';
 import { UpdateServiceDto } from './dto/update-service.dto';
@@ -27,7 +27,6 @@ export class ServiceController {
   getSubServicesByServiceId(@Res() res: Response, @Param('id') serviceId: number | string) {
     return this.serviceService.getSubServicesByServiceId(res, serviceId);
   }
-
 
   @Put(':id')
   update(@Param('id') id: string, @Body() updateServiceDto: UpdateServiceDto, @Res() res: Response) {
