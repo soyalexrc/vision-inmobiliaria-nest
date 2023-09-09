@@ -34,7 +34,6 @@ export class FilesService {
     res.status(HttpStatus.OK).send({ secureUrl });
   }
 
-
   async uploadGenericFile(file: Express.Multer.File, path: string, res: Response) {
     const pathFormatted = path.split('+').join('/');
     const temporalPath = join(__dirname, '../../../static/temp/files', file.filename);

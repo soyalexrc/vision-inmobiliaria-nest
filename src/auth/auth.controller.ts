@@ -3,8 +3,8 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
-import { ForgotPasswordDto } from "./dto/forgot-password.dto";
-import { RecoverPasswordDto } from "./dto/recover-password.dto";
+import { ForgotPasswordDto } from './dto/forgot-password.dto';
+import { RecoverPasswordDto } from './dto/recover-password.dto';
 
 @ApiTags('Authentication')
 @Controller('auth')

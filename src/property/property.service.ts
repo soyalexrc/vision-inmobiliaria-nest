@@ -14,6 +14,7 @@ import { PaginationDataDto } from '../common/dto/pagination-data.dto';
 import { PropertyAttribute } from './entities/property-attribute.entity';
 import { ChangePropertyStatusDto } from './dto/change-property-status.dto';
 import { PropertyStatusEntry } from './entities/property-status-entry.entity';
+import { Cron, CronExpression } from '@nestjs/schedule';
 
 @Injectable()
 export class PropertyService {
