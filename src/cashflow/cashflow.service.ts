@@ -18,7 +18,7 @@ import { NegotiationInformation } from '../property/entities/negotiationInformat
 import { GeneralInformation } from '../property/entities/generalInformation.entity';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { FiltersDto } from './dto/filters.dto';
-import { filtersCleaner } from "../common/helpers/filtersCleaner";
+import { filtersCleaner } from '../common/helpers/filtersCleaner';
 
 @Injectable()
 export class CashflowService {
@@ -126,17 +126,7 @@ export class CashflowService {
   }
 
   async findAll(filtersDto: FiltersDto, res: Response) {
-    const {
-      pageIndex,
-      pageSize,
-      transactionType,
-      currency,
-      wayToPay,
-      entity,
-      service,
-      dateFrom,
-      dateTo,
-    } = filtersDto;
+    const { pageIndex, pageSize, transactionType, currency, wayToPay, entity, service, dateFrom, dateTo } = filtersDto;
     const whereClause = filtersCleaner({
       transactionType,
       currency,

@@ -11,7 +11,7 @@ import { Roles } from '../auth/interfaces/roles.enum';
 import { Response } from 'express';
 import { PaginationDataDto } from '../common/dto/pagination-data.dto';
 import { CreateTemporalTransactionDto } from './dto/create-temporal-transaction.dto';
-import { FiltersDto } from "./dto/filters.dto";
+import { FiltersDto } from './dto/filters.dto';
 
 @ApiTags('Cash Flow')
 @Controller('cashflow')

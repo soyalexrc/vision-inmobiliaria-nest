@@ -4,8 +4,8 @@ import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { Response } from 'express';
 import { PaginationDataDto } from '../common/dto/pagination-data.dto';
-import { Auth } from "../auth/decorators/auth.decorator";
-import { Roles } from "../auth/interfaces/roles.enum";
+import { Auth } from '../auth/decorators/auth.decorator';
+import { Roles } from '../auth/interfaces/roles.enum';
 
 @Controller('client')
 export class ClientController {

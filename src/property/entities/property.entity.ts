@@ -22,7 +22,7 @@ import { Owner } from '../../owner/entities/owner.entity';
 import { Attribute } from '../../attributes/entities/attribute.entity';
 import { PropertyAttribute } from './property-attribute.entity';
 import { PropertyStatusEntry } from './property-status-entry.entity';
-import { ExternalAdviser } from "../../external-adviser/entities/external-adviser.entity";
+import { ExternalAdviser } from '../../external-adviser/entities/external-adviser.entity';
 
 @Table({ tableName: 'Property' })
 export class Property extends Model {
