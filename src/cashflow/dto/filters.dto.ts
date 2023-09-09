@@ -34,9 +34,17 @@ export class FiltersDto {
 
   @IsString()
   @IsOptional()
+  serviceType: string;
+
+  @IsString()
+  @IsOptional()
   dateFrom: string;
 
   @IsString()
   @IsOptional()
   dateTo: string;
+
+  @IsString()
+  @IsOptional()
+  property_id: string;
 }

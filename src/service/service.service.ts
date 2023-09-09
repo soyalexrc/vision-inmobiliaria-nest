@@ -56,6 +56,18 @@ export class ServiceService {
       });
     }
   }
+  async findAllSubServices(res: Response) {
+    try {
+      const data = await this.subServiceModel.findAll();
+      res.status(HttpStatus.OK).send(data);
+    } catch (err) {
+      this.logger.error(err);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: 'Ocurrio un error ' + JSON.stringify(err),
+      });
+    }
+  }
 
   async getSubServicesByServiceId(res: Response, serviceId: number | string) {
     try {

@@ -126,13 +126,15 @@ export class CashflowService {
   }
 
   async findAll(filtersDto: FiltersDto, res: Response) {
-    const { pageIndex, pageSize, transactionType, currency, wayToPay, entity, service, dateFrom, dateTo } = filtersDto;
+    const { pageIndex, pageSize, property_id, serviceType, transactionType, currency, wayToPay, entity, service, dateFrom, dateTo } = filtersDto;
     const whereClause = filtersCleaner({
       transactionType,
       currency,
       wayToPay,
       entity,
       service,
+      property_id,
+      serviceType,
     });
     whereClause.date = {
       [Op.between]: [dateFrom, dateTo],
