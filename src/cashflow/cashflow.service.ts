@@ -16,6 +16,7 @@ import { Owner } from '../owner/entities/owner.entity';
 import { CashflowPerson } from './entities/cashflowPerson.entity';
 import { NegotiationInformation } from '../property/entities/negotiationInformation.entity';
 import { GeneralInformation } from '../property/entities/generalInformation.entity';
+import { Cron, CronExpression } from "@nestjs/schedule";
 
 @Injectable()
 export class CashflowService {
