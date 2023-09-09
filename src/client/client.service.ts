@@ -29,14 +29,9 @@ export class ClientService {
     }
   }
 
-  async findAll(paginationData: PaginationDataDto, res: Response) {
-    const { pageIndex, pageSize } = paginationData;
+  async findAll(res: Response) {
     try {
-      const data = await this.clientModel.findAndCountAll({
-        limit: pageSize,
-        offset: pageIndex * pageSize - pageSize,
-        order: [['id', 'desc']],
-      });
+      const data = await this.clientModel.findAll();
       res.status(HttpStatus.OK).send(data);
     } catch (err) {
       this.logger.error(err);
