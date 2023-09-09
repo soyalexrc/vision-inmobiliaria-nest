@@ -11,6 +11,7 @@ import { Roles } from '../auth/interfaces/roles.enum';
 import { Response } from 'express';
 import { PaginationDataDto } from '../common/dto/pagination-data.dto';
 import { CreateTemporalTransactionDto } from './dto/create-temporal-transaction.dto';
+import { FiltersDto } from "./dto/filters.dto";
 
 @ApiTags('Cash Flow')
 @Controller('cashflow')
@@ -37,8 +38,8 @@ export class CashflowController {
 
   @Get()
   @Auth(Roles.admin, Roles.serviceManager, Roles.companyManager)
-  findAll(@Query() paginationData: PaginationDataDto, @Res() res: Response) {
-    return this.cashflowService.findAll(paginationData, res);
+  findAll(@Query() filtersDto: FiltersDto, @Res() res: Response) {
+    return this.cashflowService.findAll(filtersDto, res);
   }
   @Get('getTemporalTransactions')
   @Auth(Roles.admin, Roles.serviceManager, Roles.companyManager)
