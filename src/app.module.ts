@@ -31,12 +31,15 @@ import { CashflowPerson } from './cashflow/entities/cashflowPerson.entity';
 import { ServiceModule } from './service/service.module';
 import { Service } from './service/entities/service.entity';
 import { SubService } from './service/entities/sub-service.entity';
+import { ScheduleModule } from '@nestjs/schedule';
+import { CronjobsModule } from './cronjobs/cronjobs.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       envFilePath: '.env',
     }),
+    ScheduleModule.forRoot(),
     SequelizeModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -84,6 +87,7 @@ import { SubService } from './service/entities/sub-service.entity';
     ClientModule,
     OwnerModule,
     ServiceModule,
+    CronjobsModule,
   ],
 })
 export class AppModule {}

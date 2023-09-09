@@ -4,7 +4,7 @@ import { UpdateCashflowDto } from './dto/update-cashflow.dto';
 import { InjectConnection, InjectModel } from '@nestjs/sequelize';
 import { CashFlow } from './entities/cashflow.entity';
 import { Sequelize } from 'sequelize-typescript';
-import sequelize from 'sequelize';
+import sequelize, { Op } from 'sequelize';
 import { v4 as uuid } from 'uuid';
 import { Response } from 'express';
 import { PaginationDataDto } from '../common/dto/pagination-data.dto';
@@ -16,6 +16,9 @@ import { Owner } from '../owner/entities/owner.entity';
 import { CashflowPerson } from './entities/cashflowPerson.entity';
 import { NegotiationInformation } from '../property/entities/negotiationInformation.entity';
 import { GeneralInformation } from '../property/entities/generalInformation.entity';
+import { Cron, CronExpression } from '@nestjs/schedule';
+import { FiltersDto } from './dto/filters.dto';
+import { filtersCleaner } from '../common/helpers/filtersCleaner';
 
 @Injectable()
 export class CashflowService {
@@ -32,6 +35,7 @@ export class CashflowService {
 
   async create(createCashflowDto: CreateCashflowDto, res: Response) {
     try {
+      console.log(createCashflowDto);
       const data = await this.cashFlowModel.create(createCashflowDto as any);
       res.status(HttpStatus.OK).send({
         message: 'Se creo el registro con exito!',
@@ -121,10 +125,24 @@ export class CashflowService {
     }
   }
 
-  async findAll(paginationData: PaginationDataDto, res: Response) {
-    const { pageIndex, pageSize } = paginationData;
+  async findAll(filtersDto: FiltersDto, res: Response) {
+    const { pageIndex, pageSize, transactionType, currency, wayToPay, entity, service, dateFrom, dateTo } = filtersDto;
+    const whereClause = filtersCleaner({
+      transactionType,
+      currency,
+      wayToPay,
+      entity,
+      service,
+    });
+    if (dateFrom && dateTo) {
+      whereClause.date = {
+        [Op.between]: [dateFrom, dateTo],
+      };
+    }
+    this.logger.debug(whereClause);
     try {
       const data = await this.cashFlowModel.findAndCountAll({
+        where: whereClause,
         limit: pageSize,
         offset: pageIndex * pageSize - pageSize,
         order: [['date', 'desc']],
@@ -180,6 +198,7 @@ export class CashflowService {
 
   async getTotals(res: Response) {
     try {
+      const dateNow = new Date();
       const ingreso = await this.cashFlowModel.sequelize.query(
         `
             select (select sum(cast(amount as decimal)) as BS
@@ -281,6 +300,7 @@ export class CashflowService {
         cuentasPorPagar: cuentasPorPagar[0],
         cuentasPorCobrar: cuentasPorCobrar[0],
         ingresoCuentaTerceros: ingresoCuentaTerceros[0],
+        dateNow,
       });
     } catch (err) {
       this.logger.error(err);

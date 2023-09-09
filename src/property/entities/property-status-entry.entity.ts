@@ -1,8 +1,8 @@
-import { AutoIncrement, BelongsTo, Column, DataType, ForeignKey, Model, PrimaryKey, Table } from "sequelize-typescript";
+import { AutoIncrement, BelongsTo, Column, DataType, ForeignKey, Model, PrimaryKey, Table } from 'sequelize-typescript';
 import { Property } from './property.entity';
 
 @Table({ tableName: 'PropertyStatusEntry' })
-export class PropertyStatusEntry extends Model{
+export class PropertyStatusEntry extends Model {
   @PrimaryKey
   @AutoIncrement
   @Column({ type: DataType.INTEGER })
