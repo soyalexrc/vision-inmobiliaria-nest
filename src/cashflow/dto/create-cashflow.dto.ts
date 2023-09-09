@@ -93,29 +93,29 @@ export class CreateCashflowDto {
   })
   isTemporalTransaction = false;
 
-  @IsString()
+  @IsBoolean()
   @IsOptional()
   @ApiProperty({
     description: 'Canon information',
     required: false,
   })
-  canon: string;
+  canon: boolean;
 
-  @IsString()
+  @IsBoolean()
   @IsOptional()
   @ApiProperty({
     description: 'Contract information',
     required: false,
   })
-  contract: string;
+  contract: boolean;
 
-  @IsString()
+  @IsBoolean()
   @IsOptional()
   @ApiProperty({
     description: 'Guarantee information',
     required: false,
   })
-  guarantee: string;
+  guarantee: boolean;
 
   @IsInt()
   @IsOptional()
