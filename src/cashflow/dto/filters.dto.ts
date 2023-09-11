@@ -47,4 +47,16 @@ export class FiltersDto {
   @IsString()
   @IsOptional()
   property_id: string;
+
+  @IsString()
+  @IsOptional()
+  owner_id: string;
+
+  @IsString()
+  @IsOptional()
+  client_id: string;
+
+  @IsString()
+  @IsOptional()
+  person: string;
 }
