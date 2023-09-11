@@ -53,6 +53,18 @@ export class CashflowController {
     return this.cashflowService.getTotals(res, filtersDto);
   }
 
+  @Get('getTotalAvailable')
+  @Auth(Roles.admin, Roles.serviceManager, Roles.companyManager)
+  getTotalAvailable(@Res() res: Response, @Query() filtersDto: FiltersDto) {
+    return this.cashflowService.getTotalAvailable(res, filtersDto);
+  }
+
+  @Get('getTotalAvailableByEntities')
+  @Auth(Roles.admin, Roles.serviceManager, Roles.companyManager)
+  getTotalAvailableByEntities(@Res() res: Response, @Query() filtersDto: FiltersDto) {
+    return this.cashflowService.getTotalAvailableByEntities(res, filtersDto);
+  }
+
   @Get('getPeople')
   @Auth(Roles.admin, Roles.serviceManager, Roles.companyManager)
   findAllPeople(@Res() res: Response) {
