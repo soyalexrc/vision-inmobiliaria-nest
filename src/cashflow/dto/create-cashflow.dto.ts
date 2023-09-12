@@ -95,6 +95,7 @@ export class CreateCashflowDto {
 
   @IsBoolean()
   @IsOptional()
+  @Type(() => Boolean)
   @ApiProperty({
     description: 'Canon information',
     required: false,
@@ -103,6 +104,7 @@ export class CreateCashflowDto {
 
   @IsBoolean()
   @IsOptional()
+  @Type(() => Boolean)
   @ApiProperty({
     description: 'Contract information',
     required: false,
@@ -111,6 +113,7 @@ export class CreateCashflowDto {
 
   @IsBoolean()
   @IsOptional()
+  @Type(() => Boolean)
   @ApiProperty({
     description: 'Guarantee information',
     required: false,

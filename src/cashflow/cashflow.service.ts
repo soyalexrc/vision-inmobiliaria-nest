@@ -20,6 +20,21 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { FiltersDto } from './dto/filters.dto';
 import { filtersCleaner } from '../common/helpers/filtersCleaner';
 import { calculateSumByTransactionTypeAndCurrency } from '../common/helpers/sql/totals-helpers';
+import { User } from '../user/entities/user.entity';
+import * as NodeMailer from 'nodemailer';
+import { ConfigService } from '@nestjs/config';
+import { CloseCashFlow } from './entities/closeCashflow.entity';
+
+const entities = [
+  { key: 'totalBnc', value: 'Banco Nacional de Crédito (BNC)' },
+  { key: 'totalBanPan', value: 'Banesco Panamá' },
+  { key: 'totalBanVen', value: 'Banesco Venezuela' },
+  { key: 'totalBanNacTer', value: 'Banco Nacional de Terceros' },
+  { key: 'totalOfiPaseo', value: 'Oficina Paseo La Granja' },
+  { key: 'totalTesoreria', value: 'Tesorería' },
+  { key: 'totalOfiSanCar', value: 'Oficina San Carlos' },
+  { key: 'totalBanInTer', value: 'Banco internacional de terceros' },
+];
 
 @Injectable()
 export class CashflowService {
@@ -30,8 +45,9 @@ export class CashflowService {
     @InjectModel(Property) private propertyModel: typeof Property,
     @InjectModel(Client) private clientModel: typeof Client,
     @InjectModel(Owner) private ownerModel: typeof Owner,
+    @InjectModel(CloseCashFlow) private closeCashFlowModel: typeof CloseCashFlow,
     @InjectModel(CashflowPerson) private cashFlowPersonModel: typeof CashflowPerson,
-    @InjectConnection() private sequelize: Sequelize,
+    private configService: ConfigService,
   ) {}
 
   async create(createCashflowDto: CreateCashflowDto, res: Response) {
@@ -75,9 +91,9 @@ export class CashflowService {
         client: null,
         property: null,
         location: '',
-        canon: '',
-        contract: '',
-        guarantee: '',
+        canon: false,
+        contract: false,
+        guarantee: false,
         service: '',
         typeOfService: '',
         taxPayer: '',
@@ -88,7 +104,6 @@ export class CashflowService {
         isTemporalTransaction: true,
         temporalTransactionId: transactionId,
         entity: createTemporalTransactionDto.entityFrom,
-        propertyJson: {},
       });
 
       const dataTo = await this.cashFlowModel.create({
@@ -96,9 +111,9 @@ export class CashflowService {
         client: null,
         property: null,
         location: '',
-        canon: '',
-        contract: '',
-        guarantee: '',
+        canon: false,
+        contract: false,
+        guarantee: false,
         service: '',
         typeOfService: '',
         taxPayer: '',
@@ -109,7 +124,6 @@ export class CashflowService {
         isTemporalTransaction: true,
         temporalTransactionId: transactionId,
         entity: createTemporalTransactionDto.entityTo,
-        propertyJson: {},
       });
 
       res.status(HttpStatus.OK).send({
@@ -174,6 +188,9 @@ export class CashflowService {
             model: Property,
             include: [GeneralInformation],
           },
+          Owner,
+          Client,
+          User,
         ],
       });
       res.status(HttpStatus.OK).send(data);
@@ -306,17 +323,6 @@ export class CashflowService {
   async getTotalAvailableByEntities(res: Response, filtersDto: FiltersDto) {
     const { dateFrom, dateTo } = filtersDto;
     try {
-      const entities = [
-        { key: 'totalBnc', value: 'Banco Nacional de Crédito (BNC)' },
-        { key: 'totalBanPan', value: 'Banesco Panamá' },
-        { key: 'totalBanVen', value: 'Banesco Venezuela' },
-        { key: 'totalBanNacTer', value: 'Banco Nacional de Terceros' },
-        { key: 'totalOfiPaseo', value: 'Oficina Paseo La Granja' },
-        { key: 'totalTesoreria', value: 'Tesorería' },
-        { key: 'totalOfiSanCar', value: 'Oficina San Carlos' },
-        { key: 'totalBanInTer', value: 'Banco internacional de terceros' },
-      ];
-
       const forLoop = async () => {
         const total = {};
 
@@ -347,13 +353,13 @@ export class CashflowService {
   async findOne(id: number, res: Response) {
     try {
       const data = await this.cashFlowModel.findOne({ where: { id: id } });
-      if (data) {
-        res.status(HttpStatus.OK).send(data);
-      } else {
+      if (!data) {
         res.status(HttpStatus.BAD_REQUEST).send({
           message: 'No se encontro el registro con el id ' + id,
           error: true,
         });
+      } else {
+        res.status(HttpStatus.OK).send(data);
       }
     } catch (err) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
@@ -434,6 +440,209 @@ export class CashflowService {
         message: 'Ocurrio un error ' + JSON.stringify(err),
         error: true,
       });
+    }
+  }
+
+  @Cron(CronExpression.MONDAY_TO_FRIDAY_AT_6PM)
+  // @Cron(CronExpression.EVERY_MINUTE)
+  async generateCashFlowClose() {
+    const today = new Date();
+    const startDate = new Date(today);
+    const endDate = new Date(today);
+
+    startDate.setHours(2, 0, 0, 0);
+    endDate.setHours(18, 0, 0, 0);
+
+    const startDateTimeString = startDate.toISOString();
+    const endDateTimeString = endDate.toISOString();
+
+    this.logger.debug({
+      startDateTimeString,
+      endDateTimeString,
+    });
+    try {
+      const data = [];
+
+      for (let i = 0; i < 2; i++) {
+        const dateFrom = i === 0 ? startDateTimeString : '';
+        const dateTo = i === 0 ? endDateTimeString : '';
+
+        const ingreso = await calculateSumByTransactionTypeAndCurrency('Ingreso', 'amount', true, dateFrom, dateTo);
+        const egreso = await calculateSumByTransactionTypeAndCurrency('Egreso', 'amount', true, dateFrom, dateTo);
+
+        const total = {
+          bs: ingreso.bs - egreso.bs,
+          usd: ingreso.usd - egreso.usd,
+          eur: ingreso.eur - egreso.eur,
+        };
+
+        const ingresoCuentaTerceros = await calculateSumByTransactionTypeAndCurrency(
+          'Ingreso a cuenta de terceros',
+          'incomeByThird',
+          true,
+          dateFrom,
+          dateTo,
+        );
+
+        const cuentasPorCobrarIngreso = await calculateSumByTransactionTypeAndCurrency(
+          'Ingreso',
+          'pendingToCollect',
+          false,
+          dateFrom,
+          dateTo,
+        );
+        const cuentasPorCobrarPending = await calculateSumByTransactionTypeAndCurrency(
+          'Cuenta por cobrar',
+          'pendingToCollect',
+          false,
+          dateFrom,
+          dateTo,
+        );
+        const cuentasPorCobrarTotal = {
+          bs: cuentasPorCobrarIngreso.bs + cuentasPorCobrarPending.bs,
+          usd: cuentasPorCobrarIngreso.usd + cuentasPorCobrarPending.usd,
+          eur: cuentasPorCobrarIngreso.eur + cuentasPorCobrarPending.eur,
+        };
+
+        const cuentasPorPagarIngreso = await calculateSumByTransactionTypeAndCurrency('Ingreso', 'totalDue', false, dateFrom, dateTo);
+        const cuentasPorPagarPending = await calculateSumByTransactionTypeAndCurrency(
+          'Cuenta por pagar',
+          'totalDue',
+          false,
+          dateFrom,
+          dateTo,
+        );
+        const cuentasPorPagarTotal = {
+          bs: cuentasPorPagarIngreso.bs + cuentasPorPagarPending.bs,
+          usd: cuentasPorPagarIngreso.usd + cuentasPorPagarPending.usd,
+          eur: cuentasPorPagarIngreso.eur + cuentasPorPagarPending.eur,
+        };
+
+        data.push({
+          ingreso,
+          egreso,
+          totalDisponible: total,
+          cuentasPorPagar: cuentasPorPagarTotal,
+          cuentasPorCobrar: cuentasPorCobrarTotal,
+          ingresoCuentaTerceros,
+        });
+      }
+
+      const temporalTransactionsRaw = await this.cashFlowModel.findAll({
+        where: {
+          isTemporalTransaction: true,
+          createdAt: {
+            [Op.between]: [startDateTimeString, endDateTimeString],
+          },
+        },
+      });
+
+      this.logger.debug(temporalTransactionsRaw);
+
+      const temporalTransactions = Array.from(
+        groupBy(temporalTransactionsRaw, (transaction: CashFlow) => transaction.temporalTransactionId),
+      ).map((element: [string, [CashFlow, CashFlow]]) => ({
+        id: element[0],
+        date: element[1][0].createdAt,
+        amount: `${element[1][0].currency} ${element[1][0].amount}`,
+        origin: element[1][0].entity,
+        destiny: element[1][1].entity,
+        createdBy: element[1][0].createdBy,
+        createdAt: element[1][0].createdAt,
+      }));
+
+      const getTotalAvailableByEntitiesToday = async () => {
+        const total = {};
+
+        for (let i = 0; i < entities.length; i++) {
+          const ingreso = await calculateSumByTransactionTypeAndCurrency(
+            'Ingreso',
+            'amount',
+            false,
+            startDateTimeString,
+            endDateTimeString,
+            entities[i].value,
+          );
+          const egreso = await calculateSumByTransactionTypeAndCurrency(
+            'Egreso',
+            'amount',
+            false,
+            startDateTimeString,
+            endDateTimeString,
+            entities[i].value,
+          );
+
+          total[entities[i].key] = {
+            bs: ingreso.bs - egreso.bs,
+            usd: ingreso.usd - egreso.usd,
+            eur: ingreso.eur - egreso.eur,
+          };
+        }
+
+        return total;
+      };
+      const totalAvailableByEntitiesToday = await getTotalAvailableByEntitiesToday();
+
+      const getTotalAvailableByEntities = async () => {
+        const total = {};
+
+        for (let i = 0; i < entities.length; i++) {
+          const ingreso = await calculateSumByTransactionTypeAndCurrency('Ingreso', 'amount', false, '', '', entities[i].value);
+          const egreso = await calculateSumByTransactionTypeAndCurrency('Egreso', 'amount', false, '', '', entities[i].value);
+
+          total[entities[i].key] = {
+            bs: ingreso.bs - egreso.bs,
+            usd: ingreso.usd - egreso.usd,
+            eur: ingreso.eur - egreso.eur,
+          };
+        }
+
+        return total;
+      };
+      const totalAvailableByEntities = await getTotalAvailableByEntities();
+
+      const register = await this.closeCashFlowModel.create({
+        data: {
+          totals: data,
+          temporalTransactions,
+          totalAvailableByEntities,
+          totalAvailableByEntitiesToday,
+        },
+      });
+      const transporter = NodeMailer.createTransport({
+        host: this.configService.get<string>('MAIL_HOST'),
+        post: this.configService.get<number>('MAIL_PORT'),
+        secure: true,
+        auth: {
+          user: this.configService.get<string>('MAIL_USER'),
+          pass: this.configService.get<string>('MAIL_PASSWORD'),
+        },
+      } as any);
+
+      transporter
+        .sendMail({
+          to: 'alexcarvajal2404@gmail.com',
+          from: this.configService.get<string>('MAIL_FROM'),
+          subject: 'Cierre de caja',
+          text: 'texto',
+          html: `Se genero un nuevo cierre de caja a las: ${new Date().toISOString()}`,
+        })
+        .then((data) => {
+          this.logger.log('Se envio el correo de notificacion con exito!');
+        })
+        .catch((err) => {
+          this.logger.error(err);
+          return {
+            error: true,
+            message: `Ocurrio un error, ${JSON.stringify(err)}`,
+          };
+        });
+      this.logger.log(register);
+    } catch (err) {
+      return {
+        message: 'Ocurrio un error ' + JSON.stringify(err),
+        error: true,
+      };
     }
   }
 }

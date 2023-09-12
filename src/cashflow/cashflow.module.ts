@@ -8,9 +8,11 @@ import { Property } from '../property/entities/property.entity';
 import { Owner } from '../owner/entities/owner.entity';
 import { Client } from '../client/entities/client.entity';
 import { CashflowPerson } from './entities/cashflowPerson.entity';
+import { ConfigModule } from '@nestjs/config';
+import { CloseCashFlow } from './entities/closeCashflow.entity';
 
 @Module({
-  imports: [AuthModule, SequelizeModule.forFeature([CashFlow, Property, Client, Owner, CashflowPerson])],
+  imports: [AuthModule, ConfigModule, SequelizeModule.forFeature([CashFlow, Property, Client, Owner, CashflowPerson, CloseCashFlow])],
   controllers: [CashflowController],
   providers: [CashflowService],
 })
