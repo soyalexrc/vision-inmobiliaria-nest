@@ -33,6 +33,7 @@ import { Service } from './service/entities/service.entity';
 import { SubService } from './service/entities/sub-service.entity';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CronjobsModule } from './cronjobs/cronjobs.module';
+import { CloseCashFlow } from "./cashflow/entities/closeCashflow.entity";
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { CronjobsModule } from './cronjobs/cronjobs.module';
       useFactory: (configService: ConfigService) => {
         return {
           dialect: 'postgres',
+          timezone: 'America/Caracas',
           port: configService.get<number>('DB_PORT'),
           host: configService.get<string>('DB_HOST'),
           username: configService.get<string>('DB_USERNAME'),
@@ -72,6 +74,7 @@ import { CronjobsModule } from './cronjobs/cronjobs.module';
             Service,
             SubService,
             DeleteFileRequest,
+            CloseCashFlow,
           ],
         };
       },

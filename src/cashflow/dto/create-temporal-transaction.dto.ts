@@ -1,5 +1,6 @@
-import { IsString } from 'class-validator';
+import { IsInt, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 
 export class CreateTemporalTransactionDto {
   @IsString()
@@ -60,4 +61,14 @@ export class CreateTemporalTransactionDto {
     ],
   })
   entityTo: string;
+
+  @IsString()
+  date: string;
+
+  @IsInt()
+  @Type(() => Number)
+  user_id: number;
+
+  @IsString()
+  month: string;
 }
