@@ -443,15 +443,15 @@ export class CashflowService {
     }
   }
 
-  @Cron(CronExpression.MONDAY_TO_FRIDAY_AT_6PM)
+  @Cron(CronExpression.MONDAY_TO_FRIDAY_AT_10PM)
   // @Cron(CronExpression.EVERY_MINUTE)
   async generateCashFlowClose() {
     const today = new Date();
     const startDate = new Date(today);
     const endDate = new Date(today);
 
-    startDate.setHours(2, 0, 0, 0);
-    endDate.setHours(18, 0, 0, 0);
+    startDate.setHours(1, 0, 0, 0);
+    endDate.setHours(23, 0, 0, 0);
 
     const startDateTimeString = startDate.toISOString();
     const endDateTimeString = endDate.toISOString();

@@ -14,6 +14,8 @@ async function bootstrap() {
     }),
   );
 
+  process.env.TZ = 'America/Caracas';
+
   const config = new DocumentBuilder().setTitle('Vision Inmobiliaria RestFul API').setDescription('description').setVersion('1.0').build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
