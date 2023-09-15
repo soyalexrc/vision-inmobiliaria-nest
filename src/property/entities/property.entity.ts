@@ -65,7 +65,7 @@ export class Property extends Model {
   external_adviser_id: number;
 
   @BelongsTo(() => ExternalAdviser)
-  external_adviser: Owner;
+  external_adviser: ExternalAdviser;
 
   @HasOne(() => Client)
   client: Client;
@@ -86,4 +86,7 @@ export class Property extends Model {
 
   @HasMany(() => PropertyStatusEntry)
   statusHistory: PropertyStatusEntry[];
+
+  // @HasMany(() => PropertyAttribute)
+  // attributes: Attribute[];
 }

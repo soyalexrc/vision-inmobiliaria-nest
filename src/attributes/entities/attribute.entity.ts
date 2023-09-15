@@ -1,6 +1,6 @@
-import { AutoIncrement, BelongsToMany, Column, Model, PrimaryKey, Table } from 'sequelize-typescript';
-import { PropertyAttribute } from '../../property/entities/property-attribute.entity';
-import { Property } from '../../property/entities/property.entity';
+import { AutoIncrement, BelongsTo, BelongsToMany, Column, Model, PrimaryKey, Table } from "sequelize-typescript";
+// import { PropertyAttribute } from '../../property/entities/property-attribute.entity';
+// import { Property } from '../../property/entities/property.entity';
 
 @Table({ tableName: 'Attribute' })
 export class Attribute extends Model {
@@ -29,4 +29,7 @@ export class Attribute extends Model {
 
   @Column
   value: string;
+
+  // @BelongsToMany(() => Property, () => PropertyAttribute)
+  // properties: Property[];
 }

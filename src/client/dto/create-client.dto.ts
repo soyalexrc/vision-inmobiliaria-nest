@@ -26,6 +26,7 @@ export class CreateClientDto {
   service: string;
 
   @IsString()
+  @IsOptional()
   usageProperty: string;
 
   @IsBoolean()
@@ -46,6 +47,7 @@ export class CreateClientDto {
   propertyLocation: string;
 
   @IsString()
+  @IsOptional()
   aspiredPrice: string;
 
   @IsString()
@@ -104,15 +106,35 @@ export class CreateClientDto {
 
   @IsString()
   @IsOptional()
-  usageOfProperty: string;
-
-  @IsString()
-  @IsOptional()
   typeOfPerson: string;
 
   @IsString()
   @IsOptional()
   personEntry: string;
+
+  @IsString()
+  @IsOptional()
+  location: string;
+
+  @IsString()
+  @IsOptional()
+  company: string;
+
+  @IsString()
+  @IsOptional()
+  specificRequirement: string;
+
+  @IsString()
+  @IsOptional()
+  interestDate: string;
+
+  @IsString()
+  @IsOptional()
+  appointmentDate: string;
+
+  @IsString()
+  @IsOptional()
+  inspectionDate: string;
 
   @IsString()
   @IsOptional()

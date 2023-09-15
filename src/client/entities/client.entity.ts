@@ -32,8 +32,8 @@ export class Client extends Model {
   @Column({ type: DataType.STRING })
   contactFrom: string;
 
-  @Column({ type: DataType.BOOLEAN })
-  requirementStatus: boolean;
+  @Column({ type: DataType.STRING })
+  requirementStatus: string;
 
   @ForeignKey(() => User)
   @Column({ type: DataType.INTEGER })
@@ -114,6 +114,24 @@ export class Client extends Model {
 
   @Column({ type: DataType.STRING })
   personLocation: string;
+
+  @Column({ type: DataType.STRING })
+  specificRequirement: string;
+
+  @Column({ type: DataType.STRING })
+  location: string;
+
+  @Column({ type: DataType.STRING })
+  company: string;
+
+  @Column({ type: DataType.DATE, allowNull: true })
+  interestDate: Date | null;
+
+  @Column({ type: DataType.DATE, allowNull: true })
+  appointmentDate: Date | null;
+
+  @Column({ type: DataType.DATE, allowNull: true })
+  inspectionDate: Date | null;
 
   @HasMany(() => CashFlow)
   cashflows: CashFlow[];

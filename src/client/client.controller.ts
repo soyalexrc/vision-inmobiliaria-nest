@@ -6,6 +6,7 @@ import { Response } from 'express';
 import { PaginationDataDto } from '../common/dto/pagination-data.dto';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { Roles } from '../auth/interfaces/roles.enum';
+import { FiltersDto } from '../cashflow/dto/filters.dto';
 
 @Controller('client')
 export class ClientController {
@@ -17,14 +18,20 @@ export class ClientController {
     return this.clientService.create(createClientDto, res);
   }
 
+  @Post('changeStatus')
+  @Auth(Roles.admin)
+  changeStatus(@Body() changeStatusDto: { status: string; id: number }, @Res() res: Response) {
+    return this.clientService.changeStatus(changeStatusDto, res);
+  }
+
   @Get()
   findAll(@Res() res: Response) {
     return this.clientService.findAll(res);
   }
 
   @Get('getPreviews')
-  getPreviews(@Query() paginationData: PaginationDataDto, @Res() res: Response) {
-    return this.clientService.getPreviews(paginationData, res);
+  getPreviews(@Res() res: Response, @Query() filtersDto: FiltersDto) {
+    return this.clientService.getPreviews(res, filtersDto);
   }
 
   @Get(':id')
