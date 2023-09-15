@@ -15,6 +15,7 @@ import { PropertyAttribute } from './entities/property-attribute.entity';
 import { ChangePropertyStatusDto } from './dto/change-property-status.dto';
 import { PropertyStatusEntry } from './entities/property-status-entry.entity';
 import { Cron, CronExpression } from '@nestjs/schedule';
+import { Attribute } from '../attributes/entities/attribute.entity';
 
 @Injectable()
 export class PropertyService {
@@ -39,13 +40,13 @@ export class PropertyService {
     try {
       const property = await this.propertyModel.create(createPropertyDto as any);
 
-      // createPropertyDto.attributes.forEach((atribute: Attribute) => {
-      //   this.propertyAttributeModel.create({
-      //     property_id: property.id,
-      //     attribute_id: atribute.id,
-      //     value: atribute.value,
-      //   });
-      // });
+      for (const attribute of createPropertyDto.attributes) {
+        await this.propertyAttributeModel.create({
+          property_id: property.id,
+          attribute_id: attribute.id,
+          value: attribute.value,
+        });
+      }
 
       const generalInformation = await this.generalInformationModel.create({
         ...createPropertyDto.generalInformation,
@@ -156,6 +157,9 @@ export class PropertyService {
   async getPreviews(res: Response, paginationDto: PaginationDataDto) {
     const { pageIndex, pageSize } = paginationDto;
     try {
+      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      this.logger.debug(timeZone);
+      this.logger.debug(new Date());
       const count = await this.propertyModel.count();
       const data = await this.propertyModel.sequelize.query(
         `SELECT P.id, "propertyType", "operationType", price, images, ally_id, owner_id, code, country, city, municipality, state, P."createdAt", "minimumNegotiation", user_id, "reasonToSellOrRent", status, files, nomenclature, "footageGround", "footageBuilding", "distributionComments" FROM "Property" P INNER JOIN "GeneralInformation" GI ON p.id  = GI.property_id  INNER JOIN "LocationInformation" LI ON P.id = LI.property_id INNER JOIN "NegotiationInformation" NI ON P.id = NI.property_id INNER JOIN "PublicationSource" PS ON P.id = PS.property_id LIMIT :customLimit OFFSET :customOffset`,
@@ -271,7 +275,13 @@ export class PropertyService {
     try {
       const data = await this.propertyModel.findOne({
         where: { id: id },
-        include: [GeneralInformation, LocationInformation, NegotiationInformation, PublicationSource, Client],
+        include: [
+          GeneralInformation,
+          LocationInformation,
+          NegotiationInformation,
+          PublicationSource,
+          Client,
+        ],
       });
       if (data) {
         res.status(HttpStatus.OK).send(data);

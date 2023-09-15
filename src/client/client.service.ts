@@ -6,6 +6,9 @@ import { Client } from './entities/client.entity';
 import { UpdateAllyDto } from '../ally/dto/update-ally.dto';
 import { Response } from 'express';
 import { PaginationDataDto } from '../common/dto/pagination-data.dto';
+import { FiltersDto } from '../cashflow/dto/filters.dto';
+import { filtersCleaner } from '../common/helpers/filtersCleaner';
+import sequelize_2 from 'sequelize';
 
 @Injectable()
 export class ClientService {
@@ -18,6 +21,37 @@ export class ClientService {
       const data = await this.clientModel.create(createClientDto as any);
       res.status(HttpStatus.OK).send({
         data,
+        message: 'Se creo el cliente con exito!',
+      });
+    } catch (err) {
+      this.logger.error(err);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: `Ocurrio un error, ${JSON.stringify(err)}`,
+      });
+    }
+  }
+
+  async changeStatus(changeStatusDto: { status: string; id: number }, res: Response) {
+    try {
+      const client = await this.clientModel.findOne({ where: { id: changeStatusDto.id } });
+
+      if (!client) {
+        res.status(HttpStatus.NOT_FOUND).send({
+          error: true,
+          message: `No se encontro el cliente con el id ${changeStatusDto.id}`,
+        });
+        return;
+      }
+
+      this.logger.debug(client);
+      this.logger.debug(changeStatusDto);
+
+      const data = await client.update({ ...client, requirementStatus: changeStatusDto.status });
+
+      this.logger.debug(data);
+
+      res.status(HttpStatus.OK).send({
         message: 'Se creo el cliente con exito!',
       });
     } catch (err) {
@@ -42,12 +76,26 @@ export class ClientService {
     }
   }
 
-  async getPreviews(paginationData: PaginationDataDto, res: Response) {
-    const { pageIndex, pageSize } = paginationData;
+  async getPreviews(res: Response, filtersDto: FiltersDto) {
+    const { pageIndex, pageSize, service, operationType, status, dateFrom, dateTo } = filtersDto;
+
+    const whereClause = filtersCleaner({
+      service,
+      operationType,
+      status,
+    });
+
+    if (dateFrom && dateTo) {
+      whereClause.createdAt = {
+        [sequelize_2.Op.between]: [dateFrom, dateTo],
+      };
+    }
+
     try {
       const data = await this.clientModel.findAndCountAll({
-        attributes: ['id', 'createdAt', 'name', 'requirementStatus', 'phone', 'contactFrom', 'operationType'],
+        attributes: ['id', 'createdAt', 'name', 'requirementStatus', 'phone', 'contactFrom', 'operationType', 'service'],
         limit: pageSize,
+        where: whereClause,
         offset: pageIndex * pageSize - pageSize,
         order: [['id', 'desc']],
       });
