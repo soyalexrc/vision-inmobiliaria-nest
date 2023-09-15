@@ -1,4 +1,4 @@
-import { IsInt, IsOptional, IsString } from "class-validator";
+import { IsInt, IsOptional, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class FiltersDto {
@@ -59,4 +59,16 @@ export class FiltersDto {
   @IsString()
   @IsOptional()
   person: string;
+
+  @IsString()
+  @IsOptional()
+  operationType: string;
+
+  @IsString()
+  @IsOptional()
+  contactFrom: string;
+
+  @IsString()
+  @IsOptional()
+  status: string;
 }

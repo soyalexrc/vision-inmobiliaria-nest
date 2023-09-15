@@ -1,8 +1,8 @@
-import { AutoIncrement, Column, DataType, ForeignKey, Model, PrimaryKey, Table } from 'sequelize-typescript';
+import { AutoIncrement, BelongsTo, Column, DataType, ForeignKey, HasOne, Model, PrimaryKey, Table } from 'sequelize-typescript';
 import { Property } from './property.entity';
 import { Attribute } from '../../attributes/entities/attribute.entity';
 
-@Table({ tableName: 'Property_Attribute' })
+@Table({ tableName: 'Property_Attribute', createdAt: false, updatedAt: false })
 export class PropertyAttribute extends Model {
   @PrimaryKey
   @AutoIncrement
