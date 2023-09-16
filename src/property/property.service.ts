@@ -40,13 +40,13 @@ export class PropertyService {
     try {
       const property = await this.propertyModel.create(createPropertyDto as any);
 
-      for (const attribute of createPropertyDto.attributes) {
-        await this.propertyAttributeModel.create({
-          property_id: property.id,
-          attribute_id: attribute.id,
-          value: attribute.value,
-        });
-      }
+      // for (const attribute of createPropertyDto.attributes) {
+      //   await this.propertyAttributeModel.create({
+      //     property_id: property.id,
+      //     attribute_id: attribute.id,
+      //     value: attribute.value,
+      //   });
+      // }
 
       const generalInformation = await this.generalInformationModel.create({
         ...createPropertyDto.generalInformation,
@@ -138,7 +138,7 @@ export class PropertyService {
     try {
       const count = await this.propertyModel.count();
       const data = await this.propertyModel.sequelize.query(
-        `SELECT P.id, "propertyType", "operationType", price, images, ally_id, owner_id, code, country, city, municipality, state, P."createdAt", "minimumNegotiation", user_id, "reasonToSellOrRent", status, files, nomenclature, "footageGround", "footageBuilding", "distributionComments" FROM "Property" P INNER JOIN "GeneralInformation" GI ON p.id  = GI.property_id  INNER JOIN "LocationInformation" LI ON P.id = LI.property_id INNER JOIN "NegotiationInformation" NI ON P.id = NI.property_id INNER JOIN "PublicationSource" PS ON P.id = PS.property_id ORDER BY id DESC`,
+        `SELECT P.id, "propertyType", "operationType", price, images, ally_id, owner_id, code, country, city, municipality, "publicationTitle", state, P."createdAt", "minimumNegotiation", user_id, "reasonToSellOrRent", status, files, nomenclature, "footageGround", "footageBuilding", "distributionComments" FROM "Property" P INNER JOIN "GeneralInformation" GI ON p.id  = GI.property_id  INNER JOIN "LocationInformation" LI ON P.id = LI.property_id INNER JOIN "NegotiationInformation" NI ON P.id = NI.property_id INNER JOIN "PublicationSource" PS ON P.id = PS.property_id ORDER BY id DESC`,
         { type: sequelize.QueryTypes.SELECT },
       );
       res.status(HttpStatus.OK).send({
@@ -157,12 +157,9 @@ export class PropertyService {
   async getPreviews(res: Response, paginationDto: PaginationDataDto) {
     const { pageIndex, pageSize } = paginationDto;
     try {
-      const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      this.logger.debug(timeZone);
-      this.logger.debug(new Date());
       const count = await this.propertyModel.count();
       const data = await this.propertyModel.sequelize.query(
-        `SELECT P.id, "propertyType", "operationType", price, images, ally_id, owner_id, code, country, city, municipality, state, P."createdAt", "minimumNegotiation", user_id, "reasonToSellOrRent", status, files, nomenclature, "footageGround", "footageBuilding", "distributionComments" FROM "Property" P INNER JOIN "GeneralInformation" GI ON p.id  = GI.property_id  INNER JOIN "LocationInformation" LI ON P.id = LI.property_id INNER JOIN "NegotiationInformation" NI ON P.id = NI.property_id INNER JOIN "PublicationSource" PS ON P.id = PS.property_id LIMIT :customLimit OFFSET :customOffset`,
+        `SELECT P.id, "propertyType", "operationType", "publicationTitle", price, "description", images, ally_id, owner_id, code, country, city, municipality, state, P."createdAt", "minimumNegotiation", user_id, "reasonToSellOrRent", status, files, nomenclature, "footageGround", "footageBuilding", "distributionComments" FROM "Property" P INNER JOIN "GeneralInformation" GI ON p.id  = GI.property_id  INNER JOIN "LocationInformation" LI ON P.id = LI.property_id INNER JOIN "NegotiationInformation" NI ON P.id = NI.property_id INNER JOIN "PublicationSource" PS ON P.id = PS.property_id LIMIT :customLimit OFFSET :customOffset`,
         { type: sequelize.QueryTypes.SELECT, replacements: { customOffset: pageIndex * pageSize - pageSize, customLimit: pageSize } },
       );
       res.status(HttpStatus.OK).send({
@@ -275,13 +272,7 @@ export class PropertyService {
     try {
       const data = await this.propertyModel.findOne({
         where: { id: id },
-        include: [
-          GeneralInformation,
-          LocationInformation,
-          NegotiationInformation,
-          PublicationSource,
-          Client,
-        ],
+        include: [GeneralInformation, LocationInformation, NegotiationInformation, PublicationSource, Client],
       });
       if (data) {
         res.status(HttpStatus.OK).send(data);
@@ -289,6 +280,30 @@ export class PropertyService {
         res.status(HttpStatus.NOT_FOUND).send({
           error: true,
           message: 'No se encontro la propiedad con el id ' + id,
+        });
+      }
+    } catch (err) {
+      this.logger.error(err);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        message: 'Ocurrio un error ' + JSON.stringify(err),
+        error: true,
+      });
+    }
+  }
+
+  async getBySlug(slug: string, res: Response) {
+    try {
+      const data = await this.propertyModel.findOne({
+        where: { publicationTitle: slug },
+        attributes: ['images', 'id', 'attributes', 'createdAt', 'publicationTitle'],
+        include: [GeneralInformation, LocationInformation, NegotiationInformation, PublicationSource],
+      });
+      if (data) {
+        res.status(HttpStatus.OK).send(data);
+      } else {
+        res.status(HttpStatus.NOT_FOUND).send({
+          error: true,
+          message: 'No se encontro la propiedad con el slug ' + slug,
         });
       }
     } catch (err) {

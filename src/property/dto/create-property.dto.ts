@@ -1,4 +1,4 @@
-import { IsArray, IsInt, IsObject, IsOptional } from 'class-validator';
+import { IsArray, IsInt, IsObject, IsOptional, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreatePropertyDto {
@@ -19,6 +19,9 @@ export class CreatePropertyDto {
   @IsInt()
   @IsOptional()
   client_id: number;
+
+  @IsString()
+  publicationTitle: string;
 
   @IsInt()
   @IsOptional()

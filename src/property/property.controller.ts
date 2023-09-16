@@ -52,30 +52,17 @@ export class PropertyController {
     return this.propertiesService.getPreviewsByUserId(res, paginationDto, +userId);
   }
 
-  @Get('getAllGeneralInformation')
-  getAllGeneralInformation() {
-    return this.propertiesService.getAllGeneralInformation();
-  }
-
-  @Get('getAllLocationInformation')
-  getAllLocationInformation() {
-    return this.propertiesService.getAllLocationInformation();
-  }
-
-  @Get('getAllNegotiationInformation')
-  getAllNegotiationInformation() {
-    return this.propertiesService.getAllNegotiationInformation();
-  }
-
-  @Get('getAllPublicationSource')
-  getAllPublicationSource() {
-    return this.propertiesService.getAllPublicationSource();
+  @Get('getBySlug/:slug')
+  getBySlug(@Param('slug') slug: string, @Res() res: Response) {
+    return this.propertiesService.getBySlug(slug, res);
   }
 
   @Get(':id')
   findOne(@Param('id') id: string, @Res() res: Response) {
     return this.propertiesService.findOne(+id, res);
   }
+
+
 
   @Put(':id')
   @Auth(Roles.admin, Roles.visionAdviser)
