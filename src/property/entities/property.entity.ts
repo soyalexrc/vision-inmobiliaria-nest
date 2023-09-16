@@ -73,6 +73,9 @@ export class Property extends Model {
   @Column({ type: DataType.ARRAY(DataType.STRING) })
   files: string[];
 
+  @Column({ type: DataType.STRING })
+  publicationTitle: string;
+
   //   images
   @Column({ type: DataType.ARRAY(DataType.STRING) })
   images: string[];
