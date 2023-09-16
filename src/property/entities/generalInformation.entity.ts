@@ -30,10 +30,10 @@ export class GeneralInformation extends Model {
   @Column({ type: DataType.STRING })
   footageBuilding: string;
 
-  @Column({ type: DataType.STRING })
+  @Column({ type: DataType.TEXT })
   distributionComments: string;
 
-  @Column({ type: DataType.STRING })
+  @Column({ type: DataType.TEXT })
   description: string;
 
   @Column({ type: DataType.STRING })

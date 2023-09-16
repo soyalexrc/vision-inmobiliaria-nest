@@ -625,7 +625,7 @@ export class CashflowService {
           from: this.configService.get<string>('MAIL_FROM'),
           subject: 'Cierre de caja',
           text: 'texto',
-          html: `Se genero un nuevo cierre de caja a las: ${new Date().toISOString()}`,
+          html: `Se genero un nuevo cierre de caja a erntre las: ${startDateTimeString} y ${endDateTimeString}`,
         })
         .then((data) => {
           this.logger.log('Se envio el correo de notificacion con exito!');
