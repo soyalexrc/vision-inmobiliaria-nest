@@ -321,6 +321,7 @@ export class PropertyService {
       await this.publicationSource.update({ ...updatePropertyDto.publicationSource }, { where: { property_id: propertyToUpdate.id } });
 
       // revalidate route next js
+      this.logger.debug(urlToRevalidate);
       const revalidated = await this.http.post(urlToRevalidate, {
         path: `/inmuebles/${property.publicationTitle}`,
       });
