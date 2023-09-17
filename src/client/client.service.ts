@@ -77,12 +77,12 @@ export class ClientService {
   }
 
   async getPreviews(res: Response, filtersDto: FiltersDto) {
-    const { pageIndex, pageSize, service, operationType, status, dateFrom, dateTo } = filtersDto;
+    const { pageIndex, pageSize, service, operationType, requirementStatus, dateFrom, dateTo } = filtersDto;
 
     const whereClause = filtersCleaner({
       service,
       operationType,
-      status,
+      requirementStatus,
     });
 
     if (dateFrom && dateTo) {
