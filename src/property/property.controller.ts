@@ -8,6 +8,7 @@ import { Roles } from '../auth/interfaces/roles.enum';
 import { Response } from 'express';
 import { PaginationDataDto } from '../common/dto/pagination-data.dto';
 import { ChangePropertyStatusDto } from './dto/change-property-status.dto';
+import { FiltersDto } from "../cashflow/dto/filters.dto";
 
 @ApiTags('Properties')
 @Controller('property')
@@ -43,8 +44,8 @@ export class PropertyController {
   }
 
   @Get('previews/paginated')
-  getPreviews(@Res() res: Response, @Query() paginationDto: PaginationDataDto) {
-    return this.propertiesService.getPreviews(res, paginationDto);
+  getPreviews(@Res() res: Response, @Query() filtersDto: FiltersDto) {
+    return this.propertiesService.getPreviews(res, filtersDto);
   }
 
   @Get('previews/byUserId/:userId')
