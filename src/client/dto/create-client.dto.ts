@@ -55,6 +55,7 @@ export class CreateClientDto {
   typeOfBusiness: string;
 
   @IsString()
+  @IsOptional()
   note: string;
 
   @IsString()

@@ -53,7 +53,36 @@ export class CashflowService {
   async create(createCashflowDto: CreateCashflowDto, res: Response) {
     try {
       console.log(createCashflowDto);
-      const data = await this.cashFlowModel.create(createCashflowDto as any);
+      const forLoop = async () => {
+        const operations = [];
+
+        for (let i = 0; i < createCashflowDto.payments.length; i++) {
+          const result = await this.cashFlowModel.create({
+            ...createCashflowDto,
+            canon: createCashflowDto.payments[i].canon,
+            contract: createCashflowDto.payments[i].contract,
+            guarantee: createCashflowDto.payments[i].guarantee,
+            serviceType: createCashflowDto.payments[i].serviceType,
+            reason: createCashflowDto.payments[i].reason,
+            service: createCashflowDto.payments[i].service,
+            taxPayer: createCashflowDto.payments[i].taxPayer,
+            amount: createCashflowDto.payments[i].amount,
+            currency: createCashflowDto.payments[i].currency,
+            wayToPay: createCashflowDto.payments[i].wayToPay,
+            totalDue: createCashflowDto.payments[i].totalDue,
+            observation: createCashflowDto.payments[i].observation,
+            entity: createCashflowDto.payments[i].entity,
+            pendingToCollect: createCashflowDto.payments[i].pendingToCollect,
+            transactionType: createCashflowDto.payments[i].transactionType,
+          });
+
+          operations.push(result);
+        }
+
+        return operations;
+      };
+
+      const data = await forLoop();
       res.status(HttpStatus.OK).send({
         message: 'Se creo el registro con exito!',
         data,
@@ -443,15 +472,15 @@ export class CashflowService {
     }
   }
 
-  @Cron(CronExpression.MONDAY_TO_FRIDAY_AT_10PM)
-  // @Cron(CronExpression.EVERY_MINUTE)
+  // @Cron(CronExpression.MONDAY_TO_FRIDAY_AT_10PM)
+  @Cron(CronExpression.EVERY_5_MINUTES)
   async generateCashFlowClose() {
     const today = new Date();
     const startDate = new Date(today);
     const endDate = new Date(today);
 
-    startDate.setHours(1, 0, 0, 0);
-    endDate.setHours(23, 0, 0, 0);
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(19, 0, 0, 0);
 
     const startDateTimeString = startDate.toISOString();
     const endDateTimeString = endDate.toISOString();
