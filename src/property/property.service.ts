@@ -14,12 +14,16 @@ import { PaginationDataDto } from '../common/dto/pagination-data.dto';
 import { PropertyAttribute } from './entities/property-attribute.entity';
 import { ChangePropertyStatusDto } from './dto/change-property-status.dto';
 import { PropertyStatusEntry } from './entities/property-status-entry.entity';
-import { Cron, CronExpression } from '@nestjs/schedule';
-import { Attribute } from '../attributes/entities/attribute.entity';
+import { ConfigService } from '@nestjs/config';
+import axios, { AxiosInstance } from 'axios';
+import { FiltersDto } from '../cashflow/dto/filters.dto';
+import { filtersCleaner } from '../common/helpers/filtersCleaner';
+import { filter } from "rxjs";
 
 @Injectable()
 export class PropertyService {
   private readonly logger = new Logger();
+  private readonly http: AxiosInstance = axios;
 
   constructor(
     @InjectModel(Property) private propertyModel: typeof Property,
@@ -35,6 +39,7 @@ export class PropertyService {
     private propertyAttributeModel: typeof PropertyAttribute,
     @InjectModel(PropertyStatusEntry)
     private propertyStatusModel: typeof PropertyStatusEntry,
+    private configService: ConfigService,
   ) {}
   async create(createPropertyDto: CreatePropertyDto) {
     try {
@@ -154,17 +159,52 @@ export class PropertyService {
     }
   }
 
-  async getPreviews(res: Response, paginationDto: PaginationDataDto) {
-    const { pageIndex, pageSize } = paginationDto;
+  async getPreviews(res: Response, filtersDto: FiltersDto) {
+    const { pageIndex, pageSize, state, propertyType, operationType, city } = filtersDto;
     try {
+      this.logger.debug(filtersDto);
+
+      const whereClause = filtersCleaner({
+        state,
+      });
+      let query = `SELECT P.id, "propertyType", "operationType", "publicationTitle", price, "description", images, ally_id, owner_id, code, country, city, municipality, state, P."createdAt", "minimumNegotiation", user_id, "reasonToSellOrRent", status, files, nomenclature, "footageGround", "footageBuilding", "distributionComments" FROM "Property" P INNER JOIN "GeneralInformation" GI ON p.id  = GI.property_id  INNER JOIN "LocationInformation" LI ON P.id = LI.property_id INNER JOIN "NegotiationInformation" NI ON P.id = NI.property_id INNER JOIN "PublicationSource" PS ON P.id = PS.property_id  `;
+      if (state) {
+        query += `AND state = '${state}' `;
+      }
+      if (city) {
+        query += `AND city = '${city}' `;
+      }
+      if (propertyType) {
+        query += `AND "propertyType" = '${propertyType}' `;
+      }
+      if (operationType) {
+        query += `AND "operationType" = '${operationType}' `;
+      }
+      query += `LIMIT :customLimit OFFSET :customOffset`;
       const count = await this.propertyModel.count();
-      const data = await this.propertyModel.sequelize.query(
-        `SELECT P.id, "propertyType", "operationType", "publicationTitle", price, "description", images, ally_id, owner_id, code, country, city, municipality, state, P."createdAt", "minimumNegotiation", user_id, "reasonToSellOrRent", status, files, nomenclature, "footageGround", "footageBuilding", "distributionComments" FROM "Property" P INNER JOIN "GeneralInformation" GI ON p.id  = GI.property_id  INNER JOIN "LocationInformation" LI ON P.id = LI.property_id INNER JOIN "NegotiationInformation" NI ON P.id = NI.property_id INNER JOIN "PublicationSource" PS ON P.id = PS.property_id LIMIT :customLimit OFFSET :customOffset`,
-        { type: sequelize.QueryTypes.SELECT, replacements: { customOffset: pageIndex * pageSize - pageSize, customLimit: pageSize } },
-      );
+      const data = await this.propertyModel.sequelize.query(query, {
+        type: sequelize.QueryTypes.SELECT,
+        replacements: { customOffset: pageIndex * pageSize - pageSize, customLimit: pageSize },
+      });
+      // const data = await this.propertyModel.findAndCountAll({
+      //   attributes: ['id', 'images', 'createdAt', 'publicationTitle'],
+      //   include: [
+      //     {
+      //       model: GeneralInformation,
+      //       attributes: ['code'],
+      //     },
+      //     {
+      //       model: NegotiationInformation,
+      //       attributes: ['price'],
+      //     },
+      //   ],
+      //   where: whereClause,
+      //   limit: pageSize,
+      //   offset: pageIndex * pageSize - pageSize,
+      // });
       res.status(HttpStatus.OK).send({
-        rows: data,
         count,
+        rows: data,
       });
     } catch (err) {
       this.logger.error(err);
@@ -195,76 +235,6 @@ export class PropertyService {
         error: true,
         message: `Ocurrio un error ${JSON.stringify(err)}`,
       });
-    }
-  }
-
-  async getAllGeneralInformation() {
-    try {
-      const data = await this.generalInformationModel.findAll();
-      return {
-        data,
-        success: true,
-        message: '',
-      };
-    } catch (err) {
-      this.logger.error(err);
-      return {
-        data: {},
-        success: false,
-        message: `Ocurrio un error ${JSON.stringify(err)}`,
-      };
-    }
-  }
-
-  async getAllLocationInformation() {
-    try {
-      const data = await this.locationInformation.findAll();
-      return {
-        data,
-        success: true,
-        message: '',
-      };
-    } catch (err) {
-      this.logger.error(err);
-      return {
-        data: {},
-        success: false,
-        message: `Ocurrio un error ${JSON.stringify(err)}`,
-      };
-    }
-  }
-  async getAllNegotiationInformation() {
-    try {
-      const data = await this.negotiationInformation.findAll();
-      return {
-        data,
-        success: true,
-        message: '',
-      };
-    } catch (err) {
-      this.logger.error(err);
-      return {
-        data: {},
-        success: false,
-        message: `Ocurrio un error ${JSON.stringify(err)}`,
-      };
-    }
-  }
-  async getAllPublicationSource() {
-    try {
-      const data = await this.publicationSource.findAll();
-      return {
-        data,
-        success: true,
-        message: '',
-      };
-    } catch (err) {
-      this.logger.error(err);
-      return {
-        data: {},
-        success: false,
-        message: `Ocurrio un error ${JSON.stringify(err)}`,
-      };
     }
   }
 
@@ -330,27 +300,36 @@ export class PropertyService {
 
       propertyToUpdate.attributes = updatePropertyDto.attributes;
 
-      const data = await propertyToUpdate.update(updatePropertyDto);
+      const property = await propertyToUpdate.update(updatePropertyDto);
+
+      const urlToRevalidate = `${this.configService.get<string>('NEXT_API')}/revalidate?secret=${this.configService.get<string>(
+        'SECRET_REVALIDATE_TOKEN',
+      )}`;
 
       const generalInformation = await this.generalInformationModel.update(
         { ...updatePropertyDto.generalInformation },
         { where: { property_id: propertyToUpdate.id } },
       );
 
-      const locationInformation = await this.locationInformation.update(
-        { ...updatePropertyDto.locationInformation },
-        { where: { property_id: propertyToUpdate.id } },
-      );
+      await this.locationInformation.update({ ...updatePropertyDto.locationInformation }, { where: { property_id: propertyToUpdate.id } });
 
-      const negotiationInformation = await this.negotiationInformation.update(
+      await this.negotiationInformation.update(
         { ...updatePropertyDto.negotiationInformation },
         { where: { property_id: propertyToUpdate.id } },
       );
 
-      const publicationSource = await this.publicationSource.update(
-        { ...updatePropertyDto.publicationSource },
-        { where: { property_id: propertyToUpdate.id } },
-      );
+      await this.publicationSource.update({ ...updatePropertyDto.publicationSource }, { where: { property_id: propertyToUpdate.id } });
+
+      // revalidate route next js
+      const revalidated = await this.http.post(urlToRevalidate, {
+        path: `/inmuebles/${property.publicationTitle}`,
+      });
+      this.logger.debug('here');
+      this.logger.debug(urlToRevalidate);
+
+      this.logger.debug(property);
+
+      this.logger.debug(revalidated.data);
 
       return {
         data: {},
@@ -358,6 +337,8 @@ export class PropertyService {
         success: true,
       };
     } catch (err) {
+      this.logger.error(err);
+
       return {
         success: false,
         data: {},
