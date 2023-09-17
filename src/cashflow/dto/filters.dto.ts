@@ -71,4 +71,20 @@ export class FiltersDto {
   @IsString()
   @IsOptional()
   status: string;
+
+  @IsString()
+  @IsOptional()
+  state: string;
+
+  @IsString()
+  @IsOptional()
+  municipality: string;
+
+  @IsString()
+  @IsOptional()
+  city: string;
+
+  @IsString()
+  @IsOptional()
+  propertyType: string;
 }

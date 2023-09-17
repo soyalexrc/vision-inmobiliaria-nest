@@ -10,9 +10,11 @@ import { NegotiationInformation } from './entities/negotiationInformation.entity
 import { PropertyAttribute } from './entities/property-attribute.entity';
 import { Attribute } from '../attributes/entities/attribute.entity';
 import { PropertyStatusEntry } from './entities/property-status-entry.entity';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule,
     SequelizeModule.forFeature([
       Property,
       GeneralInformation,
