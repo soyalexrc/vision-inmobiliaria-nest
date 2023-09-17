@@ -87,4 +87,8 @@ export class FiltersDto {
   @IsString()
   @IsOptional()
   propertyType: string;
+
+  @IsString()
+  @IsOptional()
+  requirementStatus: string;
 }
