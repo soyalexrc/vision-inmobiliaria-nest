@@ -32,8 +32,7 @@ import { ServiceModule } from './service/service.module';
 import { Service } from './service/entities/service.entity';
 import { SubService } from './service/entities/sub-service.entity';
 import { ScheduleModule } from '@nestjs/schedule';
-import { CronjobsModule } from './cronjobs/cronjobs.module';
-import { CloseCashFlow } from "./cashflow/entities/closeCashflow.entity";
+import { CloseCashFlow } from './cashflow/entities/closeCashflow.entity';
 
 @Module({
   imports: [
@@ -90,7 +89,6 @@ import { CloseCashFlow } from "./cashflow/entities/closeCashflow.entity";
     ClientModule,
     OwnerModule,
     ServiceModule,
-    CronjobsModule,
   ],
 })
 export class AppModule {}

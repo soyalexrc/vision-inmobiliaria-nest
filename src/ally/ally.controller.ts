@@ -8,30 +8,35 @@ import { PaginationDataDto } from '../common/dto/pagination-data.dto';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { Roles } from '../auth/interfaces/roles.enum';
 
-@ApiTags('Allies')
 @Controller('ally')
 export class AllyController {
   constructor(private readonly allyService: AllyService) {}
 
   @Post()
-  @Auth(Roles.admin)
+  @Auth(Roles.admin, Roles.serviceManager, Roles.visionAdviser)
   create(@Body() createAllyDto: CreateAllyDto, @Res() res: Response) {
     return this.allyService.create(createAllyDto, res);
   }
 
   @Get()
-  findAll(@Res() res: Response, @Query() paginationData: PaginationDataDto) {
-    return this.allyService.findAll(res, paginationData);
+  @Auth(Roles.admin, Roles.serviceManager, Roles.visionAdviser)
+  findAll(@Res() res: Response) {
+    return this.allyService.findAll(res);
+  }
+  @Get('paginated')
+  @Auth(Roles.admin, Roles.serviceManager)
+  findAllPaginated(@Res() res: Response, @Query() paginationData: PaginationDataDto) {
+    return this.allyService.findAllPaginated(res, paginationData);
   }
 
   @Get(':id')
-  @Auth(Roles.admin)
+  @Auth(Roles.admin, Roles.serviceManager)
   findOne(@Param('id') id: string, @Res() res: Response) {
     return this.allyService.findOne(+id, res);
   }
 
   @Put(':id')
-  @Auth(Roles.admin)
+  @Auth(Roles.admin, Roles.serviceManager)
   update(@Param('id') id: string, @Body() updateAllyDto: UpdateAllyDto, @Res() res: Response) {
     return this.allyService.update(+id, updateAllyDto, res);
   }

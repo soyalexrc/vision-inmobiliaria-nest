@@ -12,29 +12,31 @@ export class OwnerController {
   constructor(private readonly ownerService: OwnerService) {}
 
   @Post()
-  @Auth(Roles.admin, Roles.visionAdviser)
+  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager)
   create(@Body() createOwnerDto: CreateOwnerDto, @Res() res: Response) {
     return this.ownerService.create(createOwnerDto, res);
   }
 
   @Get()
+  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager)
   findAll(@Res() res: Response) {
     return this.ownerService.findAll(res);
   }
 
   @Get('paginated')
+  @Auth(Roles.admin, Roles.serviceManager)
   findAllPaginated(@Query() paginationDto: PaginationDataDto, @Res() res: Response) {
     return this.ownerService.findAllPaginated(paginationDto, res);
   }
 
   @Get(':id')
-  @Auth(Roles.admin, Roles.visionAdviser)
+  @Auth(Roles.admin, Roles.serviceManager)
   findOne(@Param('id') id: string, @Res() res: Response) {
     return this.ownerService.findOne(+id, res);
   }
 
   @Put(':id')
-  @Auth(Roles.admin, Roles.visionAdviser)
+  @Auth(Roles.admin, Roles.serviceManager)
   update(@Param('id') id: string, @Body() updateOwnerDto: UpdateOwnerDto, @Res() res: Response) {
     return this.ownerService.update(+id, updateOwnerDto, res);
   }

@@ -23,7 +23,7 @@ export class Owner extends Model {
   @Column({ type: DataType.STRING })
   phone: string;
 
-  @Column({ type: DataType.DATE })
+  @Column({ type: DataType.DATE, allowNull: true })
   birthdate: string;
 
   @Column({ type: DataType.BOOLEAN })
