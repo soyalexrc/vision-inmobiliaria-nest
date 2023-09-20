@@ -18,7 +18,7 @@ import { ConfigService } from '@nestjs/config';
 import axios, { AxiosInstance } from 'axios';
 import { FiltersDto } from '../cashflow/dto/filters.dto';
 import { filtersCleaner } from '../common/helpers/filtersCleaner';
-import { filter } from "rxjs";
+import { filter } from 'rxjs';
 
 @Injectable()
 export class PropertyService {
@@ -143,7 +143,7 @@ export class PropertyService {
     try {
       const count = await this.propertyModel.count();
       const data = await this.propertyModel.sequelize.query(
-        `SELECT P.id, "propertyType", "operationType", price, images, ally_id, owner_id, code, country, city, municipality, "publicationTitle", state, P."createdAt", "minimumNegotiation", user_id, "reasonToSellOrRent", status, files, nomenclature, "footageGround", "footageBuilding", "distributionComments" FROM "Property" P INNER JOIN "GeneralInformation" GI ON p.id  = GI.property_id  INNER JOIN "LocationInformation" LI ON P.id = LI.property_id INNER JOIN "NegotiationInformation" NI ON P.id = NI.property_id INNER JOIN "PublicationSource" PS ON P.id = PS.property_id ORDER BY id DESC`,
+        `SELECT P.id, "propertyType", "operationType", price, images, ally_id, owner_id, code, country, city, municipality, "publicationTitle", state, P."createdAt", "minimumNegotiation", user_id, "reasonToSellOrRent", status, files, nomenclature, "footageGround", "footageBuilding" FROM "Property" P INNER JOIN "GeneralInformation" GI ON p.id  = GI.property_id  INNER JOIN "LocationInformation" LI ON P.id = LI.property_id INNER JOIN "NegotiationInformation" NI ON P.id = NI.property_id INNER JOIN "PublicationSource" PS ON P.id = PS.property_id ORDER BY id DESC`,
         { type: sequelize.QueryTypes.SELECT },
       );
       res.status(HttpStatus.OK).send({
@@ -167,7 +167,7 @@ export class PropertyService {
       const whereClause = filtersCleaner({
         state,
       });
-      let query = `SELECT P.id, "propertyType", "operationType", "publicationTitle", price, "description", images, ally_id, owner_id, code, country, city, municipality, state, P."createdAt", "minimumNegotiation", user_id, "reasonToSellOrRent", status, files, nomenclature, "footageGround", "footageBuilding", "distributionComments" FROM "Property" P INNER JOIN "GeneralInformation" GI ON p.id  = GI.property_id  INNER JOIN "LocationInformation" LI ON P.id = LI.property_id INNER JOIN "NegotiationInformation" NI ON P.id = NI.property_id INNER JOIN "PublicationSource" PS ON P.id = PS.property_id  `;
+      let query = `SELECT P.id, "propertyType", "operationType", "publicationTitle", price, "description", images, ally_id, owner_id, code, country, city, municipality, state, P."createdAt", "minimumNegotiation", user_id, "reasonToSellOrRent", status, files, nomenclature, "footageGround", "footageBuilding" FROM "Property" P INNER JOIN "GeneralInformation" GI ON p.id  = GI.property_id  INNER JOIN "LocationInformation" LI ON P.id = LI.property_id INNER JOIN "NegotiationInformation" NI ON P.id = NI.property_id INNER JOIN "PublicationSource" PS ON P.id = PS.property_id  `;
       if (state) {
         query += `AND state = '${state}' `;
       }
@@ -219,7 +219,7 @@ export class PropertyService {
     try {
       const count = await this.propertyModel.count();
       const data = await this.propertyModel.sequelize.query(
-        `SELECT P.id, "propertyType", "operationType", price, images, ally_id, owner_id, external_adviser_id, code, country, city, municipality, state, P."createdAt", "minimumNegotiation", user_id, "reasonToSellOrRent", status, files, nomenclature, "footageGround", "footageBuilding", "distributionComments" FROM "Property" P INNER JOIN "GeneralInformation" GI ON p.id  = GI.property_id  INNER JOIN "LocationInformation" LI ON P.id = LI.property_id INNER JOIN "NegotiationInformation" NI ON P.id = NI.property_id INNER JOIN "PublicationSource" PS ON P.id = PS.property_id  WHERE user_id = :userIdNumber LIMIT :customLimit OFFSET :customOffset`,
+        `SELECT P.id, "propertyType", "operationType", price, images, ally_id, owner_id, external_adviser_id, code, country, city, municipality, state, P."createdAt", "minimumNegotiation", user_id, "reasonToSellOrRent", status, files, nomenclature, "footageGround", "footageBuilding" FROM "Property" P INNER JOIN "GeneralInformation" GI ON p.id  = GI.property_id  INNER JOIN "LocationInformation" LI ON P.id = LI.property_id INNER JOIN "NegotiationInformation" NI ON P.id = NI.property_id INNER JOIN "PublicationSource" PS ON P.id = PS.property_id  WHERE user_id = :userIdNumber LIMIT :customLimit OFFSET :customOffset`,
         {
           type: sequelize.QueryTypes.SELECT,
           replacements: { customOffset: pageIndex * pageSize - pageSize, customLimit: pageSize, userIdNumber: userId },
