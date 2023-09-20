@@ -1,4 +1,4 @@
-import { IsString, IsInt, IsOptional, IsBoolean } from 'class-validator';
+import { IsString, IsInt, IsOptional, IsBoolean, IsEmail } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateUserDto {
@@ -7,88 +7,50 @@ export class CreateUserDto {
   id: number;
 
   @IsString()
-  @ApiProperty({
-    description: 'User first name',
-    nullable: false,
-  })
   firstName: string;
 
   @IsString()
-  @ApiProperty({
-    description: 'User last name',
-    nullable: false,
-  })
   lastName: string;
 
   @IsString()
-  @ApiProperty({
-    description: 'User main phone number',
-    nullable: false,
-  })
   mainPhone: string;
 
   @IsString()
   @IsOptional()
-  @ApiProperty({
-    description: 'User secondary phone number',
-    required: false,
-  })
   secondaryPhone: string;
 
   @IsString()
-  @ApiProperty({
-    description: 'User email address',
-    nullable: false,
-  })
+  @IsEmail()
   email: string;
 
   @IsString()
-  @ApiProperty({
-    description: 'User birth date',
-    nullable: false,
-  })
+  @IsEmail()
+  corporateEmail: string;
+
+  @IsString()
+  @IsOptional()
   birthDate: string;
 
   @IsString()
-  @ApiProperty({
-    description: 'User username',
-    nullable: false,
-  })
+  joinDate: string;
+
+  @IsString()
   username: string;
 
   @IsString()
-  @ApiProperty({
-    description: 'User type',
-    nullable: false,
-  })
   userType: string;
 
   @IsString()
-  @ApiProperty({
-    description: 'User level or range',
-    nullable: false,
-  })
   userLevel: string;
 
   @IsString()
-  @ApiProperty({
-    description: 'User password',
-    nullable: false,
-  })
   password: string;
 
   @IsInt()
   @IsOptional()
-  @ApiProperty({
-    description: 'User commission percentage',
-    nullable: false,
-  })
   userCommission: number;
 
   @IsBoolean()
-  @ApiProperty({
-    description: 'User active',
-  })
   isActive: boolean;
 
   @IsString()

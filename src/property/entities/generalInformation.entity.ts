@@ -31,9 +31,6 @@ export class GeneralInformation extends Model {
   footageBuilding: string;
 
   @Column({ type: DataType.TEXT })
-  distributionComments: string;
-
-  @Column({ type: DataType.TEXT })
   description: string;
 
   @Column({ type: DataType.STRING })

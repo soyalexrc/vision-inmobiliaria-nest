@@ -167,6 +167,7 @@ export class FilesService {
   }
 
   deleteFolderOrFile(path: string, res: Response) {
+    this.logger.debug(path);
     const pathFormatted = path.split('+').join('/');
     const destinationPath = join(__dirname, '../../../static', pathFormatted);
     const dirStats = fs.statSync(destinationPath);

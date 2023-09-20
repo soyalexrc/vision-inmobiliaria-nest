@@ -15,6 +15,7 @@ export class CreateOwnerDto {
   email: string;
 
   @IsString()
+  @IsOptional()
   birthdate: string;
 
   @IsString()

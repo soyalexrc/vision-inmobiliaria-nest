@@ -11,86 +11,46 @@ export class CreateCashflowDto {
   @IsInt()
   @IsOptional()
   @Type(() => Number)
-  @ApiProperty({
-    description: 'Property id',
-    required: false,
-  })
   property_id: number | null;
 
   @IsInt()
   @IsOptional()
   @Type(() => Number)
-  @ApiProperty({
-    description: 'Client asociated id',
-    required: false,
-  })
   client_id: number | null;
 
   @IsInt()
   @IsOptional()
   @Type(() => Number)
-  @ApiProperty({
-    description: 'User asociated id',
-    required: false,
-  })
   user_id: number;
 
   @IsInt()
   @IsOptional()
   @Type(() => Number)
-  @ApiProperty({
-    description: 'Owner asociated id',
-    required: false,
-  })
   owner_id: number;
 
   @IsInt()
   @IsOptional()
   @Type(() => Number)
-  @ApiProperty({
-    description: 'CashFlowPerson asociated id',
-    required: false,
-  })
   cashflow_person_id: number;
 
   @IsString()
-  @ApiProperty({
-    description: 'Date of register',
-  })
   date: string;
 
   @IsString()
-  @ApiProperty({
-    description: 'Propiedad de administracion interna',
-  })
   internalProperty: string;
 
   @IsString()
   @IsOptional()
-  @ApiProperty({
-    description: ' persona',
-  })
   person: string;
 
   @IsString()
-  @ApiProperty({
-    description: 'Month of register',
-  })
   month: string;
 
   @IsString()
   @IsOptional()
-  @ApiProperty({
-    description: 'property location',
-    required: false,
-  })
   location: string;
 
   @IsBoolean()
-  @ApiProperty({
-    description:
-      'Temporal transaction means that it would be considered for totals calculation (if true), else it  goes to  "resumen de operaciones" ',
-  })
   isTemporalTransaction = false;
 
   // @IsBoolean()

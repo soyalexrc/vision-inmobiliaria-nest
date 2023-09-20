@@ -6,7 +6,6 @@ import { ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { PropertyTypeDto } from './dto/property-type.dto';
 
-@ApiTags('Attributes')
 @Controller('attribute')
 export class AttributesController {
   constructor(private readonly attributesService: AttributesService) {}

@@ -8,7 +8,6 @@ import { ApiTags } from '@nestjs/swagger';
 import { ChangeNameDto } from './dto/change-name.dto';
 import { MoveFileOrFolderDto } from './dto/move-file-or-folder.dto';
 
-@ApiTags('Files Management')
 @Controller('files')
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}
