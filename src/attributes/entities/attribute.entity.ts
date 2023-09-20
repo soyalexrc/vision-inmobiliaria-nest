@@ -1,4 +1,4 @@
-import { AutoIncrement, BelongsTo, BelongsToMany, Column, Model, PrimaryKey, Table } from "sequelize-typescript";
+import { AutoIncrement, BelongsTo, BelongsToMany, Column, Model, PrimaryKey, Table } from 'sequelize-typescript';
 // import { PropertyAttribute } from '../../property/entities/property-attribute.entity';
 // import { Property } from '../../property/entities/property.entity';
 

@@ -18,5 +18,6 @@ export class CreateAllyDto {
   email: string;
 
   @IsString()
+  @IsOptional()
   birthDate: string;
 }

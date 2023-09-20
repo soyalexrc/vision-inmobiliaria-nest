@@ -19,6 +19,6 @@ export class Ally extends Model {
   @Column({ type: DataType.STRING })
   email: string;
 
-  @Column({ type: DataType.DATE })
+  @Column({ type: DataType.DATE, allowNull: true })
   birthDate: Date;
 }

@@ -6,7 +6,6 @@ import { Response } from 'express';
 import { ForgotPasswordDto } from './dto/forgot-password.dto';
 import { RecoverPasswordDto } from './dto/recover-password.dto';
 
-@ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}

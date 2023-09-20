@@ -51,12 +51,11 @@ export class UserService {
       };
     }
   }
-  async findAllAdvisers(res: Response, queryData: { adviserType: string }) {
-    const { adviserType } = queryData;
+  async findAllAdvisers(res: Response) {
     try {
       const data = await this.userModel.findAll({
         where: {
-          userType: adviserType === 'vision' ? 'Asesor inmobiliario vision' : 'Asesor inmobiliario externo',
+          userType: 'Asesor inmobiliario',
         },
         order: [['id', 'desc']],
       });

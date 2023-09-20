@@ -8,37 +8,38 @@ import { Roles } from '../auth/interfaces/roles.enum';
 import { Response } from 'express';
 import { PaginationDataDto } from '../common/dto/pagination-data.dto';
 import { ChangePropertyStatusDto } from './dto/change-property-status.dto';
-import { FiltersDto } from "../cashflow/dto/filters.dto";
+import { FiltersDto } from '../cashflow/dto/filters.dto';
 
-@ApiTags('Properties')
 @Controller('property')
 export class PropertyController {
   constructor(private readonly propertiesService: PropertyService) {}
 
   @Post()
-  @Auth(Roles.admin, Roles.visionAdviser)
+  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager)
   create(@Body() createPropertyDto: CreatePropertyDto) {
     return this.propertiesService.create(createPropertyDto);
   }
 
   @Post('changeStatus')
-  @Auth(Roles.admin)
+  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager)
   changeStatus(@Body() changeStatusDto: ChangePropertyStatusDto, @Res() res: Response) {
     return this.propertiesService.changeStatus(changeStatusDto, res);
   }
 
   @Get('propertyStatus/:id')
-  @Auth(Roles.admin)
+  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager)
   getPropertyStatusHistoryById(@Param('id') id: string, @Res() res: Response) {
     return this.propertiesService.getPropertyStatusHistoryById(+id, res);
   }
 
   @Get('getAutomaticCode')
+  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager)
   getAutomaticCode(@Res() res: Response) {
     return this.propertiesService.getAutomaticCode(res);
   }
 
   @Get('previews')
+  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager)
   findAll(@Res() res: Response) {
     return this.propertiesService.findAll(res);
   }
@@ -49,6 +50,7 @@ export class PropertyController {
   }
 
   @Get('previews/byUserId/:userId')
+  @Auth(Roles.visionAdviser)
   getPreviewsByUserId(@Res() res: Response, @Param('userId') userId: number, @Query() paginationDto: PaginationDataDto) {
     return this.propertiesService.getPreviewsByUserId(res, paginationDto, +userId);
   }
@@ -59,14 +61,13 @@ export class PropertyController {
   }
 
   @Get(':id')
+  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager)
   findOne(@Param('id') id: string, @Res() res: Response) {
     return this.propertiesService.findOne(+id, res);
   }
 
-
-
   @Put(':id')
-  @Auth(Roles.admin, Roles.visionAdviser)
+  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager)
   update(@Param('id') id: string, @Body() updatePropertyDto: UpdatePropertyDto) {
     return this.propertiesService.update(+id, updatePropertyDto);
   }
