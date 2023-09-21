@@ -6,15 +6,31 @@ export class CreateClientDto {
   @IsOptional()
   property_id: number;
 
-  @IsInt()
+  @IsString()
   @IsOptional()
   id: number;
 
   @IsString()
   contactFrom: string;
 
+  @IsString()
+  serviceName: string;
+
+  @IsString()
+  subServiceName: string;
+
+  @IsString()
+  @IsOptional()
+  occupation: string;
+
   @IsInt()
   user_id: number;
+
+  @IsInt()
+  service_id: number;
+
+  @IsInt()
+  subService_id: number;
 
   @IsString()
   name: string;
@@ -23,17 +39,11 @@ export class CreateClientDto {
   referrer: string;
 
   @IsString()
-  service: string;
-
-  @IsString()
   @IsOptional()
   usageProperty: string;
 
-  @IsBoolean()
-  requirementStatus: boolean;
-
   @IsString()
-  operationType: string;
+  requirementStatus: string;
 
   @IsString()
   phone: string;
