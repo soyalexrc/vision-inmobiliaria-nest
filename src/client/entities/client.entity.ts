@@ -2,6 +2,8 @@ import { AutoIncrement, BelongsTo, Column, DataType, ForeignKey, HasMany, Model,
 import { Property } from '../../property/entities/property.entity';
 import { CashFlow } from '../../cashflow/entities/cashflow.entity';
 import { User } from '../../user/entities/user.entity';
+import { Service } from '../../service/entities/service.entity';
+import { SubService } from '../../service/entities/sub-service.entity';
 
 @Table({ tableName: 'Client' })
 export class Client extends Model {
@@ -19,9 +21,6 @@ export class Client extends Model {
 
   @Column({ type: DataType.STRING })
   name: string;
-
-  @Column({ type: DataType.STRING })
-  service: string;
 
   @Column({ type: DataType.STRING })
   usageProperty: string;
@@ -44,9 +43,6 @@ export class Client extends Model {
 
   @Column({ type: DataType.STRING })
   phone: string;
-
-  @Column({ type: DataType.STRING })
-  operationType: string;
 
   @Column({ type: DataType.STRING })
   propertyOfInterest: string;
@@ -124,6 +120,15 @@ export class Client extends Model {
   @Column({ type: DataType.STRING })
   company: string;
 
+  @Column({ type: DataType.STRING })
+  serviceName: string;
+
+  @Column({ type: DataType.STRING })
+  subServiceName: string;
+
+  @Column({ type: DataType.STRING })
+  occupation: string;
+
   @Column({ type: DataType.DATE, allowNull: true })
   interestDate: Date | null;
 
@@ -135,4 +140,18 @@ export class Client extends Model {
 
   @HasMany(() => CashFlow)
   cashflows: CashFlow[];
+
+  @BelongsTo(() => Service)
+  service: Service;
+
+  @ForeignKey(() => Service)
+  @Column({ type: DataType.INTEGER })
+  service_id: number;
+
+  @BelongsTo(() => SubService)
+  subService: SubService;
+
+  @ForeignKey(() => SubService)
+  @Column({ type: DataType.INTEGER })
+  subService_id: number;
 }

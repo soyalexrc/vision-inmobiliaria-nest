@@ -1,5 +1,6 @@
 import { AutoIncrement, BelongsTo, Column, DataType, ForeignKey, HasMany, Model, PrimaryKey, Table } from 'sequelize-typescript';
 import { Service } from './service.entity';
+import { Client } from '../../client/entities/client.entity';
 
 @Table({ tableName: 'SubService' })
 export class SubService extends Model {
@@ -13,6 +14,9 @@ export class SubService extends Model {
 
   @BelongsTo(() => Service)
   service: Service;
+
+  @HasMany(() => Client)
+  clients: Client[];
 
   @Column({ type: DataType.STRING })
   title: string;
