@@ -9,6 +9,8 @@ import { PaginationDataDto } from '../common/dto/pagination-data.dto';
 import { FiltersDto } from '../cashflow/dto/filters.dto';
 import { filtersCleaner } from '../common/helpers/filtersCleaner';
 import sequelize_2 from 'sequelize';
+import { Service } from "../service/entities/service.entity";
+import { SubService } from "../service/entities/sub-service.entity";
 
 @Injectable()
 export class ClientService {
@@ -77,13 +79,16 @@ export class ClientService {
   }
 
   async getPreviews(res: Response, filtersDto: FiltersDto) {
-    const { pageIndex, pageSize, service, operationType, requirementStatus, dateFrom, dateTo, contactFrom } = filtersDto;
+    const { pageIndex, pageSize, service_id, subService_id, requirementStatus, dateFrom, dateTo, contactFrom, isPotentialInvestor } =
+      filtersDto;
+    this.logger.debug(filtersDto);
 
     const whereClause = filtersCleaner({
-      service,
-      operationType,
+      service_id,
+      subService_id,
       requirementStatus,
       contactFrom,
+      isPotentialInvestor,
     });
 
     if (dateFrom && dateTo) {
@@ -94,7 +99,19 @@ export class ClientService {
 
     try {
       const data = await this.clientModel.findAndCountAll({
-        attributes: ['id', 'createdAt', 'name', 'requirementStatus', 'phone', 'contactFrom', 'operationType', 'service'],
+        attributes: [
+          'id',
+          'createdAt',
+          'name',
+          'requirementStatus',
+          'phone',
+          'contactFrom',
+          'subService_id',
+          'serviceName',
+          'subServiceName',
+          'service_id',
+          'isPotentialInvestor',
+        ],
         limit: pageSize,
         where: whereClause,
         offset: pageIndex * pageSize - pageSize,
