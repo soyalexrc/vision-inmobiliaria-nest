@@ -14,7 +14,19 @@ export class FiltersDto {
 
   @IsString()
   @IsOptional()
+  service_id: string;
+
+  @IsString()
+  @IsOptional()
+  subService_id: string;
+
+  @IsString()
+  @IsOptional()
   transactionType: string;
+
+  @IsString()
+  @IsOptional()
+  isPotentialInvestor: string;
 
   @IsString()
   @IsOptional()
