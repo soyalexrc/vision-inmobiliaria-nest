@@ -6,7 +6,6 @@ import { Property } from './entities/property.entity';
 import { GeneralInformation } from './entities/generalInformation.entity';
 import { LocationInformation } from './entities/locationInformation.entity';
 import { NegotiationInformation } from './entities/negotiationInformation.entity';
-import { PublicationSource } from './entities/publicationSource.entity';
 import sequelize from 'sequelize';
 import { Client } from '../client/entities/client.entity';
 import { Response } from 'express';
@@ -19,6 +18,7 @@ import axios, { AxiosInstance } from 'axios';
 import { FiltersDto } from '../cashflow/dto/filters.dto';
 import { filtersCleaner } from '../common/helpers/filtersCleaner';
 import { filter } from 'rxjs';
+import { DocumentsInformation } from "./entities/documentsInformation.entity";
 
 @Injectable()
 export class PropertyService {
@@ -31,10 +31,10 @@ export class PropertyService {
     private generalInformationModel: typeof GeneralInformation,
     @InjectModel(LocationInformation)
     private locationInformation: typeof LocationInformation,
+    @InjectModel(DocumentsInformation)
+    private documentsInformation: typeof DocumentsInformation,
     @InjectModel(NegotiationInformation)
     private negotiationInformation: typeof NegotiationInformation,
-    @InjectModel(PublicationSource)
-    private publicationSource: typeof PublicationSource,
     @InjectModel(PropertyAttribute)
     private propertyAttributeModel: typeof PropertyAttribute,
     @InjectModel(PropertyStatusEntry)
@@ -42,6 +42,7 @@ export class PropertyService {
     private configService: ConfigService,
   ) {}
   async create(createPropertyDto: CreatePropertyDto) {
+    this.logger.debug(createPropertyDto);
     try {
       const property = await this.propertyModel.create(createPropertyDto as any);
 
@@ -58,6 +59,11 @@ export class PropertyService {
         property_id: property.id,
       });
 
+      const documentsInformation = await this.documentsInformation.create({
+        ...createPropertyDto.documentsInformation,
+        property_id: property.id,
+      });
+
       const locationInformation = await this.locationInformation.create({
         ...createPropertyDto.locationInformation,
         property_id: property.id,
@@ -65,11 +71,6 @@ export class PropertyService {
 
       const negotiationInformation = await this.negotiationInformation.create({
         ...createPropertyDto.negotiationInformation,
-        property_id: property.id,
-      });
-
-      const publicationSource = await this.publicationSource.create({
-        ...createPropertyDto.publicationSource,
         property_id: property.id,
       });
 
@@ -167,7 +168,7 @@ export class PropertyService {
       const whereClause = filtersCleaner({
         state,
       });
-      let query = `SELECT P.id, "propertyType", "operationType", "publicationTitle", price, "description", images, ally_id, owner_id, code, country, city, municipality, state, P."createdAt", "minimumNegotiation", user_id, "reasonToSellOrRent", status, files, nomenclature, "footageGround", "footageBuilding" FROM "Property" P INNER JOIN "GeneralInformation" GI ON p.id  = GI.property_id  INNER JOIN "LocationInformation" LI ON P.id = LI.property_id INNER JOIN "NegotiationInformation" NI ON P.id = NI.property_id INNER JOIN "PublicationSource" PS ON P.id = PS.property_id  `;
+      let query = `SELECT P.id, "propertyType", "operationType", "publicationTitle", price, "description", images, ally_id, owner_id, code, country, city, municipality, state, P."createdAt", "minimumNegotiation", user_id, "reasonToSellOrRent", status, files, nomenclature, "footageGround", "footageBuilding", "propertyDoc" FROM "Property" P INNER JOIN "GeneralInformation" GI ON P.id  = GI.property_id  INNER JOIN "LocationInformation" LI ON P.id = LI.property_id INNER JOIN "NegotiationInformation" NI ON P.id = NI.property_id INNER JOIN "DocumentsInformation" DI ON P.id = DI.property_id `;
       if (state) {
         query += `AND state = '${state}' `;
       }
@@ -242,7 +243,7 @@ export class PropertyService {
     try {
       const data = await this.propertyModel.findOne({
         where: { id: id },
-        include: [GeneralInformation, LocationInformation, NegotiationInformation, PublicationSource, Client],
+        include: [GeneralInformation, LocationInformation, NegotiationInformation, DocumentsInformation, Client],
       });
       if (data) {
         res.status(HttpStatus.OK).send(data);
@@ -266,7 +267,7 @@ export class PropertyService {
       const data = await this.propertyModel.findOne({
         where: { publicationTitle: slug },
         attributes: ['images', 'id', 'attributes', 'createdAt', 'publicationTitle'],
-        include: [GeneralInformation, LocationInformation, NegotiationInformation, PublicationSource],
+        include: [GeneralInformation, LocationInformation, NegotiationInformation, DocumentsInformation],
       });
       if (data) {
         res.status(HttpStatus.OK).send(data);
@@ -318,7 +319,7 @@ export class PropertyService {
         { where: { property_id: propertyToUpdate.id } },
       );
 
-      await this.publicationSource.update({ ...updatePropertyDto.publicationSource }, { where: { property_id: propertyToUpdate.id } });
+      await this.documentsInformation.update({ ...updatePropertyDto.documentsInformation }, { where: { property_id: propertyToUpdate.id } });
 
       // revalidate route next js
       this.logger.debug(urlToRevalidate);
@@ -357,7 +358,7 @@ export class PropertyService {
       data[1] = await this.locationInformation.destroy({
         where: { property_id: id },
       });
-      data[2] = await this.publicationSource.destroy({
+      data[2] = await this.documentsInformation.destroy({
         where: { property_id: id },
       });
       data[3] = await this.negotiationInformation.destroy({

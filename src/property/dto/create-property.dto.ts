@@ -45,8 +45,8 @@ export class CreatePropertyDto {
   locationInformation: any;
 
   @IsObject()
-  negotiationInformation: any;
+  documentsInformation: any;
 
   @IsObject()
-  publicationSource: any;
+  negotiationInformation: any;
 }
