@@ -123,6 +123,15 @@ export class Client extends Model {
   @Column({ type: DataType.STRING })
   serviceName: string;
 
+  @Column({ type: DataType.TEXT })
+  remodeledAreas: string;
+
+  @Column({ type: DataType.TEXT })
+  propertyDistribution: string;
+
+  @Column({ type: DataType.STRING })
+  m2: string;
+
   @Column({ type: DataType.STRING })
   subServiceName: string;
 

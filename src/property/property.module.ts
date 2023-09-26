@@ -5,12 +5,12 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { Property } from './entities/property.entity';
 import { GeneralInformation } from './entities/generalInformation.entity';
 import { LocationInformation } from './entities/locationInformation.entity';
-import { PublicationSource } from './entities/publicationSource.entity';
 import { NegotiationInformation } from './entities/negotiationInformation.entity';
 import { PropertyAttribute } from './entities/property-attribute.entity';
 import { Attribute } from '../attributes/entities/attribute.entity';
 import { PropertyStatusEntry } from './entities/property-status-entry.entity';
 import { ConfigModule } from '@nestjs/config';
+import { DocumentsInformation } from "./entities/documentsInformation.entity";
 
 @Module({
   imports: [
@@ -19,11 +19,11 @@ import { ConfigModule } from '@nestjs/config';
       Property,
       GeneralInformation,
       LocationInformation,
-      PublicationSource,
       NegotiationInformation,
       PropertyAttribute,
       PropertyStatusEntry,
       Attribute,
+      DocumentsInformation,
     ]),
   ],
   controllers: [PropertyController],

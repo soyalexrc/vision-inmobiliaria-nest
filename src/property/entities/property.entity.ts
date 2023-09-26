@@ -14,15 +14,13 @@ import {
 import { GeneralInformation } from './generalInformation.entity';
 import { LocationInformation } from './locationInformation.entity';
 import { NegotiationInformation } from './negotiationInformation.entity';
-import { PublicationSource } from './publicationSource.entity';
 import { Client } from '../../client/entities/client.entity';
 import { CashFlow } from '../../cashflow/entities/cashflow.entity';
 import { User } from '../../user/entities/user.entity';
 import { Owner } from '../../owner/entities/owner.entity';
-import { Attribute } from '../../attributes/entities/attribute.entity';
-import { PropertyAttribute } from './property-attribute.entity';
 import { PropertyStatusEntry } from './property-status-entry.entity';
 import { ExternalAdviser } from '../../external-adviser/entities/external-adviser.entity';
+import { DocumentsInformation } from './documentsInformation.entity';
 
 @Table({ tableName: 'Property' })
 export class Property extends Model {
@@ -40,8 +38,8 @@ export class Property extends Model {
   @HasOne(() => NegotiationInformation)
   negotiationInformation: NegotiationInformation;
 
-  @HasOne(() => PublicationSource)
-  publicationSource: PublicationSource;
+  @HasOne(() => DocumentsInformation)
+  documentsInformation: DocumentsInformation;
 
   @BelongsTo(() => User)
   user: User;
@@ -83,6 +81,14 @@ export class Property extends Model {
   //   Attributes
   @Column({ type: DataType.JSONB })
   attributes: any[];
+
+  //   Attributes
+  @Column({ type: DataType.JSONB })
+  distribution: any[];
+
+  //   Attributes
+  @Column({ type: DataType.JSONB })
+  equipment: any[];
 
   @HasMany(() => CashFlow)
   cashflows: CashFlow[];
