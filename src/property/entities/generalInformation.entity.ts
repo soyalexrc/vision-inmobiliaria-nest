@@ -42,6 +42,15 @@ export class GeneralInformation extends Model {
   @Column({ type: DataType.STRING })
   propertyCondition: string;
 
+  @Column({ type: DataType.STRING })
+  propertyExclusivity: string;
+
+  @Column({ type: DataType.BOOLEAN })
+  handoverKeys: boolean;
+
+  @Column({ type: DataType.BOOLEAN })
+  termsAndConditionsAccepted: boolean;
+
   @Column({ type: DataType.BOOLEAN })
   instagram: boolean;
 
@@ -56,6 +65,9 @@ export class GeneralInformation extends Model {
 
   @Column({ type: DataType.BOOLEAN })
   whatsapp: boolean;
+
+  @Column({ type: DataType.BOOLEAN })
+  publicationOnBuilding: boolean;
 
   @Column({ type: DataType.BOOLEAN })
   conlallave: boolean;

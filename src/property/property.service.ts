@@ -6,7 +6,7 @@ import { Property } from './entities/property.entity';
 import { GeneralInformation } from './entities/generalInformation.entity';
 import { LocationInformation } from './entities/locationInformation.entity';
 import { NegotiationInformation } from './entities/negotiationInformation.entity';
-import sequelize from 'sequelize';
+import sequelize, { literal } from 'sequelize';
 import { Client } from '../client/entities/client.entity';
 import { Response } from 'express';
 import { PaginationDataDto } from '../common/dto/pagination-data.dto';
@@ -18,7 +18,7 @@ import axios, { AxiosInstance } from 'axios';
 import { FiltersDto } from '../cashflow/dto/filters.dto';
 import { filtersCleaner } from '../common/helpers/filtersCleaner';
 import { filter } from 'rxjs';
-import { DocumentsInformation } from "./entities/documentsInformation.entity";
+import { DocumentsInformation } from './entities/documentsInformation.entity';
 
 @Injectable()
 export class PropertyService {
@@ -319,7 +319,10 @@ export class PropertyService {
         { where: { property_id: propertyToUpdate.id } },
       );
 
-      await this.documentsInformation.update({ ...updatePropertyDto.documentsInformation }, { where: { property_id: propertyToUpdate.id } });
+      await this.documentsInformation.update(
+        { ...updatePropertyDto.documentsInformation },
+        { where: { property_id: propertyToUpdate.id } },
+      );
 
       // revalidate route next js
       this.logger.debug(urlToRevalidate);
