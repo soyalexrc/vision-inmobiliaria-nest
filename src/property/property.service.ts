@@ -144,7 +144,7 @@ export class PropertyService {
     try {
       const count = await this.propertyModel.count();
       const data = await this.propertyModel.sequelize.query(
-        `SELECT P.id, "propertyType", "operationType", price, images, ally_id, owner_id, code, country, city, municipality, "publicationTitle", state, P."createdAt", "minimumNegotiation", user_id, "reasonToSellOrRent", status, files, nomenclature, "footageGround", "footageBuilding" FROM "Property" P INNER JOIN "GeneralInformation" GI ON p.id  = GI.property_id  INNER JOIN "LocationInformation" LI ON P.id = LI.property_id INNER JOIN "NegotiationInformation" NI ON P.id = NI.property_id INNER JOIN "PublicationSource" PS ON P.id = PS.property_id ORDER BY id DESC`,
+        `SELECT P.id, "propertyType", "operationType", price, images, ally_id, owner_id, code, country, city, municipality, "publicationTitle", state, P."createdAt", "minimumNegotiation", user_id, "reasonToSellOrRent", status, files, nomenclature, "footageGround", "footageBuilding" FROM "Property" P INNER JOIN "GeneralInformation" GI ON p.id  = GI.property_id  INNER JOIN "LocationInformation" LI ON P.id = LI.property_id INNER JOIN "NegotiationInformation" NI ON P.id = NI.property_id  ORDER BY id DESC`,
         { type: sequelize.QueryTypes.SELECT },
       );
       res.status(HttpStatus.OK).send({
