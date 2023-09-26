@@ -24,6 +24,10 @@ export class AttributesService {
         where: {
           propertyType: propertyTypeDto.propertyType,
         },
+        order: [
+          ['formType', 'ASC'],
+          ['label', 'ASC'],
+        ],
       });
 
       res.status(HttpStatus.OK).send(data);

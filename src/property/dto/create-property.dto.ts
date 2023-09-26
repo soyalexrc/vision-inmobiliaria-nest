@@ -16,6 +16,12 @@ export class CreatePropertyDto {
   @IsArray()
   attributes: Array<any>;
 
+  @IsArray()
+  distribution: Array<any>;
+
+  @IsArray()
+  equipment: Array<any>;
+
   @IsInt()
   @IsOptional()
   client_id: number;
@@ -45,8 +51,8 @@ export class CreatePropertyDto {
   locationInformation: any;
 
   @IsObject()
-  negotiationInformation: any;
+  documentsInformation: any;
 
   @IsObject()
-  publicationSource: any;
+  negotiationInformation: any;
 }

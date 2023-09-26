@@ -21,6 +21,18 @@ export class CreateClientDto {
 
   @IsString()
   @IsOptional()
+  m2: string;
+
+  @IsString()
+  @IsOptional()
+  remodeledAreas: string;
+
+  @IsString()
+  @IsOptional()
+  propertyDistribution: string;
+
+  @IsString()
+  @IsOptional()
   occupation: string;
 
   @IsInt()

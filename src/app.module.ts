@@ -19,7 +19,6 @@ import { GeneralInformation } from './property/entities/generalInformation.entit
 import { PropertyModule } from './property/property.module';
 import { LocationInformation } from './property/entities/locationInformation.entity';
 import { NegotiationInformation } from './property/entities/negotiationInformation.entity';
-import { PublicationSource } from './property/entities/publicationSource.entity';
 import { ClientModule } from './client/client.module';
 import { OwnerModule } from './owner/owner.module';
 import { Owner } from './owner/entities/owner.entity';
@@ -33,6 +32,7 @@ import { Service } from './service/entities/service.entity';
 import { SubService } from './service/entities/sub-service.entity';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CloseCashFlow } from './cashflow/entities/closeCashflow.entity';
+import { DocumentsInformation } from "./property/entities/documentsInformation.entity";
 
 @Module({
   imports: [
@@ -64,8 +64,8 @@ import { CloseCashFlow } from './cashflow/entities/closeCashflow.entity';
             GeneralInformation,
             LocationInformation,
             NegotiationInformation,
+            DocumentsInformation,
             PropertyAttribute,
-            PublicationSource,
             Attribute,
             PropertyStatusEntry,
             TemporalId,
