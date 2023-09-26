@@ -39,7 +39,6 @@ export class PropertyController {
   }
 
   @Get('previews')
-  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager)
   findAll(@Res() res: Response) {
     return this.propertiesService.findAll(res);
   }
