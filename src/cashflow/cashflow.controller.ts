@@ -40,6 +40,11 @@ export class CashflowController {
   findAll(@Query() filtersDto: FiltersDto, @Res() res: Response) {
     return this.cashflowService.findAll(filtersDto, res);
   }
+  @Get('getCloseCashFlows')
+  @Auth(Roles.admin, Roles.companyManager)
+  findAllCloseCashFlows(@Query() filtersDto: FiltersDto, @Res() res: Response) {
+    return this.cashflowService.findAllCloseCashFlows(filtersDto, res);
+  }
   @Get('getTemporalTransactions')
   @Auth(Roles.admin, Roles.companyManager)
   getTemporalTransactions(@Query() paginationData: PaginationDataDto, @Res() res: Response) {
