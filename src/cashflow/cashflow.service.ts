@@ -72,6 +72,7 @@ export class CashflowService {
             totalDue: createCashflowDto.payments[i].totalDue,
             observation: createCashflowDto.payments[i].observation,
             entity: createCashflowDto.payments[i].entity,
+            attachments: createCashflowDto.payments[i].attachments,
             pendingToCollect: createCashflowDto.payments[i].pendingToCollect,
             transactionType: createCashflowDto.payments[i].transactionType,
           });
@@ -672,6 +673,24 @@ export class CashflowService {
         message: 'Ocurrio un error ' + JSON.stringify(err),
         error: true,
       };
+    }
+  }
+
+  async findAllCloseCashFlows(filtersDto: FiltersDto, res: Response) {
+    const { pageSize, pageIndex } = filtersDto;
+
+    try {
+      const data = await this.closeCashFlowModel.findAndCountAll({
+        limit: pageSize,
+        offset: pageIndex * pageSize - pageSize,
+        order: [['createdAt', 'desc']],
+      });
+      res.status(HttpStatus.OK).send(data);
+    } catch (err) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        message: 'Ocurrio un error ' + JSON.stringify(err),
+        error: true,
+      });
     }
   }
 }
