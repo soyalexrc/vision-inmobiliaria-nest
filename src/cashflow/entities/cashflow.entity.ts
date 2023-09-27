@@ -101,6 +101,9 @@ export class CashFlow extends Model {
   @Column({ type: DataType.STRING })
   incomeByThird: string;
 
+  @Column({ type: DataType.JSONB })
+  attachments: string[];
+
   @Column({ type: DataType.STRING })
   pendingToCollect: string;
 
