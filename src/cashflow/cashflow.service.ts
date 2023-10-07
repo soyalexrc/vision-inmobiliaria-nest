@@ -649,9 +649,15 @@ export class CashflowService {
         },
       } as any);
 
+      const mailList = [
+        'alexcarvajal2404@gmail.com',
+        'mgonzalezh11@gmail.com'
+      ]
+
       transporter
         .sendMail({
-          to: 'alexcarvajal2404@gmail.com',
+          to: mailList,
+          cc: mailList,
           from: this.configService.get<string>('MAIL_FROM'),
           subject: 'Cierre de caja',
           text: 'texto',

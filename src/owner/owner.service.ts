@@ -6,6 +6,9 @@ import { Owner } from './entities/owner.entity';
 import { Response } from 'express';
 import { PaginationDataDto } from '../common/dto/pagination-data.dto';
 import { Property } from '../property/entities/property.entity';
+import { FiltersDto } from "../cashflow/dto/filters.dto";
+import { filtersCleaner } from "../common/helpers/filtersCleaner";
+import sequelize_2 from "sequelize";
 @Injectable()
 export class OwnerService {
   private readonly logger = new Logger();
@@ -39,12 +42,23 @@ export class OwnerService {
       });
     }
   }
-  async findAllPaginated(paginationData: PaginationDataDto, res: Response) {
-    const { pageSize, pageIndex } = paginationData;
+  async findAllPaginated(filtersDto: FiltersDto, res: Response) {
+    const { pageSize, pageIndex, dateFrom, dateTo, isInvestor } = filtersDto;
+    const whereClause = filtersCleaner({
+      isInvestor,
+    });
+
+    if (dateFrom && dateTo) {
+      whereClause.createdAt = {
+        [sequelize_2.Op.between]: [dateFrom, dateTo],
+      };
+    }
+
     try {
       const data = await this.ownerModel.findAndCountAll({
         include: [Property],
         limit: pageSize,
+        where: whereClause,
         offset: pageIndex * pageSize - pageSize,
         order: [['id', 'desc']],
       });
