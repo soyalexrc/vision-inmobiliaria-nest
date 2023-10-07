@@ -161,13 +161,10 @@ export class PropertyService {
   }
 
   async getPreviews(res: Response, filtersDto: FiltersDto) {
-    const { pageIndex, pageSize, state, propertyType, operationType, city } = filtersDto;
+    const { pageIndex, pageSize, state, propertyType, city, code, dateFrom, dateTo, status, operationType } = filtersDto;
     try {
       this.logger.debug(filtersDto);
 
-      const whereClause = filtersCleaner({
-        state,
-      });
       let query = `SELECT P.id, "propertyType", "operationType", "publicationTitle", price, "description", images, ally_id, owner_id, code, country, city, municipality, state, P."createdAt", "minimumNegotiation", user_id, "reasonToSellOrRent", status, files, nomenclature, "footageGround", "footageBuilding", "propertyDoc" FROM "Property" P INNER JOIN "GeneralInformation" GI ON P.id  = GI.property_id  INNER JOIN "LocationInformation" LI ON P.id = LI.property_id INNER JOIN "NegotiationInformation" NI ON P.id = NI.property_id INNER JOIN "DocumentsInformation" DI ON P.id = DI.property_id `;
       if (state) {
         query += `AND state = '${state}' `;
@@ -181,11 +178,28 @@ export class PropertyService {
       if (operationType) {
         query += `AND "operationType" = '${operationType}' `;
       }
+      if (code) {
+        query += `AND "code" = '${code}' `;
+      }
+      if (status) {
+        query += `AND "status" = '${status}' `;
+      }
+
+      // TODO no filtra por fecha...
+      // if (dateFrom && dateTo) {
+      //   query += `AND P.createdAt BETWEEN :customDateFrom AND :customDateTo `;
+      // }
+
       query += `LIMIT :customLimit OFFSET :customOffset`;
       const count = await this.propertyModel.count();
       const data = await this.propertyModel.sequelize.query(query, {
         type: sequelize.QueryTypes.SELECT,
-        replacements: { customOffset: pageIndex * pageSize - pageSize, customLimit: pageSize },
+        replacements: {
+          customOffset: pageIndex * pageSize - pageSize,
+          customLimit: pageSize,
+          customDateFrom: dateFrom,
+          customDateTo: dateTo,
+        },
       });
       // const data = await this.propertyModel.findAndCountAll({
       //   attributes: ['id', 'images', 'createdAt', 'publicationTitle'],

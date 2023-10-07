@@ -18,6 +18,14 @@ export class FiltersDto {
 
   @IsString()
   @IsOptional()
+  code: string;
+
+  @IsString()
+  @IsOptional()
+  isInvestor: string;
+
+  @IsString()
+  @IsOptional()
   subService_id: string;
 
   @IsString()
