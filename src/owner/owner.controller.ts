@@ -6,6 +6,7 @@ import { Response } from 'express';
 import { PaginationDataDto } from '../common/dto/pagination-data.dto';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { Roles } from '../auth/interfaces/roles.enum';
+import { FiltersDto } from "../cashflow/dto/filters.dto";
 
 @Controller('owner')
 export class OwnerController {
@@ -25,8 +26,8 @@ export class OwnerController {
 
   @Get('paginated')
   @Auth(Roles.admin, Roles.serviceManager)
-  findAllPaginated(@Query() paginationDto: PaginationDataDto, @Res() res: Response) {
-    return this.ownerService.findAllPaginated(paginationDto, res);
+  findAllPaginated(@Query() filtersDto: FiltersDto, @Res() res: Response) {
+    return this.ownerService.findAllPaginated(filtersDto, res);
   }
 
   @Get(':id')
