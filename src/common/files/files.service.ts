@@ -465,10 +465,27 @@ export class FilesService {
     }
   }
 
+  async getDigitalSignatureRequestById(res: Response, id: string) {
+    const data = await this.digitalSignatureRequestModel.findOne({
+      where: { id },
+    });
+    try {
+      res.status(HttpStatus.OK).send(data);
+    } catch (err) {
+      this.logger.error(err);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: `Ocurrio un error, ${JSON.stringify(err)}`,
+      });
+    }
+  }
+
   async resendDigitalSignatureRequest(res: Response, reqBody: { id: string | number }) {
     const { id } = reqBody;
     try {
-      const digitalSignatureRequest = await this.digitalSignatureRequestModel.findOne({ where: { id } });
+      const digitalSignatureRequest = await this.digitalSignatureRequestModel.findOne({
+        where: { id },
+      });
 
       if (!digitalSignatureRequest) {
         res.status(HttpStatus.NOT_FOUND).send({

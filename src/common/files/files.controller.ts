@@ -96,6 +96,10 @@ export class FilesController {
   getDigitalSignatureRequests(@Res() res: Response, @Query() filtersDto: FiltersDto) {
     return this.filesService.getDigitalSignatureRequests(res, filtersDto);
   }
+  @Get('getDigitalSignatureRequestById/:id')
+  getDigitalSignatureRequestById(@Res() res: Response, @Param('id') id: string) {
+    return this.filesService.getDigitalSignatureRequestById(res, id);
+  }
 
   @Post('resendDigitalSignatureRequest')
   resendDigitalSignatureRequest(@Res() res: Response, @Body() reqBody: { id: string | number }) {
