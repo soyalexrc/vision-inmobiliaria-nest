@@ -1,5 +1,6 @@
 import { AutoIncrement, Column, DataType, HasMany, Model, PrimaryKey, Table } from 'sequelize-typescript';
 import { Property } from '../../property/entities/property.entity';
+import { DigitalSignatureRequest } from "../../common/files/entities/digital-signature-request.entity";
 
 @Table({ tableName: 'Owner' })
 export class Owner extends Model {
@@ -10,6 +11,9 @@ export class Owner extends Model {
 
   @HasMany(() => Property)
   properties: Property[];
+
+  @Column({ type: DataType.STRING })
+  ci: string;
 
   @Column({ type: DataType.STRING })
   firstName: string;
@@ -28,4 +32,7 @@ export class Owner extends Model {
 
   @Column({ type: DataType.BOOLEAN })
   isInvestor: boolean;
+
+  @HasMany(() => DigitalSignatureRequest)
+  digitalSignatureRequests: DigitalSignatureRequest;
 }
