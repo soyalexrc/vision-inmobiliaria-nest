@@ -1,4 +1,4 @@
-import { Controller, Post, UseInterceptors, UploadedFile, Get, Param, Res, Delete, Body } from '@nestjs/common';
+import { Controller, Post, UseInterceptors, UploadedFile, Get, Param, Res, Delete, Body, Query } from '@nestjs/common';
 import { FilesService } from './files.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { fileNamer } from '../helpers/fileNamer.helper';
@@ -7,6 +7,10 @@ import { Response } from 'express';
 import { ApiTags } from '@nestjs/swagger';
 import { ChangeNameDto } from './dto/change-name.dto';
 import { MoveFileOrFolderDto } from './dto/move-file-or-folder.dto';
+import { CreateDigitalSignatureRequestDto } from './dto/create-digital-signature-request.dto';
+import { FiltersDto } from '../../cashflow/dto/filters.dto';
+import { UserDataForSignatureValidationDto } from './dto/user-data-for-signature-validation.dto';
+import { SendDigitalSignatureDto } from './dto/sendDigitalSignature.dto';
 
 @Controller('files')
 export class FilesController {
@@ -81,5 +85,38 @@ export class FilesController {
   @Post('moveFileOrFolder')
   moveFileOrFolder(@Res() res: Response, @Body() moveFileOrFolderDto: MoveFileOrFolderDto) {
     return this.filesService.moveFileOrFolder(moveFileOrFolderDto, res);
+  }
+
+  //   Digital signature
+
+  @Post('createDigitalSignatureRequest')
+  createDigitalSignatureRequest(@Res() res: Response, @Body() createDigitalSignatureRequestDto: CreateDigitalSignatureRequestDto) {
+    return this.filesService.createDigitalSignatureRequest(res, createDigitalSignatureRequestDto);
+  }
+
+  @Get('getDigitalSignatureRequests')
+  getDigitalSignatureRequests(@Res() res: Response, @Query() filtersDto: FiltersDto) {
+    return this.filesService.getDigitalSignatureRequests(res, filtersDto);
+  }
+  @Get('getDigitalSignatureRequestById/:id')
+  getDigitalSignatureRequestById(@Res() res: Response, @Param('id') id: string) {
+    return this.filesService.getDigitalSignatureRequestById(res, id);
+  }
+
+  @Post('resendDigitalSignatureRequest')
+  resendDigitalSignatureRequest(@Res() res: Response, @Body() reqBody: { id: string | number }) {
+    return this.filesService.resendDigitalSignatureRequest(res, reqBody);
+  }
+  @Post('validateUserForSignatureAuthorization')
+  validateUserForSignatureAuthorization(
+    @Res() res: Response,
+    @Body() userDataForSignatureValidationDto: UserDataForSignatureValidationDto,
+  ) {
+    return this.filesService.validateUserForSignatureAuthorization(res, userDataForSignatureValidationDto);
+  }
+
+  @Post('sendDigitalSignature')
+  sendDigitalSignature(@Res() res: Response, @Body() sendDigitalSignatureDto: SendDigitalSignatureDto) {
+    return this.filesService.sendDigitalSignature(res, sendDigitalSignatureDto);
   }
 }
