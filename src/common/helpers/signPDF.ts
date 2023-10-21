@@ -7,10 +7,10 @@ export async function signPDF(inputPath: string, outputPath: string, signatureIm
 
   // Load the document
   const pdfDoc = await PDFDocument.load(pdfBytes);
-  const decodedBufferedSignature = Buffer.from(signatureImage, 'base64');
-
-  console.log(pdfDoc);
-  console.log(decodedBufferedSignature);
+  // const decodedBufferedSignature = Buffer.from(signatureImage, 'base64');
+  //
+  // console.log(pdfDoc);
+  // console.log(decodedBufferedSignature);
 
   const pngSignature = await pdfDoc.embedPng(signatureImage);
 

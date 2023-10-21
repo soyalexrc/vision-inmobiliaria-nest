@@ -1,4 +1,4 @@
-import { BadRequestException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { fileExistsSync } from 'tsconfig-paths/lib/filesystem';
 import * as fs from 'fs';
 import * as mv from 'mv';
@@ -628,17 +628,32 @@ export class FilesService {
     try {
       const digitalSignatureRequest = await this.digitalSignatureRequestModel.findOne({ where: { id: digitalSignatureRequestId } });
       const fileNameFormatted = digitalSignatureRequest.filePath.split('genericStaticFileAsset')[1];
+      // @ts-ignore
+      const outputPathFormatted = fileNameFormatted.replaceAll('+', '/').split('.pdf')[0].concat('-(FIRMADO)').concat('.pdf');
 
       // @ts-ignore
       const filePath = join(__dirname, '../../../static', fileNameFormatted.replaceAll('+', '/'));
 
+      const outputPath = join(__dirname, '../../../static', outputPathFormatted);
+
       // @ts-ignore
-      const outputPath = join(__dirname, '../../../static', fileNameFormatted.replaceAll('+', '/').split('.pdf')[0].concat('-(FIRMADO)').concat('.pdf'));
+      const secureUrlFormatted = outputPath.split('/static/')[1].replaceAll('/', '+');
+
+      const secureUrl = `${this.configService.get('HOST_API')}/files/genericStaticFileAsset/${secureUrlFormatted}`;
+
+      this.logger.debug(secureUrl);
 
       await signPDF(filePath, outputPath, digitalSignature);
 
+      const data = await digitalSignatureRequest.update({
+        signedDocumentPath: secureUrl,
+        status: 'Firmado',
+      });
+
       res.status(HttpStatus.OK).send({
-        data: {},
+        data: {
+          signedDocumentURL: secureUrl,
+        },
         message: 'Se registro la firma digital con exito!',
       });
     } catch (err) {
