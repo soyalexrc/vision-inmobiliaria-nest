@@ -9,6 +9,9 @@ export class CreateOwnerDto {
   firstName: string;
 
   @IsString()
+  ci: string;
+
+  @IsString()
   lastName: string;
 
   @IsString()

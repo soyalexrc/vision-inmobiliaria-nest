@@ -1,4 +1,5 @@
-import { AutoIncrement, Column, DataType, Model, PrimaryKey, Table } from 'sequelize-typescript';
+import { AutoIncrement, Column, DataType, HasMany, Model, PrimaryKey, Table } from "sequelize-typescript";
+import { DigitalSignatureRequest } from "../../common/files/entities/digital-signature-request.entity";
 
 @Table({ tableName: 'Ally' })
 export class Ally extends Model {
@@ -21,4 +22,7 @@ export class Ally extends Model {
 
   @Column({ type: DataType.DATE, allowNull: true })
   birthDate: Date;
+
+  @HasMany(() => DigitalSignatureRequest)
+  digitalSignatureRequests: DigitalSignatureRequest;
 }

@@ -1,4 +1,4 @@
-import { BadRequestException, HttpStatus, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, HttpStatus, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { fileExistsSync } from 'tsconfig-paths/lib/filesystem';
 import * as fs from 'fs';
 import * as mv from 'mv';
@@ -13,6 +13,22 @@ import { DeleteFileRequest } from '../entities/delete-file-request.entity';
 import { MoveFileOrFolderDto } from './dto/move-file-or-folder.dto';
 import { extractZip } from '../helpers/extractZip';
 import { extractRar } from '../helpers/extractRar';
+import { CreateDigitalSignatureRequestDto } from './dto/create-digital-signature-request.dto';
+import { Owner } from '../../owner/entities/owner.entity';
+import { Client } from '../../client/entities/client.entity';
+import { Ally } from '../../ally/entities/ally.entity';
+import { ExternalAdviser } from '../../external-adviser/entities/external-adviser.entity';
+import { DigitalSignatureRequest } from './entities/digital-signature-request.entity';
+import * as NodeMailer from 'nodemailer';
+import { FiltersDto } from '../../cashflow/dto/filters.dto';
+import { filtersCleaner } from '../helpers/filtersCleaner';
+import { Op } from 'sequelize';
+import { getFutureDateISOStringBasedOnHours } from '../helpers/date.helper';
+import { validateNumberAsString } from '../helpers/regex.helpers';
+import { UserDataForSignatureValidationDto } from './dto/user-data-for-signature-validation.dto';
+import { SendDigitalSignatureDto } from './dto/sendDigitalSignature.dto';
+import { PDFDocument } from 'pdf-lib';
+import { signPDF } from '../helpers/signPDF';
 
 @Injectable()
 export class FilesService {
@@ -20,6 +36,11 @@ export class FilesService {
   constructor(
     private readonly configService: ConfigService,
     @InjectModel(User) private userModel: typeof User,
+    @InjectModel(Owner) private ownerModel: typeof Owner,
+    @InjectModel(Client) private clientModel: typeof Client,
+    @InjectModel(Ally) private allyModel: typeof Ally,
+    @InjectModel(ExternalAdviser) private adviserModel: typeof ExternalAdviser,
+    @InjectModel(DigitalSignatureRequest) private digitalSignatureRequestModel: typeof DigitalSignatureRequest,
     @InjectModel(DeleteFileRequest) private deleteFileRequestModel: typeof DeleteFileRequest,
   ) {}
 
@@ -331,6 +352,309 @@ export class FilesService {
       res.status(HttpStatus.OK).send({
         data: {},
         message: 'Se movio el documento con exito!',
+      });
+    } catch (err) {
+      this.logger.error(err);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: `Ocurrio un error, ${JSON.stringify(err)}`,
+      });
+    }
+  }
+
+  async createDigitalSignatureRequest(res: Response, createDigitalSignatureRequestDto: CreateDigitalSignatureRequestDto) {
+    const { filePath, sendToData, requestedBy } = createDigitalSignatureRequestDto;
+    try {
+      switch (sendToData.type) {
+        case 'Propietarios':
+          const ownerToConsult = await this.ownerModel.findOne({ where: { id: sendToData.id } });
+          if (!ownerToConsult.ci) {
+            res.status(HttpStatus.BAD_REQUEST).send({
+              error: true,
+              message: `Por favor, actualiza los datos de el propietario: ${ownerToConsult.firstName} ${ownerToConsult.lastName}. No tiene registrada CEDULA DE IDENTIDAD en el sistema.`,
+            });
+            return;
+          }
+          if (!ownerToConsult.phone) {
+            res.status(HttpStatus.BAD_REQUEST).send({
+              error: true,
+              message: `Por favor, actualiza los datos de el propietario: ${ownerToConsult.firstName} ${ownerToConsult.lastName}. No tiene registrada NUMERO DE TELEFONO en el sistema.`,
+            });
+            return;
+          }
+          // TODO create the digital signature request
+
+          this.logger.debug(getFutureDateISOStringBasedOnHours(48));
+
+          const data = await this.digitalSignatureRequestModel.create({
+            filePath: `${this.configService.get<string>('HOST_API')}/files/genericStaticFileAsset/${filePath}`,
+            sendToEmail: sendToData.email,
+            requestedBy,
+            status: 'Pendiente',
+            sendToData,
+            signedDocumentPath: '',
+            ownerId: sendToData.id,
+            clientId: null,
+            allyId: null,
+            externalAdviserId: null,
+            expiresAt: getFutureDateISOStringBasedOnHours(48),
+          });
+
+          const url = `${this.configService.get('NEXT_API').replace('/api', '')}/firma-digital/${data.id}`;
+
+          const transporter = NodeMailer.createTransport({
+            host: this.configService.get<string>('MAIL_HOST'),
+            post: this.configService.get<number>('MAIL_PORT'),
+            secure: true,
+            auth: {
+              user: this.configService.get<string>('MAIL_USER'),
+              pass: this.configService.get<string>('MAIL_PASSWORD'),
+            },
+          } as any);
+
+          const emailData = await transporter.sendMail({
+            to: sendToData.email,
+            from: this.configService.get<string>('MAIL_FROM'),
+            subject: 'Se requiere su firma para un documento',
+            text: 'welcome',
+            html: `<b>Has click <a href="${url}">aqui</a> para iniciar el proceso de firma digital.</b>`,
+          });
+
+          res.status(HttpStatus.OK).send({ data, message: 'Se creo la solicitud con exito!' });
+          break;
+        case 'Aliados':
+          break;
+        case 'Asesores externos':
+          break;
+        case 'Clientes':
+          break;
+        default:
+          return;
+      }
+    } catch (err) {
+      this.logger.error(err);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: `Ocurrio un error, ${JSON.stringify(err)}`,
+      });
+    }
+  }
+
+  async getDigitalSignatureRequests(res: Response, filtersDto: FiltersDto) {
+    const { pageIndex, pageSize, dateFrom, dateTo, requestedBy, sendToEmail, status } = filtersDto;
+    const whereClause = filtersCleaner({
+      requestedBy,
+      sendToEmail,
+      status,
+    });
+
+    if (dateFrom && dateTo) {
+      whereClause.createdAt = {
+        [Op.between]: [dateFrom, dateTo],
+      };
+    }
+    const data = await this.digitalSignatureRequestModel.findAndCountAll({
+      where: whereClause,
+      limit: pageSize,
+      offset: pageIndex * pageSize - pageSize,
+      order: [['updatedAt', 'desc']],
+    });
+    try {
+      res.status(HttpStatus.OK).send(data);
+    } catch (err) {
+      this.logger.error(err);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: `Ocurrio un error, ${JSON.stringify(err)}`,
+      });
+    }
+  }
+
+  async getDigitalSignatureRequestById(res: Response, id: string) {
+    try {
+      if (!validateNumberAsString(id)) {
+        res.status(HttpStatus.OK).send({
+          error: true,
+          message: `El valor de identificacion de la solicitud no existe.`,
+        });
+        return;
+      }
+
+      const digitalSignatureRequest = await this.digitalSignatureRequestModel.findOne({
+        where: { id },
+      });
+
+      if (!digitalSignatureRequest) {
+        res.status(HttpStatus.OK).send({
+          error: true,
+          message: `No se encontro una solicitud de firma digital con el id: ${id}`,
+        });
+        return;
+      }
+
+      if (digitalSignatureRequest.status === 'Firmado') {
+        res.status(HttpStatus.OK).send({
+          error: true,
+          message: 'La solicitud de firma digital ya fue llenada.',
+        });
+        return;
+      }
+
+      if (digitalSignatureRequest.status === 'Vencido') {
+        res.status(HttpStatus.OK).send({
+          error: true,
+          message: 'El tiempo para firmar este documento ha vencido, por favor comuniquese con un asesor.',
+        });
+        return;
+      }
+
+      const userAttachedInRequest = await this.ownerModel.findOne({
+        where: {
+          id: digitalSignatureRequest.sendToData.id,
+        },
+      });
+      res.status(HttpStatus.OK).send({
+        data: digitalSignatureRequest,
+        user: userAttachedInRequest,
+      });
+    } catch (err) {
+      this.logger.error(err);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: `Ocurrio un error, ${JSON.stringify(err)}`,
+      });
+    }
+  }
+
+  async resendDigitalSignatureRequest(res: Response, reqBody: { id: string | number }) {
+    const { id } = reqBody;
+    try {
+      const digitalSignatureRequest = await this.digitalSignatureRequestModel.findOne({
+        where: { id },
+      });
+
+      if (!digitalSignatureRequest) {
+        res.status(HttpStatus.NOT_FOUND).send({
+          error: true,
+          message: `No se encontro una solicitud con el id: ${id}`,
+        });
+      }
+
+      // TODO reenviar correo
+      const url = `${this.configService.get('NEXT_API').replace('/api', '')}/firma-digital/${digitalSignatureRequest.id}`;
+
+      const transporter = NodeMailer.createTransport({
+        host: this.configService.get<string>('MAIL_HOST'),
+        post: this.configService.get<number>('MAIL_PORT'),
+        secure: true,
+        auth: {
+          user: this.configService.get<string>('MAIL_USER'),
+          pass: this.configService.get<string>('MAIL_PASSWORD'),
+        },
+      } as any);
+
+      const emailData = await transporter.sendMail({
+        to: digitalSignatureRequest.sendToEmail,
+        from: this.configService.get<string>('MAIL_FROM'),
+        subject: 'Se requiere su firma para un documento',
+        text: 'welcome',
+        html: `<b>Has click <a href="${url}">aqui</a> para iniciar el proceso de firma digital.</b>`,
+      });
+
+      // TODO actualizar fecha de expiracion
+
+      await digitalSignatureRequest.update({
+        expiresAt: getFutureDateISOStringBasedOnHours(48),
+      });
+
+      res.status(HttpStatus.OK).send({
+        data: digitalSignatureRequest,
+        message: 'Se reenvio la solicitud con exito!',
+      });
+    } catch (err) {
+      this.logger.error(err);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: `Ocurrio un error, ${JSON.stringify(err)}`,
+      });
+    }
+  }
+
+  async validateUserForSignatureAuthorization(res: Response, body: UserDataForSignatureValidationDto) {
+    const { last4PhoneDigits, ci, lastname } = body;
+    try {
+      //   TODO traer user por id
+      const user = await this.ownerModel.findOne({ where: { id: body.userId } });
+      //   TODO hacer validactiones con los datos del user
+      if (user.ci !== ci) {
+        res.status(HttpStatus.OK).send({
+          error: true,
+          message: 'La cedula de identidad no coincide con la guardada en el sistema',
+        });
+        return;
+      }
+
+      if (user.lastName.toLowerCase() !== lastname.toLowerCase()) {
+        res.status(HttpStatus.OK).send({
+          error: true,
+          message: 'El apellido no coincide con el guardado en el sistema',
+        });
+        return;
+      }
+
+      if (user.phone.substring(user.phone.length - 4, user.phone.length) !== last4PhoneDigits) {
+        res.status(HttpStatus.OK).send({
+          error: true,
+          message: 'El numero de telefono no coincide con el guardado en el sistema',
+        });
+        return;
+      }
+
+      res.status(HttpStatus.OK).send({
+        valid: true,
+        message: 'Los datos se validaron exitosamente',
+      });
+    } catch (err) {
+      this.logger.error(err);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: `Ocurrio un error, ${JSON.stringify(err)}`,
+      });
+    }
+  }
+
+  async sendDigitalSignature(res: Response, sendDigitalSignature: SendDigitalSignatureDto) {
+    const { digitalSignature, digitalSignatureRequestId } = sendDigitalSignature;
+    try {
+      const digitalSignatureRequest = await this.digitalSignatureRequestModel.findOne({ where: { id: digitalSignatureRequestId } });
+      const fileNameFormatted = digitalSignatureRequest.filePath.split('genericStaticFileAsset')[1];
+      // @ts-ignore
+      const outputPathFormatted = fileNameFormatted.replaceAll('+', '/').split('.pdf')[0].concat('-(FIRMADO)').concat('.pdf');
+
+      // @ts-ignore
+      const filePath = join(__dirname, '../../../static', fileNameFormatted.replaceAll('+', '/'));
+
+      const outputPath = join(__dirname, '../../../static', outputPathFormatted);
+
+      // @ts-ignore
+      const secureUrlFormatted = outputPath.split('/static/')[1].replaceAll('/', '+');
+
+      const secureUrl = `${this.configService.get('HOST_API')}/files/genericStaticFileAsset/${secureUrlFormatted}`;
+
+      this.logger.debug(secureUrl);
+
+      await signPDF(filePath, outputPath, digitalSignature);
+
+      const data = await digitalSignatureRequest.update({
+        signedDocumentPath: secureUrl,
+        status: 'Firmado',
+      });
+
+      res.status(HttpStatus.OK).send({
+        data: {
+          signedDocumentURL: secureUrl,
+        },
+        message: 'Se registro la firma digital con exito!',
       });
     } catch (err) {
       this.logger.error(err);

@@ -1,5 +1,6 @@
 import { AutoIncrement, Column, DataType, HasMany, Model, PrimaryKey, Table } from 'sequelize-typescript';
 import { Property } from '../../property/entities/property.entity';
+import { DigitalSignatureRequest } from "../../common/files/entities/digital-signature-request.entity";
 
 @Table({ tableName: 'ExternalAdviser' })
 export class ExternalAdviser extends Model {
@@ -22,4 +23,7 @@ export class ExternalAdviser extends Model {
 
   @HasMany(() => Property)
   properties: Property[];
+
+  @HasMany(() => DigitalSignatureRequest)
+  digitalSignatureRequests: DigitalSignatureRequest;
 }

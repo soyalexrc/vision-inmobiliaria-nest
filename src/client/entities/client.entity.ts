@@ -1,9 +1,22 @@
-import { AutoIncrement, BelongsTo, Column, DataType, ForeignKey, HasMany, Model, PrimaryKey, Table } from 'sequelize-typescript';
+import {
+  AutoIncrement,
+  BelongsTo,
+  Column,
+  DataType,
+  ForeignKey,
+  HasMany,
+  HasOne,
+  Model,
+  PrimaryKey,
+  Table
+} from "sequelize-typescript";
 import { Property } from '../../property/entities/property.entity';
 import { CashFlow } from '../../cashflow/entities/cashflow.entity';
 import { User } from '../../user/entities/user.entity';
 import { Service } from '../../service/entities/service.entity';
 import { SubService } from '../../service/entities/sub-service.entity';
+import { GeneralInformation } from "../../property/entities/generalInformation.entity";
+import { DigitalSignatureRequest } from "../../common/files/entities/digital-signature-request.entity";
 
 @Table({ tableName: 'Client' })
 export class Client extends Model {
@@ -163,4 +176,7 @@ export class Client extends Model {
   @ForeignKey(() => SubService)
   @Column({ type: DataType.INTEGER })
   subService_id: number;
+
+  @HasMany(() => DigitalSignatureRequest)
+  digitalSignatureRequests: DigitalSignatureRequest;
 }

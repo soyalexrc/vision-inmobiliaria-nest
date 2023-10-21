@@ -18,6 +18,14 @@ export class FiltersDto {
 
   @IsString()
   @IsOptional()
+  sendToEmail: string;
+
+  @IsString()
+  @IsOptional()
+  requestedBy: string;
+
+  @IsString()
+  @IsOptional()
   code: string;
 
   @IsString()
