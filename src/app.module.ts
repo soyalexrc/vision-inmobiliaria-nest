@@ -38,7 +38,7 @@ import { DigitalSignatureRequest } from './common/files/entities/digital-signatu
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: '.env.local',
+      envFilePath: '.env',
     }),
     ScheduleModule.forRoot(),
     SequelizeModule.forRootAsync({
