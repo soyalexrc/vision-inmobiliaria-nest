@@ -13,20 +13,17 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
 
-      - name: Set up Node.js and Yarn
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          registry-url: 'https://registry.yarnpkg.com/'
+      - name: Set up Node.js for Yarn commands
+        run: |
+          curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+          sudo apt-get install -y nodejs
+          sudo npm install -g yarn
+
+      - name: Print Node.js version
+        run: node --version
 
       - name: Install sshpass
         run: sudo apt-get install -y sshpass
-
-      - name: Set up Node.js for Yarn commands
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          registry-url: 'https://registry.yarnpkg.com/'
 
       - name: SSH Connection and Commands
         run: |
