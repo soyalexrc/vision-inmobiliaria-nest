@@ -473,7 +473,7 @@ export class CashflowService {
     }
   }
 
-  @Cron(CronExpression.MONDAY_TO_FRIDAY_AT_10PM)
+  // @Cron(CronExpression.MONDAY_TO_FRIDAY_AT_10PM)
   // @Cron(CronExpression.EVERY_5_MINUTES)
   async generateCashFlowClose() {
     const today = new Date();

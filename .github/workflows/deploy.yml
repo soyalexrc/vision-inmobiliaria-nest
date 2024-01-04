@@ -1,0 +1,29 @@
+name: Deploy Vision inmobiliaria backend
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+        with:
+          submodules: 'recursive'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          registry-url: 'https://registry.yarnpkg.com/'
+
+      - name: Install sshpass
+        run: sudo apt-get install -y sshpass
+
+      - name: SSH Connection and Commands
+        run: |
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}"@"${{ secrets.SSH_HOST }}" 'cd .. && cd home && cd vision-inmobiliaria-nest && && pm2 stop vision-backend && git checkout main && git pull && yarn install && yarn build && pm2 start-vision-backend'
