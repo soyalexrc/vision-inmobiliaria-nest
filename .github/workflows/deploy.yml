@@ -1,4 +1,4 @@
-name: Deploy Vision Admin Angular
+name: Deploy Vision inmobiliaria backend
 
 on:
   push:
