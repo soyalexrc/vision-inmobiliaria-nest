@@ -32,8 +32,8 @@ import { Service } from './service/entities/service.entity';
 import { SubService } from './service/entities/sub-service.entity';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CloseCashFlow } from './cashflow/entities/closeCashflow.entity';
-import { DocumentsInformation } from "./property/entities/documentsInformation.entity";
-import { DigitalSignatureRequest } from "./common/files/entities/digital-signature-request.entity";
+import { DocumentsInformation } from './property/entities/documentsInformation.entity';
+import { DigitalSignatureRequest } from './common/files/entities/digital-signature-request.entity';
 
 @Module({
   imports: [

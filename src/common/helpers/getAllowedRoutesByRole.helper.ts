@@ -42,5 +42,9 @@ export function getAllowedRoutesByRole(role: string) {
     routes = ['inicio', 'gestion-de-archivos'];
   }
 
+  if (role === 'Asesor inmobiliario vision') {
+    routes = ['propiedades', 'clientes', 'aliados', 'propietarios'];
+  }
+
   return routes;
 }
