@@ -24,4 +24,4 @@ jobs:
 
       - name: SSH Connection and Commands
         run: |
-          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}"@"${{ secrets.SSH_HOST }}" 'cd .. && cd home && cd vision-inmobiliaria-nest && pm2 stop vision-backend && git checkout main && git pull && yarn install && yarn build && pm2 start-vision-backend'
+          sshpass -p "${{ secrets.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no -p "${{ secrets.SSH_PORT }}" "${{ secrets.SSH_USER }}"@"${{ secrets.SSH_HOST }}" 'cd .. && cd home && cd vision-inmobiliaria-nest && git checkout main && git pull && yarn install && yarn build && pm2 stop vision-backend  && pm2 start-vision-backend'
