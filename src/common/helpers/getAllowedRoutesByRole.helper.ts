@@ -39,7 +39,7 @@ export function getAllowedRoutesByRole(role: string) {
   }
 
   if (role === 'Asistente operativo') {
-    routes = ['inicio', 'gestion-de-archivos'];
+    routes = ['inicio', 'gestion-de-archivos', 'propiedades', 'clientes'];
   }
 
   if (role === 'Asesor inmobiliario vision') {
