@@ -3,4 +3,5 @@ export enum Roles {
   serviceManager = 'Coordinador de servicios',
   visionAdviser = 'Asesor inmobiliario',
   companyManager = 'Administrador de empresa',
+  operativeAssistant = 'Asistente operativo',
 }
