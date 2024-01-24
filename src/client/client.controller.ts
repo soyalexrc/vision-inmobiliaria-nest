@@ -13,25 +13,25 @@ export class ClientController {
   constructor(private readonly clientService: ClientService) {}
 
   @Post()
-  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager)
+  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager, Roles.operativeAssistant)
   create(@Body() createClientDto: CreateClientDto, @Res() res: Response) {
     return this.clientService.create(createClientDto, res);
   }
 
   @Post('changeStatus')
-  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager)
+  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager, Roles.operativeAssistant)
   changeStatus(@Body() changeStatusDto: { status: string; id: number }, @Res() res: Response) {
     return this.clientService.changeStatus(changeStatusDto, res);
   }
 
   @Get()
-  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager)
+  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager, Roles.operativeAssistant)
   findAll(@Res() res: Response) {
     return this.clientService.findAll(res);
   }
 
   @Get('getPreviews')
-  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager)
+  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager, Roles.operativeAssistant)
   getPreviews(@Res() res: Response, @Query() filtersDto: FiltersDto) {
     return this.clientService.getPreviews(res, filtersDto);
   }
@@ -43,7 +43,7 @@ export class ClientController {
   }
 
   @Put(':id')
-  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager)
+  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager, Roles.operativeAssistant)
   update(@Param('id') id: string, @Body() updateClientDto: UpdateClientDto, @Res() res: Response) {
     return this.clientService.update(+id, updateClientDto, res);
   }

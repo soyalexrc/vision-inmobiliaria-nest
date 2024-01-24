@@ -60,13 +60,13 @@ export class PropertyController {
   }
 
   @Get(':id')
-  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager)
+  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager, Roles.operativeAssistant)
   findOne(@Param('id') id: string, @Res() res: Response) {
     return this.propertiesService.findOne(+id, res);
   }
 
   @Put(':id')
-  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager)
+  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager, Roles.operativeAssistant)
   update(@Param('id') id: string, @Body() updatePropertyDto: UpdatePropertyDto) {
     return this.propertiesService.update(+id, updatePropertyDto);
   }
