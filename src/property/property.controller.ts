@@ -15,25 +15,25 @@ export class PropertyController {
   constructor(private readonly propertiesService: PropertyService) {}
 
   @Post()
-  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager)
+  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager, Roles.operativeAssistant)
   create(@Body() createPropertyDto: CreatePropertyDto) {
     return this.propertiesService.create(createPropertyDto);
   }
 
   @Post('changeStatus')
-  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager)
+  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager, Roles.operativeAssistant)
   changeStatus(@Body() changeStatusDto: ChangePropertyStatusDto, @Res() res: Response) {
     return this.propertiesService.changeStatus(changeStatusDto, res);
   }
 
   @Get('propertyStatus/:id')
-  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager)
+  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager, Roles.operativeAssistant)
   getPropertyStatusHistoryById(@Param('id') id: string, @Res() res: Response) {
     return this.propertiesService.getPropertyStatusHistoryById(+id, res);
   }
 
   @Get('getAutomaticCode')
-  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager)
+  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager, Roles.operativeAssistant)
   getAutomaticCode(@Res() res: Response) {
     return this.propertiesService.getAutomaticCode(res);
   }
