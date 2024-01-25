@@ -1,5 +1,6 @@
 import { IsArray, IsBoolean, IsDate, IsInt, IsOptional, IsString } from 'class-validator';
 import { Type } from 'class-transformer';
+import { IsNull } from "sequelize-typescript";
 
 export class CreateClientDto {
   @IsInt()
@@ -48,6 +49,7 @@ export class CreateClientDto {
   name: string;
 
   @IsString()
+  @IsOptional()
   referrer: string;
 
   @IsString()

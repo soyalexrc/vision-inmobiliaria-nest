@@ -13,13 +13,13 @@ export class OwnerController {
   constructor(private readonly ownerService: OwnerService) {}
 
   @Post()
-  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager)
+  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager, Roles.operativeAssistant)
   create(@Body() createOwnerDto: CreateOwnerDto, @Res() res: Response) {
     return this.ownerService.create(createOwnerDto, res);
   }
 
   @Get()
-  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager)
+  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager, Roles.operativeAssistant)
   findAll(@Res() res: Response) {
     return this.ownerService.findAll(res);
   }

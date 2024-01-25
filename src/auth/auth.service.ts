@@ -80,6 +80,8 @@ export class AuthService {
   async forgotPassword(fpDto: ForgotPasswordDto, res: Response) {
     const { temporalId } = await this.temporalIdModel.create({ temporalId: uuid() });
 
+    this.logger.debug(temporalId);
+
     const url = `${this.configService.get('HOST_URL')}/autenticacion/reestablecer-acceso?email=${fpDto.email}&code=${temporalId}`;
 
     try {

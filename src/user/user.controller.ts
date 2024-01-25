@@ -33,7 +33,7 @@ export class UserController {
   }
 
   @Get('getAdvisers')
-  @Auth(Roles.admin, Roles.serviceManager, Roles.visionAdviser)
+  @Auth(Roles.admin, Roles.serviceManager, Roles.visionAdviser, Roles.operativeAssistant)
   findAllAdvisers(@Res() res: Response) {
     return this.userService.findAllAdvisers(res);
   }

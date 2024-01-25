@@ -37,7 +37,7 @@ export class ClientController {
   }
 
   @Get(':id')
-  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager)
+  @Auth(Roles.admin, Roles.visionAdviser, Roles.serviceManager, Roles.operativeAssistant)
   findOne(@Param('id') id: string, @Res() res: Response) {
     return this.clientService.findOne(+id, res);
   }

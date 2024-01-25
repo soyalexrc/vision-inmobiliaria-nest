@@ -13,13 +13,13 @@ export class AllyController {
   constructor(private readonly allyService: AllyService) {}
 
   @Post()
-  @Auth(Roles.admin, Roles.serviceManager, Roles.visionAdviser)
+  @Auth(Roles.admin, Roles.serviceManager, Roles.visionAdviser, Roles.operativeAssistant)
   create(@Body() createAllyDto: CreateAllyDto, @Res() res: Response) {
     return this.allyService.create(createAllyDto, res);
   }
 
   @Get()
-  @Auth(Roles.admin, Roles.serviceManager, Roles.visionAdviser)
+  @Auth(Roles.admin, Roles.serviceManager, Roles.visionAdviser, Roles.operativeAssistant)
   findAll(@Res() res: Response) {
     return this.allyService.findAll(res);
   }
