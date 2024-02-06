@@ -90,9 +90,6 @@ export class Property extends Model {
   @Column({ type: DataType.JSONB })
   equipment: any[];
 
-  @HasMany(() => CashFlow)
-  cashflows: CashFlow[];
-
   @HasMany(() => PropertyStatusEntry)
   statusHistory: PropertyStatusEntry[];
 
