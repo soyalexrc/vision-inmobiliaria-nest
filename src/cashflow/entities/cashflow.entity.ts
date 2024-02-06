@@ -3,6 +3,7 @@ import { Property } from '../../property/entities/property.entity';
 import { Client } from '../../client/entities/client.entity';
 import { User } from '../../user/entities/user.entity';
 import { Owner } from '../../owner/entities/owner.entity';
+import { CashflowProperty } from './cashflowProperty.entity';
 
 @Table({ tableName: 'CashFlow' })
 export class CashFlow extends Model {
@@ -34,9 +35,6 @@ export class CashFlow extends Model {
 
   @Column({ type: DataType.STRING })
   location: string;
-
-  @Column({ type: DataType.STRING })
-  internalProperty: string;
 
   @Column({ type: DataType.STRING })
   person: string;
@@ -107,9 +105,9 @@ export class CashFlow extends Model {
   @Column({ type: DataType.STRING })
   pendingToCollect: string;
 
-  @BelongsTo(() => Property)
-  property: Property;
+  @BelongsTo(() => CashflowProperty)
+  property: CashflowProperty;
 
-  @ForeignKey(() => Property)
+  @ForeignKey(() => CashflowProperty)
   property_id: number;
 }

@@ -24,6 +24,7 @@ import { User } from '../user/entities/user.entity';
 import * as NodeMailer from 'nodemailer';
 import { ConfigService } from '@nestjs/config';
 import { CloseCashFlow } from './entities/closeCashflow.entity';
+import { CashflowProperty } from "./entities/cashflowProperty.entity";
 
 const entities = [
   { key: 'totalBnc', value: 'Banco Nacional de Crédito (BNC)' },
@@ -47,6 +48,7 @@ export class CashflowService {
     @InjectModel(Owner) private ownerModel: typeof Owner,
     @InjectModel(CloseCashFlow) private closeCashFlowModel: typeof CloseCashFlow,
     @InjectModel(CashflowPerson) private cashFlowPersonModel: typeof CashflowPerson,
+    @InjectModel(CashflowProperty) private cashFlowPropertyModel: typeof CashflowProperty,
     private configService: ConfigService,
   ) {}
 
@@ -99,7 +101,22 @@ export class CashflowService {
 
   async createPerson(personData: { name: string }, res: Response) {
     try {
-      const data = await this.cashFlowPersonModel.create(personData as any);
+      const data = await this.cashFlowPersonModel.create(personData);
+      res.status(HttpStatus.OK).send({
+        message: 'Se creo el registro con exito!',
+        data,
+      });
+    } catch (err) {
+      this.logger.error(err);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        message: 'Ocurrio un error ' + JSON.stringify(err),
+        error: true,
+      });
+    }
+  }
+  async createProperty(propertyData: { name: string }, res: Response) {
+    try {
+      const data = await this.cashFlowPropertyModel.create(propertyData);
       res.status(HttpStatus.OK).send({
         message: 'Se creo el registro con exito!',
         data,
@@ -213,15 +230,7 @@ export class CashflowService {
         limit: pageSize,
         offset: pageIndex * pageSize - pageSize,
         order: [['date', 'desc']],
-        include: [
-          {
-            model: Property,
-            include: [GeneralInformation],
-          },
-          Owner,
-          Client,
-          User,
-        ],
+        include: [CashflowProperty, Owner, Client, User],
       });
       res.status(HttpStatus.OK).send(data);
     } catch (err) {
@@ -422,6 +431,18 @@ export class CashflowService {
         { type: sequelize.QueryTypes.SELECT },
       );
       res.status(HttpStatus.OK).send([...cashFlowPeople, ...owners, ...clients]);
+    } catch (err) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        message: 'Ocurrio un error ' + JSON.stringify(err),
+        error: true,
+      });
+    }
+  }
+
+  async findAllProperties(res: Response) {
+    try {
+      const data = await this.cashFlowPropertyModel.findAll();
+      res.status(HttpStatus.OK).send(data);
     } catch (err) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
         message: 'Ocurrio un error ' + JSON.stringify(err),

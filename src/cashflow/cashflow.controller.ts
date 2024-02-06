@@ -28,6 +28,11 @@ export class CashflowController {
   createPerson(@Body() personData: { name: string }, @Res() res: Response) {
     return this.cashflowService.createPerson(personData, res);
   }
+  @Post('createProperty')
+  @Auth(Roles.admin, Roles.companyManager)
+  createProperty(@Body() propertyData: { name: string; location: string }, @Res() res: Response) {
+    return this.cashflowService.createProperty(propertyData, res);
+  }
 
   @Post('temporalTransaction')
   @Auth(Roles.admin, Roles.companyManager)
@@ -73,6 +78,11 @@ export class CashflowController {
   @Auth(Roles.admin, Roles.companyManager)
   findAllPeople(@Res() res: Response) {
     return this.cashflowService.findAllPeople(res);
+  }
+  @Get('getProperties')
+  @Auth(Roles.admin, Roles.companyManager)
+  findAllProperties(@Res() res: Response) {
+    return this.cashflowService.findAllProperties(res);
   }
 
   @Get(':id')

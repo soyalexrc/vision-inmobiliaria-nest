@@ -34,6 +34,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { CloseCashFlow } from './cashflow/entities/closeCashflow.entity';
 import { DocumentsInformation } from './property/entities/documentsInformation.entity';
 import { DigitalSignatureRequest } from './common/files/entities/digital-signature-request.entity';
+import { CashflowProperty } from "./cashflow/entities/cashflowProperty.entity";
 
 @Module({
   imports: [
@@ -62,6 +63,7 @@ import { DigitalSignatureRequest } from './common/files/entities/digital-signatu
             ExternalAdviser,
             Property,
             CashflowPerson,
+            CashflowProperty,
             GeneralInformation,
             LocationInformation,
             NegotiationInformation,
