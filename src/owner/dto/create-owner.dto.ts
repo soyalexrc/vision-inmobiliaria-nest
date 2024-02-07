@@ -9,12 +9,14 @@ export class CreateOwnerDto {
   firstName: string;
 
   @IsString()
+  @IsOptional()
   ci: string;
 
   @IsString()
   lastName: string;
 
   @IsString()
+  @IsOptional()
   email: string;
 
   @IsString()
@@ -25,5 +27,6 @@ export class CreateOwnerDto {
   phone: string;
 
   @IsBoolean()
+  @IsOptional()
   isInvestor: boolean;
 }
