@@ -19,7 +19,6 @@ export class FilesController {
   @Post('uploadGenericStaticFile/:path')
   @UseInterceptors(
     FileInterceptor('file', {
-      limits: { fileSize: 200000000 },
       storage: diskStorage({
         destination: `./static/temp/files`,
         filename: fileNamer,
