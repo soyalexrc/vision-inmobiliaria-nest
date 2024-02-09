@@ -78,15 +78,18 @@ export class Property extends Model {
   @Column({ type: DataType.ARRAY(DataType.STRING) })
   images: string[];
 
-  //   Attributes
   @Column({ type: DataType.JSONB })
   attributes: any[];
 
-  //   Attributes
   @Column({ type: DataType.JSONB })
   distribution: any[];
 
-  //   Attributes
+  @Column({ type: DataType.JSONB })
+  services: any[];
+
+  @Column({ type: DataType.JSONB })
+  adjacencies: any[];
+
   @Column({ type: DataType.JSONB })
   equipment: any[];
 

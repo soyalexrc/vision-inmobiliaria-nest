@@ -20,6 +20,12 @@ export class CreatePropertyDto {
   distribution: Array<any>;
 
   @IsArray()
+  adjacencies: Array<any>;
+
+  @IsArray()
+  services: Array<any>;
+
+  @IsArray()
   equipment: Array<any>;
 
   @IsInt()

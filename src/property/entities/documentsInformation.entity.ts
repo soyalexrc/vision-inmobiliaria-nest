@@ -56,4 +56,16 @@ export class DocumentsInformation extends Model {
 
   @Column({ type: DataType.STRING })
   realStateTaxYear: string;
+
+  @Column({ type: DataType.STRING })
+  attorneyEmail: string;
+
+  @Column({ type: DataType.STRING })
+  attorneyPhone: string;
+
+  @Column({ type: DataType.STRING })
+  attorneyFirstName: string;
+
+  @Column({ type: DataType.STRING })
+  attorneyLastName: string;
 }

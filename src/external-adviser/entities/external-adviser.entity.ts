@@ -21,6 +21,9 @@ export class ExternalAdviser extends Model {
   @Column({ type: DataType.STRING })
   email: string;
 
+  @Column({ type: DataType.STRING })
+  realStateName: string;
+
   @HasMany(() => Property)
   properties: Property[];
 

@@ -28,17 +28,20 @@ export class NegotiationInformation extends Model {
   reasonToSellOrRent: string;
 
   @Column({ type: DataType.STRING })
-  attorneyEmail: string;
-
-  @Column({ type: DataType.STRING })
-  attorneyPhone: string;
-
-  @Column({ type: DataType.STRING })
-  attorneyFirstName: string;
-
-  @Column({ type: DataType.STRING })
-  attorneyLastName: string;
-
-  @Column({ type: DataType.STRING })
   partOfPayment: string;
+
+  @Column({ type: DataType.BOOLEAN })
+  mouthToMouth: boolean;
+
+  @Column({ type: DataType.BOOLEAN })
+  realStateGroups: boolean;
+
+  @Column({ type: DataType.BOOLEAN })
+  realStateWebPages: boolean;
+
+  @Column({ type: DataType.BOOLEAN })
+  socialMedia: boolean;
+
+  @Column({ type: DataType.BOOLEAN })
+  publicationOnBuilding: boolean;
 }
