@@ -19,6 +19,12 @@ export class LocationInformation extends Model {
   location: string;
 
   @Column({ type: DataType.STRING })
+  nomenclature: string;
+
+  @Column({ type: DataType.STRING })
+  tower: string;
+
+  @Column({ type: DataType.STRING })
   amountOfFloors: string;
 
   @Column({ type: DataType.STRING })
