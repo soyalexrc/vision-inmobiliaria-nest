@@ -26,6 +26,9 @@ export class CreatePropertyDto {
   services: Array<any>;
 
   @IsArray()
+  furnishedAreas: Array<any>;
+
+  @IsArray()
   equipment: Array<any>;
 
   @IsInt()

@@ -93,6 +93,9 @@ export class Property extends Model {
   @Column({ type: DataType.JSONB })
   equipment: any[];
 
+  @Column({ type: DataType.JSONB })
+  furnishedAreas: any[];
+
   @HasMany(() => PropertyStatusEntry)
   statusHistory: PropertyStatusEntry[];
 

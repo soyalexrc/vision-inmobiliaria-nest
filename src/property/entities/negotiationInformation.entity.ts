@@ -44,4 +44,19 @@ export class NegotiationInformation extends Model {
 
   @Column({ type: DataType.BOOLEAN })
   publicationOnBuilding: boolean;
+
+  @Column({ type: DataType.STRING })
+  operationType: string;
+
+  @Column({ type: DataType.STRING })
+  propertyExclusivity: string;
+
+  @Column({ type: DataType.STRING })
+  ownerPaysCommission: string;
+
+  @Column({ type: DataType.STRING })
+  rentCommission: string;
+
+  @Column({ type: DataType.STRING })
+  sellCommission: string;
 }
