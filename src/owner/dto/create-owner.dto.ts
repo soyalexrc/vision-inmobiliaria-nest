@@ -13,6 +13,7 @@ export class CreateOwnerDto {
   ci: string;
 
   @IsString()
+  @IsOptional()
   lastName: string;
 
   @IsString()
