@@ -282,7 +282,7 @@ export class CashflowService {
       const egreso = await calculateSumByTransactionTypeAndCurrency('Egreso', 'amount', true, dateFrom, dateTo);
       const ingresoCuentaTerceros = await calculateSumByTransactionTypeAndCurrency(
         'Ingreso a cuenta de terceros',
-        'incomeByThird',
+        'amount',
         true,
         dateFrom,
         dateTo,
@@ -529,7 +529,7 @@ export class CashflowService {
 
         const ingresoCuentaTerceros = await calculateSumByTransactionTypeAndCurrency(
           'Ingreso a cuenta de terceros',
-          'incomeByThird',
+          'amount',
           true,
           dateFrom,
           dateTo,
