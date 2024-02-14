@@ -342,12 +342,19 @@ export class CashflowService {
     const { dateFrom, dateTo } = filtersDto;
     try {
       const ingreso = await calculateSumByTransactionTypeAndCurrency('Ingreso', 'amount', false, dateFrom, dateTo);
+      const ingresoCuentaTerceros = await calculateSumByTransactionTypeAndCurrency(
+        'Ingreso a cuenta de terceros',
+        'amount',
+        false,
+        dateFrom,
+        dateTo,
+      );
       const egreso = await calculateSumByTransactionTypeAndCurrency('Egreso', 'amount', false, dateFrom, dateTo);
 
       const total = {
-        bs: ingreso.bs - egreso.bs,
-        usd: ingreso.usd - egreso.usd,
-        eur: ingreso.eur - egreso.eur,
+        bs: (ingreso.bs + ingresoCuentaTerceros.bs) - egreso.bs,
+        usd: (ingreso.usd + ingresoCuentaTerceros.usd) - egreso.usd,
+        eur: (ingreso.eur + ingresoCuentaTerceros.eur) - egreso.eur,
       };
 
       res.status(HttpStatus.OK).send(total);
@@ -367,12 +374,20 @@ export class CashflowService {
 
         for (let i = 0; i < entities.length; i++) {
           const ingreso = await calculateSumByTransactionTypeAndCurrency('Ingreso', 'amount', false, dateFrom, dateTo, entities[i].value);
+          const ingresoCuentaDeTerceros = await calculateSumByTransactionTypeAndCurrency(
+            'Ingreso a cuenta de terceros',
+            'amount',
+            false,
+            dateFrom,
+            dateTo,
+            entities[i].value,
+          );
           const egreso = await calculateSumByTransactionTypeAndCurrency('Egreso', 'amount', false, dateFrom, dateTo, entities[i].value);
 
           total[entities[i].key] = {
-            bs: ingreso.bs - egreso.bs,
-            usd: ingreso.usd - egreso.usd,
-            eur: ingreso.eur - egreso.eur,
+            bs: (ingreso.bs + ingresoCuentaDeTerceros.bs) - egreso.bs,
+            usd: (ingreso.usd + ingresoCuentaDeTerceros.usd) - egreso.usd,
+            eur: (ingreso.eur + ingresoCuentaDeTerceros.eur) - egreso.eur,
           };
         }
 
@@ -614,6 +629,14 @@ export class CashflowService {
             endDateTimeString,
             entities[i].value,
           );
+          const ingresoCuentaTerceros = await calculateSumByTransactionTypeAndCurrency(
+            'Ingreso a cuenta de terceros',
+            'amount',
+            false,
+            startDateTimeString,
+            endDateTimeString,
+            entities[i].value,
+          );
           const egreso = await calculateSumByTransactionTypeAndCurrency(
             'Egreso',
             'amount',
@@ -624,9 +647,9 @@ export class CashflowService {
           );
 
           total[entities[i].key] = {
-            bs: ingreso.bs - egreso.bs,
-            usd: ingreso.usd - egreso.usd,
-            eur: ingreso.eur - egreso.eur,
+            bs: (ingreso.bs + ingresoCuentaTerceros.bs) - egreso.bs,
+            usd: (ingreso.usd + ingresoCuentaTerceros.usd) - egreso.usd,
+            eur: (ingreso.eur + ingresoCuentaTerceros.eur) - egreso.eur,
           };
         }
 
@@ -639,12 +662,20 @@ export class CashflowService {
 
         for (let i = 0; i < entities.length; i++) {
           const ingreso = await calculateSumByTransactionTypeAndCurrency('Ingreso', 'amount', false, '', '', entities[i].value);
+          const ingresoCuentaTerceros = await calculateSumByTransactionTypeAndCurrency(
+            'Ingreso a cuenta de terceros',
+            'amount',
+            false,
+            '',
+            '',
+            entities[i].value,
+          );
           const egreso = await calculateSumByTransactionTypeAndCurrency('Egreso', 'amount', false, '', '', entities[i].value);
 
           total[entities[i].key] = {
-            bs: ingreso.bs - egreso.bs,
-            usd: ingreso.usd - egreso.usd,
-            eur: ingreso.eur - egreso.eur,
+            bs: (ingreso.bs + ingresoCuentaTerceros.bs) - egreso.bs,
+            usd: (ingreso.usd + ingresoCuentaTerceros.usd) - egreso.usd,
+            eur: (ingreso.eur + ingresoCuentaTerceros.eur) - egreso.eur,
           };
         }
 
