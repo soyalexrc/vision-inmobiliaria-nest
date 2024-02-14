@@ -342,12 +342,19 @@ export class CashflowService {
     const { dateFrom, dateTo } = filtersDto;
     try {
       const ingreso = await calculateSumByTransactionTypeAndCurrency('Ingreso', 'amount', false, dateFrom, dateTo);
+      const ingresoCuentaTerceros = await calculateSumByTransactionTypeAndCurrency(
+        'Ingreso a cuenta de terceros',
+        'amount',
+        false,
+        dateFrom,
+        dateTo,
+      );
       const egreso = await calculateSumByTransactionTypeAndCurrency('Egreso', 'amount', false, dateFrom, dateTo);
 
       const total = {
-        bs: ingreso.bs - egreso.bs,
-        usd: ingreso.usd - egreso.usd,
-        eur: ingreso.eur - egreso.eur,
+        bs: (ingreso.bs + ingresoCuentaTerceros.bs) - egreso.bs,
+        usd: (ingreso.usd + ingresoCuentaTerceros.usd) - egreso.usd,
+        eur: (ingreso.eur + ingresoCuentaTerceros.eur) - egreso.eur,
       };
 
       res.status(HttpStatus.OK).send(total);
