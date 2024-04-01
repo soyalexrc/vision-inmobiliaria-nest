@@ -24,7 +24,8 @@ import { User } from '../user/entities/user.entity';
 import * as NodeMailer from 'nodemailer';
 import { ConfigService } from '@nestjs/config';
 import { CloseCashFlow } from './entities/closeCashflow.entity';
-import { CashflowProperty } from "./entities/cashflowProperty.entity";
+import { CashflowProperty } from './entities/cashflowProperty.entity';
+import { AppConfig } from '../app-config/entities/app-config.entity';
 
 const entities = [
   { key: 'totalBnc', value: 'Banco Nacional de Crédito (BNC)' },
@@ -49,6 +50,7 @@ export class CashflowService {
     @InjectModel(CloseCashFlow) private closeCashFlowModel: typeof CloseCashFlow,
     @InjectModel(CashflowPerson) private cashFlowPersonModel: typeof CashflowPerson,
     @InjectModel(CashflowProperty) private cashFlowPropertyModel: typeof CashflowProperty,
+    @InjectModel(AppConfig) private appConfigModel: typeof AppConfig,
     private configService: ConfigService,
   ) {}
 
@@ -351,14 +353,22 @@ export class CashflowService {
       );
       const egreso = await calculateSumByTransactionTypeAndCurrency('Egreso', 'amount', false, dateFrom, dateTo);
 
+      // SUM INITIAL BALANCE
+      const saldoInicialData = await this.appConfigModel.findOne({ where: { configCode: 'INITIALBALANCE' } });
+      const saldoInicialJSON = await saldoInicialData.toJSON();
+      const saldoInicial = JSON.parse(saldoInicialJSON.configValue);
+
+      this.logger.debug(typeof saldoInicial.bs);
+
       const total = {
-        bs: (ingreso.bs + ingresoCuentaTerceros.bs) - egreso.bs,
-        usd: (ingreso.usd + ingresoCuentaTerceros.usd) - egreso.usd,
-        eur: (ingreso.eur + ingresoCuentaTerceros.eur) - egreso.eur,
+        bs: ingreso.bs + ingresoCuentaTerceros.bs + saldoInicial.bs - egreso.bs,
+        usd: ingreso.usd + ingresoCuentaTerceros.usd + saldoInicial.usd - egreso.usd,
+        eur: ingreso.eur + ingresoCuentaTerceros.eur + saldoInicial.eur - egreso.eur,
       };
 
       res.status(HttpStatus.OK).send(total);
     } catch (err) {
+      this.logger.error(err);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
         message: 'Ocurrio un error ' + JSON.stringify(err),
         error: true,
@@ -385,9 +395,9 @@ export class CashflowService {
           const egreso = await calculateSumByTransactionTypeAndCurrency('Egreso', 'amount', false, dateFrom, dateTo, entities[i].value);
 
           total[entities[i].key] = {
-            bs: (ingreso.bs + ingresoCuentaDeTerceros.bs) - egreso.bs,
-            usd: (ingreso.usd + ingresoCuentaDeTerceros.usd) - egreso.usd,
-            eur: (ingreso.eur + ingresoCuentaDeTerceros.eur) - egreso.eur,
+            bs: ingreso.bs + ingresoCuentaDeTerceros.bs - egreso.bs,
+            usd: ingreso.usd + ingresoCuentaDeTerceros.usd - egreso.usd,
+            eur: ingreso.eur + ingresoCuentaDeTerceros.eur - egreso.eur,
           };
         }
 
@@ -468,15 +478,33 @@ export class CashflowService {
 
   async update(id: number, updateCashflowDto: UpdateCashflowDto, res: Response) {
     try {
-      const userToUpdate = await this.cashFlowModel.findOne({
+      const cashflowToUpdate = await this.cashFlowModel.findOne({
         where: { id: id },
       });
-      if (!userToUpdate)
+      if (!cashflowToUpdate)
         res.status(HttpStatus.BAD_REQUEST).send({
           message: 'No se encontro el registro con el id ' + id,
           error: true,
         });
-      const data = await userToUpdate.update(updateCashflowDto);
+      const data = await cashflowToUpdate.update({
+        ...updateCashflowDto,
+        canon: updateCashflowDto.payments[0].canon,
+        contract: updateCashflowDto.payments[0].contract,
+        guarantee: updateCashflowDto.payments[0].guarantee,
+        serviceType: updateCashflowDto.payments[0].serviceType,
+        reason: updateCashflowDto.payments[0].reason,
+        service: updateCashflowDto.payments[0].service,
+        taxPayer: updateCashflowDto.payments[0].taxPayer,
+        amount: updateCashflowDto.payments[0].amount,
+        currency: updateCashflowDto.payments[0].currency,
+        wayToPay: updateCashflowDto.payments[0].wayToPay,
+        totalDue: updateCashflowDto.payments[0].totalDue,
+        observation: updateCashflowDto.payments[0].observation,
+        entity: updateCashflowDto.payments[0].entity,
+        attachments: updateCashflowDto.payments[0].attachments,
+        pendingToCollect: updateCashflowDto.payments[0].pendingToCollect,
+        transactionType: updateCashflowDto.payments[0].transactionType,
+      });
       res.status(HttpStatus.OK).send({
         data,
         message: 'Se edito el registro con exito!',
@@ -509,8 +537,8 @@ export class CashflowService {
     }
   }
 
-  // @Cron(CronExpression.MONDAY_TO_FRIDAY_AT_10PM)
-  // @Cron(CronExpression.EVERY_5_MINUTES)
+  @Cron(CronExpression.MONDAY_TO_FRIDAY_AT_11PM)
+  @Cron(CronExpression.MONDAY_TO_FRIDAY_AT_5PM)
   async generateCashFlowClose() {
     const today = new Date();
     const startDate = new Date(today);
@@ -647,9 +675,9 @@ export class CashflowService {
           );
 
           total[entities[i].key] = {
-            bs: (ingreso.bs + ingresoCuentaTerceros.bs) - egreso.bs,
-            usd: (ingreso.usd + ingresoCuentaTerceros.usd) - egreso.usd,
-            eur: (ingreso.eur + ingresoCuentaTerceros.eur) - egreso.eur,
+            bs: ingreso.bs + ingresoCuentaTerceros.bs - egreso.bs,
+            usd: ingreso.usd + ingresoCuentaTerceros.usd - egreso.usd,
+            eur: ingreso.eur + ingresoCuentaTerceros.eur - egreso.eur,
           };
         }
 
@@ -673,9 +701,9 @@ export class CashflowService {
           const egreso = await calculateSumByTransactionTypeAndCurrency('Egreso', 'amount', false, '', '', entities[i].value);
 
           total[entities[i].key] = {
-            bs: (ingreso.bs + ingresoCuentaTerceros.bs) - egreso.bs,
-            usd: (ingreso.usd + ingresoCuentaTerceros.usd) - egreso.usd,
-            eur: (ingreso.eur + ingresoCuentaTerceros.eur) - egreso.eur,
+            bs: ingreso.bs + ingresoCuentaTerceros.bs - egreso.bs,
+            usd: ingreso.usd + ingresoCuentaTerceros.usd - egreso.usd,
+            eur: ingreso.eur + ingresoCuentaTerceros.eur - egreso.eur,
           };
         }
 
@@ -701,10 +729,7 @@ export class CashflowService {
         },
       } as any);
 
-      const mailList = [
-        'alexcarvajal2404@gmail.com',
-        'mgonzalezh11@gmail.com'
-      ]
+      const mailList = ['alexcarvajal2404@gmail.com', 'mgonzalezh11@gmail.com'];
 
       transporter
         .sendMail({

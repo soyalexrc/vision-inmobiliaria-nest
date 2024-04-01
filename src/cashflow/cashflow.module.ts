@@ -11,9 +11,10 @@ import { CashflowPerson } from './entities/cashflowPerson.entity';
 import { ConfigModule } from '@nestjs/config';
 import { CloseCashFlow } from './entities/closeCashflow.entity';
 import { CashflowProperty } from "./entities/cashflowProperty.entity";
+import { AppConfig } from "../app-config/entities/app-config.entity";
 
 @Module({
-  imports: [AuthModule, ConfigModule, SequelizeModule.forFeature([CashFlow, Property, Client, Owner, CashflowPerson, CloseCashFlow, CashflowProperty])],
+  imports: [AuthModule, ConfigModule, SequelizeModule.forFeature([CashFlow, Property, Client, Owner, CashflowPerson, CloseCashFlow, CashflowProperty, AppConfig])],
   controllers: [CashflowController],
   providers: [CashflowService],
 })

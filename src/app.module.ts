@@ -35,6 +35,8 @@ import { CloseCashFlow } from './cashflow/entities/closeCashflow.entity';
 import { DocumentsInformation } from './property/entities/documentsInformation.entity';
 import { DigitalSignatureRequest } from './common/files/entities/digital-signature-request.entity';
 import { CashflowProperty } from "./cashflow/entities/cashflowProperty.entity";
+import { AppConfigModule } from './app-config/app-config.module';
+import { AppConfig } from "./app-config/entities/app-config.entity";
 
 @Module({
   imports: [
@@ -78,6 +80,7 @@ import { CashflowProperty } from "./cashflow/entities/cashflowProperty.entity";
             SubService,
             DeleteFileRequest,
             CloseCashFlow,
+            AppConfig,
           ],
         };
       },
@@ -93,6 +96,8 @@ import { CashflowProperty } from "./cashflow/entities/cashflowProperty.entity";
     ClientModule,
     OwnerModule,
     ServiceModule,
+    ConfigModule,
+    AppConfigModule,
   ],
 })
 export class AppModule {}
