@@ -1,4 +1,11 @@
-import { BadRequestException, HttpStatus, Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  OnModuleInit
+} from "@nestjs/common";
 import { fileExistsSync } from 'tsconfig-paths/lib/filesystem';
 import * as fs from 'fs';
 import * as mv from 'mv';
@@ -29,10 +36,28 @@ import { UserDataForSignatureValidationDto } from './dto/user-data-for-signature
 import { SendDigitalSignatureDto } from './dto/sendDigitalSignature.dto';
 import { PDFDocument } from 'pdf-lib';
 import { signPDF } from '../helpers/signPDF';
+import { File as FileEntity } from './entities/file.entity';
+import { Error as ErrorEntity } from '../error/entities/error.entity';
+import { UploadFolderDataDto } from "./dto/upload-folder-data.dto";
+import { UploadFileDto } from "./dto/upload-file.dto";
+
+export interface Folder {
+  id: number;
+  parent_id: number | null;
+  children: Folder[] | [];
+  name: string;
+  path: string;
+  extension: string;
+  size: number;
+  createdAt: Date;
+  updatedAt: Date;
+  type: string;
+}
 
 @Injectable()
 export class FilesService {
   private readonly logger = new Logger();
+
   constructor(
     private readonly configService: ConfigService,
     @InjectModel(User) private userModel: typeof User,
@@ -42,7 +67,10 @@ export class FilesService {
     @InjectModel(ExternalAdviser) private adviserModel: typeof ExternalAdviser,
     @InjectModel(DigitalSignatureRequest) private digitalSignatureRequestModel: typeof DigitalSignatureRequest,
     @InjectModel(DeleteFileRequest) private deleteFileRequestModel: typeof DeleteFileRequest,
-  ) {}
+    @InjectModel(FileEntity) private fileModel: typeof FileEntity,
+    @InjectModel(ErrorEntity) private errorModel: typeof ErrorEntity,
+  ) {
+  }
 
   getGenericStaticFileAsset(path: string): string {
     const pathToLookUp = join(__dirname, '../../../static', path);
@@ -100,9 +128,17 @@ export class FilesService {
       sharp(temporalPath)
         .resize(800)
         .webp({ effort: 3 })
-        .toFile(destinationPath, (err, info) => {
+        .toFile(destinationPath, async (err, info) => {
           if (!err) {
             fs.rmSync(temporalPath);
+            await this.fileModel.create({
+              name: file.filename,
+              extension: fileExtension,
+              type: 'file',
+              size: file.size,
+              parent_od: null,
+              path: destinationPath,
+            });
             const secureUrl = `${this.configService.get('HOST_API')}/files/genericStaticFileAsset/${path}+${file.filename}`;
             res.status(HttpStatus.OK).send({ secureUrl });
           } else {
@@ -133,6 +169,65 @@ export class FilesService {
     }
   }
 
+  private buildDestinationPath(isFinal: boolean, path: string, filename?: string): fs.PathLike {
+    return isFinal ? join(__dirname, '../../../static', path, filename) : join(__dirname, '../../../static', path);
+  }
+
+  async uploadGenericFileV2(file: Express.Multer.File, uploadFileDto: UploadFileDto, res: Response) {
+    const { parent_id, path, isPropertyFile } = uploadFileDto;
+    const validImageExtensions = ['jpg', 'png', 'jpeg', 'webp'];
+    const temporalPath = join(__dirname, '../../../static/temp/files', file.filename);
+
+    if (JSON.parse(isPropertyFile) ?? false) {
+      // TODO the case of a property file
+    } else {
+      const fileExtension = file.mimetype.split('/')[1];
+
+      if (!fs.existsSync(this.buildDestinationPath(true, path, file.filename))) {
+        fs.mkdirSync(this.buildDestinationPath(false, path), { recursive: true });
+      }
+      if (validImageExtensions.some((img) => img === fileExtension)) {
+        sharp(temporalPath)
+          .resize(800)
+          .webp({ effort: 3 })
+          .toFile(this.buildDestinationPath(true, path, file.filename) as string, async (err, info) => {
+            if (!err) {
+              fs.rmSync(temporalPath);
+              await this.fileModel.create({
+                name: file.filename,
+                extension: fileExtension,
+                type: 'file',
+                size: file.size,
+                parent_id: Number(parent_id),
+                path: `${path}/${file.filename}`,
+              });
+              const secureUrl = `${this.configService.get('HOST_API')}/files/genericStaticFileAsset/${path}+${file.filename}`;
+              res.status(HttpStatus.OK).send({ secureUrl });
+            } else {
+              this.logger.error(err);
+              res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+                error: true,
+                message: err,
+              });
+            }
+          });
+      } else {
+        mv(temporalPath, this.buildDestinationPath(true, path, file.filename), (err) => {
+          if (err) {
+            this.logger.error(err);
+            throw new BadRequestException('Ocurrio un error al mover el archivo');
+          } else {
+            console.log('Successfully moved the file!');
+          }
+        });
+
+        const secureUrl = `${this.configService.get('HOST_API')}/files/genericStaticFileAsset/${path}+${file.filename}`;
+
+        res.status(HttpStatus.OK).send({ secureUrl });
+      }
+    }
+  }
+
   getElementsByPath(res: Response, path: string) {
     const pathFragments = path === 'root' ? '' : path.split('+').join('/');
     try {
@@ -154,19 +249,99 @@ export class FilesService {
     }
   }
 
-  uploadFolder(path: string, res: Response) {
-    const pathFormatted = path.split('+').join('/');
-
-    const destinationPath = join(__dirname, '../../../static', pathFormatted);
-
-    if (!fs.existsSync(destinationPath)) {
-      fs.mkdirSync(join(__dirname, `../../../static`, pathFormatted), { recursive: true });
+  async getElementsByPathV2(res: Response, parentId: number | string) {
+    try {
+      if (parentId === 'null') {
+        const data = await this.fileModel.findAll({
+          where: {
+            parent_id: null,
+          },
+        });
+        res.status(HttpStatus.OK).send(data);
+      } else {
+        const data = await this.fileModel.findAll({
+          where: {
+            parent_id: parentId,
+          },
+        });
+        res.status(HttpStatus.OK).send(data);
+      }
+    } catch (err) {
+      this.logger.error(err);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: `Ocurrio un error, ${JSON.stringify(err)}`,
+      });
     }
+  }
 
-    res.status(HttpStatus.OK).send({
-      data: {},
-      message: 'Se creo la carpeta con exito!',
-    });
+  async getFolders(res: Response) {
+    try {
+      const folders = await this.fileModel.findAll({
+        where: { type: 'dir' },
+        raw: true, // Use raw query for efficient nesting
+      });
+
+      const foldersFormatted = folders.map((folder) => ({ ...folder, children: [] }));
+
+      return this.nestFolders(foldersFormatted as Folder[]);
+    } catch (err) {
+      this.logger.error(err);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: `Ocurrio un error, ${JSON.stringify(err)}`,
+      });
+    }
+  }
+
+  private nestFolders(folders: Folder[]): Folder[] {
+    const folderMap = folders.reduce((acc, folder) => {
+      acc[folder.id] = folder;
+      return acc;
+    }, {} as Record<number, Folder>);
+
+    return folders
+      .map((folder) => {
+        const parent = folder.parent_id && folderMap[folder.parent_id];
+        if (parent) {
+          parent.children = parent.children || [];
+          parent.children.push(folder);
+        }
+        return folder;
+      })
+      .filter((folder) => !folder.parent_id); // Return only root folders
+  }
+
+  async uploadFolder(uploadFolderData: UploadFolderDataDto, res: Response) {
+    const { folderName, id } = uploadFolderData;
+    try {
+      const parentElement = await this.fileModel.findOne({ where: { id } });
+      const destinationPath = join(__dirname, '../../../static', parentElement.path, folderName);
+
+      if (!fs.existsSync(destinationPath)) {
+        fs.mkdirSync(destinationPath, { recursive: true });
+
+        await this.fileModel.create({
+          name: folderName,
+          type: 'dir',
+          extension: null,
+          size: null,
+          parent_id: id,
+          path: `${parentElement.path}/${folderName}`,
+        });
+      }
+
+      res.status(HttpStatus.OK).send({
+        data: {},
+        message: 'Se creo la carpeta con exito!',
+      });
+    } catch (err) {
+      this.logger.error(err);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: `Ocurrio un error, ${err}`,
+      });
+    }
   }
 
   changeFileOrFolderName(path: string, changeNameDto: ChangeNameDto, res: Response) {
@@ -177,6 +352,45 @@ export class FilesService {
       res.status(HttpStatus.OK).send({
         data: {},
         message: `Se cambio el nombre de ${changeNameDto.isFile ? 'el documento' : 'la carpeta'}, con exito!`,
+      });
+    } catch (err) {
+      this.logger.error(err);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+        error: true,
+        message: `Ocurrio un error, ${err}`,
+      });
+    }
+  }
+
+  async changeFileOrFolderNameV2(changeNameDto: ChangeNameDto, res: Response) {
+    const { id, newName, isFile } = changeNameDto;
+    const element = await this.fileModel.findOne({ where: { id } });
+    const childElements = await this.fileModel.findAll({
+      where: {
+        path: {
+          [Op.like]: `%${element.name}%`,
+        },
+        name: {
+          [Op.ne]: element.name,
+        },
+      },
+    });
+    const pathFormatted = join(__dirname, '../../../static', element.path);
+    const newPathName = join(__dirname, '../../../static', element.path.replace(element.name, newName));
+    try {
+      fs.renameSync(pathFormatted, newPathName);
+      if (childElements.length > 0) {
+        for await (const child of childElements) {
+          await child.update({ path: `${child.path.replace(element.name, newName)}` });
+        }
+      }
+      await element.update({
+        path: element.path.replace(element.name, newName),
+        name: newName,
+      });
+      res.status(HttpStatus.OK).send({
+        data: {},
+        message: `Se cambio el nombre de ${isFile ? 'el documento' : 'la carpeta'}, con exito!`,
       });
     } catch (err) {
       this.logger.error(err);
@@ -335,11 +549,43 @@ export class FilesService {
     }
   }
 
-  async moveFileOrFolder(moveFileOrFolderDto: MoveFileOrFolderDto, res: Response) {
-    const { pathTo, pathFrom } = moveFileOrFolderDto;
+  // async moveFileOrFolder(moveFileOrFolderDto: { athTo: string; pathFrom: string }, res: Response) {
+  //   const { pathTo, pathFrom } = moveFileOrFolderDto;
+  //   try {
+  //     const formattedPathFrom = join(__dirname, '../../../static', pathFrom.split('+').join('/'));
+  //     const formattedPathTo = join(__dirname, '../../../static', pathTo.split('+').join('/'));
+  //
+  //     mv(formattedPathFrom, formattedPathTo, (err) => {
+  //       if (err) {
+  //         this.logger.error(err);
+  //         throw new BadRequestException('Ocurrio un error al mover el archivo');
+  //       } else {
+  //         console.log('Successfully moved the file!');
+  //       }
+  //     });
+  //     res.status(HttpStatus.OK).send({
+  //       data: {},
+  //       message: 'Se movio el documento con exito!',
+  //     });
+  //   } catch (err) {
+  //     this.logger.error(err);
+  //     res.status(HttpStatus.INTERNAL_SERVER_ERROR).send({
+  //       error: true,
+  //       message: `Ocurrio un error, ${JSON.stringify(err)}`,
+  //     });
+  //   }
+  // }
+
+  async moveFileOrFolderV2(moveFileOrFolderDto: MoveFileOrFolderDto, res: Response) {
+    const { idFrom, idTo } = moveFileOrFolderDto;
     try {
-      const formattedPathFrom = join(__dirname, '../../../static', pathFrom.split('+').join('/'));
-      const formattedPathTo = join(__dirname, '../../../static', pathTo.split('+').join('/'));
+      const pathFrom = await this.fileModel.findOne({ where: { id: idFrom } });
+      const pathTo = await this.fileModel.findOne({ where: { id: idTo } });
+
+      const formattedPathFrom = join(__dirname, '../../../static', pathFrom.path);
+      const formattedPathTo = join(__dirname, '../../../static', pathTo.path, pathFrom.name);
+
+      this.logger.debug({ formattedPathFrom, formattedPathTo })
 
       mv(formattedPathFrom, formattedPathTo, (err) => {
         if (err) {
@@ -349,6 +595,9 @@ export class FilesService {
           console.log('Successfully moved the file!');
         }
       });
+
+      await pathFrom.update({ path: `${pathTo.path}/${pathFrom.name}`, parent_id: pathTo.id });
+
       res.status(HttpStatus.OK).send({
         data: {},
         message: 'Se movio el documento con exito!',

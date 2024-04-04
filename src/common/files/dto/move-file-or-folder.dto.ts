@@ -1,9 +1,9 @@
-import { IsString } from 'class-validator';
+import { IsNumber } from 'class-validator';
 
 export class MoveFileOrFolderDto {
-  @IsString()
-  pathFrom: string;
+  @IsNumber()
+  idFrom: number;
 
-  @IsString()
-  pathTo: string;
+  @IsNumber()
+  idTo: number;
 }

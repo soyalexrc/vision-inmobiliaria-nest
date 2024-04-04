@@ -10,13 +10,25 @@ import { Client } from '../../client/entities/client.entity';
 import { Owner } from '../../owner/entities/owner.entity';
 import { ExternalAdviser } from '../../external-adviser/entities/external-adviser.entity';
 import { Ally } from '../../ally/entities/ally.entity';
+import { File as FileEntity } from './entities/file.entity';
+import { Error as ErrorEntity } from '../error/entities/error.entity';
 
 @Module({
   controllers: [FilesController],
   providers: [FilesService],
   imports: [
     ConfigModule,
-    SequelizeModule.forFeature([User, DeleteFileRequest, DigitalSignatureRequest, Client, Owner, ExternalAdviser, Ally]),
+    SequelizeModule.forFeature([
+      User,
+      DeleteFileRequest,
+      DigitalSignatureRequest,
+      Client,
+      Owner,
+      ExternalAdviser,
+      Ally,
+      FileEntity,
+      ErrorEntity,
+    ]),
   ],
 })
 export class FilesModule {}
