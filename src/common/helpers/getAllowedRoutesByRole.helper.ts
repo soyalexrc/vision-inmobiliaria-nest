@@ -9,7 +9,7 @@ export function getAllowedRoutesByRole(role: string) {
       'aliados',
       'propiedades',
       'administracion',
-      'flujo-de-caja',
+      'flujo de caja',
       'propietarios',
       'calculo-de-comisiones',
       'gestion-de-archivos',
@@ -35,7 +35,7 @@ export function getAllowedRoutesByRole(role: string) {
   }
 
   if (role === 'Administrador de empresa') {
-    routes = ['inicio', 'administracion', 'flujo-de-caja', 'calculo-de-comisiones', 'gestion-de-archivos'];
+    routes = ['inicio', 'administracion', 'flujo de caja', 'calculo-de-comisiones', 'gestion-de-archivos'];
   }
 
   if (role === 'Asistente operativo') {

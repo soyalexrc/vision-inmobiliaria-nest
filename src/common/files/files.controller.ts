@@ -11,10 +11,25 @@ import { CreateDigitalSignatureRequestDto } from './dto/create-digital-signature
 import { FiltersDto } from '../../cashflow/dto/filters.dto';
 import { UserDataForSignatureValidationDto } from './dto/user-data-for-signature-validation.dto';
 import { SendDigitalSignatureDto } from './dto/sendDigitalSignature.dto';
+import { UploadFolderDataDto } from "./dto/upload-folder-data.dto";
+import { UploadFileDto } from "./dto/upload-file.dto";
 
 @Controller('files')
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}
+
+  @Post('uploadGenericStaticFileV2')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: `./static/temp/files`,
+        filename: fileNamer,
+      }),
+    }),
+  )
+  uploadGenericFileV2(@UploadedFile() file: Express.Multer.File, @Body() uploadFileDto: UploadFileDto, @Res() res: Response) {
+    return this.filesService.uploadGenericFileV2(file, uploadFileDto, res);
+  }
 
   @Post('uploadGenericStaticFile/:path')
   @UseInterceptors(
@@ -29,9 +44,11 @@ export class FilesController {
     return this.filesService.uploadGenericFile(file, path, res);
   }
 
-  @Post('uploadFolder/:path')
-  uploadFolder(@Param('path') path: string, @Res() res: Response) {
-    return this.filesService.uploadFolder(path, res);
+
+
+  @Post('uploadFolder')
+  uploadFolder(@Body() uploadFolderData: UploadFolderDataDto, @Res() res: Response) {
+    return this.filesService.uploadFolder(uploadFolderData, res);
   }
 
   @Get('genericStaticFileAsset/:path')
@@ -41,9 +58,9 @@ export class FilesController {
     res.sendFile(asset);
   }
 
-  @Post('changeName/:path')
-  changeFileOrFolderName(@Param('path') path: string, @Body() changeNameDto: ChangeNameDto, @Res() res: Response) {
-    return this.filesService.changeFileOrFolderName(path, changeNameDto, res);
+  @Post('changeName')
+  changeFileOrFolderName(@Body() changeNameDto: ChangeNameDto, @Res() res: Response) {
+    return this.filesService.changeFileOrFolderNameV2(changeNameDto, res);
   }
 
   @Post('genericStaticFile')
@@ -51,14 +68,19 @@ export class FilesController {
     return this.filesService.getGenericStaticFile(pathData.path, res);
   }
 
-  @Get('getElementsByPath/:path')
-  getElementsByPath(@Res() res: Response, @Param('path') path: string) {
-    return this.filesService.getElementsByPath(res, path);
+  @Get('getElementsByPath/:parentId')
+  getElementsByPath(@Res() res: Response, @Param('parentId') parentId: number | string) {
+    return this.filesService.getElementsByPathV2(res, parentId);
   }
 
   @Delete('deleteFolderOrFile/:path')
   deleteFolderOrFile(@Param('path') path: string, @Res() res: Response) {
     return this.filesService.deleteFolderOrFile(path, res);
+  }
+
+  @Get('getFolders')
+  getFolders(res: Response) {
+    return this.filesService.getFolders(res);
   }
 
   @Post('requestDeleteFolderOrFile/:path/:userId')
@@ -83,7 +105,7 @@ export class FilesController {
 
   @Post('moveFileOrFolder')
   moveFileOrFolder(@Res() res: Response, @Body() moveFileOrFolderDto: MoveFileOrFolderDto) {
-    return this.filesService.moveFileOrFolder(moveFileOrFolderDto, res);
+    return this.filesService.moveFileOrFolderV2(moveFileOrFolderDto, res);
   }
 
   //   Digital signature

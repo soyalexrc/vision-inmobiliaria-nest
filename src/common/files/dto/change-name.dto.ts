@@ -1,4 +1,4 @@
-import { IsBoolean, IsString } from 'class-validator';
+import { IsBoolean, IsNumber, IsString } from "class-validator";
 
 export class ChangeNameDto {
   @IsString()
@@ -6,4 +6,7 @@ export class ChangeNameDto {
 
   @IsBoolean()
   isFile: boolean;
+
+  @IsNumber()
+  id: number;
 }

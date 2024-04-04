@@ -26,6 +26,8 @@ import { PropertyAttribute } from './property/entities/property-attribute.entity
 import { PropertyStatusEntry } from './property/entities/property-status-entry.entity';
 import { TemporalId } from './common/entities/temporalId.entity';
 import { DeleteFileRequest } from './common/entities/delete-file-request.entity';
+import { File as FileEntity } from './common/files/entities/file.entity';
+import { Error as ErrorEntity } from './common/error/entities/error.entity';
 import { CashflowPerson } from './cashflow/entities/cashflowPerson.entity';
 import { ServiceModule } from './service/service.module';
 import { Service } from './service/entities/service.entity';
@@ -37,6 +39,8 @@ import { DigitalSignatureRequest } from './common/files/entities/digital-signatu
 import { CashflowProperty } from "./cashflow/entities/cashflowProperty.entity";
 import { AppConfigModule } from './app-config/app-config.module';
 import { AppConfig } from "./app-config/entities/app-config.entity";
+// import { ErrorMiddleware } from "./common/middlewares/error.middleware";
+// import { ErrorModule } from "./common/error/error.module";
 
 @Module({
   imports: [
@@ -62,6 +66,7 @@ import { AppConfig } from "./app-config/entities/app-config.entity";
             User,
             CashFlow,
             Attribute,
+            FileEntity,
             ExternalAdviser,
             Property,
             CashflowPerson,
@@ -81,6 +86,7 @@ import { AppConfig } from "./app-config/entities/app-config.entity";
             DeleteFileRequest,
             CloseCashFlow,
             AppConfig,
+            ErrorEntity,
           ],
         };
       },
