@@ -212,12 +212,20 @@ export class FilesService {
             }
           });
       } else {
-        mv(temporalPath, this.buildDestinationPath(true, path, file.filename), (err) => {
+        mv(temporalPath, this.buildDestinationPath(true, path, file.filename), async (err) => {
           if (err) {
             this.logger.error(err);
             throw new BadRequestException('Ocurrio un error al mover el archivo');
           } else {
             console.log('Successfully moved the file!');
+            await this.fileModel.create({
+              name: file.filename,
+              extension: fileExtension,
+              type: 'file',
+              size: file.size,
+              parent_id: Number(parent_id),
+              path: `${path}/${file.filename}`,
+            });
           }
         });
 

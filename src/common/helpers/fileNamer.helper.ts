@@ -4,7 +4,7 @@ export const fileNamer = (req: Express.Request, file: Express.Multer.File, callb
   if (!file) return callback(new Error('El archivo esta vacio'), false);
 
   // @ts-ignore
-  file.originalname = file.originalname.replaceAll('+', '_').replaceAll('/', '-');
+  file.originalname = file.originalname.replaceAll('+', '_').replaceAll('/', '-').replaceAll(' ', '-');
 
   const fileExtension = file.originalname.split('.').pop();
 
