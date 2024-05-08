@@ -21,7 +21,7 @@ import { TemporalId } from '../common/entities/temporalId.entity';
         return {
           secret: configService.get<string>('JWT_SECRET'),
           signOptions: {
-            expiresIn: '1 day',
+            expiresIn: '7d',
           },
         };
       },
